@@ -303,6 +303,10 @@
       transform: translateY(-4px) scale(1.08);
     }
 
+    .upload-icon-wrapper, .upload-title, .upload-hint {
+      pointer-events: none;
+    }
+
     .upload-title {
       font-size: 1.15rem;
       font-weight: 700;
@@ -322,6 +326,7 @@
       width: 100%; height: 100%;
       opacity: 0;
       cursor: pointer;
+      z-index: 10;
     }
 
     /* FILE LIST */
@@ -1320,8 +1325,23 @@
     ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('dragover'), false));
     ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('dragover'), false));
 
+    dropZone.addEventListener('click', (e) => {
+      if (e.target !== fileInput) {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
     dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
-    fileInput.addEventListener('change', function () { handleFiles(this.files); });
+    fileInput.addEventListener('change', function () {
+      if (this.files && this.files.length > 0) {
+        handleFiles(this.files);
+        this.value = '';
+      }
+    });
 
     function handleFiles(files) {
       for (let i = 0; i < files.length; i++) {
