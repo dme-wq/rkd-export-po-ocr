@@ -1058,9 +1058,9 @@
     //  THEME & INITIALIZATION
     // ─────────────────────────────────────────────
     const SERVER_DRAFT_ID = "<?= typeof draftId !== 'undefined' ? draftId : '' ?>";
-    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycby1DgPqjRIJ2AZja26UXpbkEie4y5XHqQMriXcwSmIswsCsJ-dBsDSRUHsh1SJzKlwDaw/exec' ?>";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbwA0SaQoFjEVsMbuR2ZJ2o4tVBQ0VNVxoPPjeiebedGwE9kUauJvYXKQBmJqOe4Rh8iVQ/exec' ?>";
 
-    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? 'https://script.google.com/macros/s/AKfycby1DgPqjRIJ2AZja26UXpbkEie4y5XHqQMriXcwSmIswsCsJ-dBsDSRUHsh1SJzKlwDaw/exec' : INITIAL_SCRIPT_URL);
+    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? 'https://script.google.com/macros/s/AKfycbwA0SaQoFjEVsMbuR2ZJ2o4tVBQ0VNVxoPPjeiebedGwE9kUauJvYXKQBmJqOe4Rh8iVQ/exec' : INITIAL_SCRIPT_URL);
 
     function initTheme() {
       const savedTheme = localStorage.getItem('rkd_theme') || 'light';
