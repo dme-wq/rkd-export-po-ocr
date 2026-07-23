@@ -562,7 +562,7 @@ function sendWhatsAppNotification(draftId, missingFieldsArray, scriptUrl) {
     
     if(numbers.length === 0) throw new Error("No phone numbers found in WhatsappNumber tab.");
     
-    let draftLink = scriptUrl + "?draftId=" + draftId;
+    let draftLink = scriptUrl + (scriptUrl.includes('?') ? '&' : '?') + "draftId=" + draftId;
     
     // Shorten URL for lifetime free and fast access using is.gd
     try {

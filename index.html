@@ -1720,7 +1720,8 @@
         const resp = await callBackend('saveDraft', draftPayload);
         if (resp.success) {
           document.getElementById('loadingText').textContent = 'Sending WhatsApp Notification...';
-          const waResp = await callBackend('sendWhatsAppNotification', resp.draftId, uniqueMissing, storedApiUrl || INITIAL_SCRIPT_URL);
+          const currentBaseUrl = window.location.href.split('?')[0].split('#')[0];
+          const waResp = await callBackend('sendWhatsAppNotification', resp.draftId, uniqueMissing, currentBaseUrl);
           document.getElementById('overlay').style.display = 'none';
 
           if (waResp.success) {
