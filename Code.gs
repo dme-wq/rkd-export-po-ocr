@@ -99,6 +99,8 @@ function doPost(e) {
       response = { success: true, data: getSavedData() };
     } else if (action === 'updateSingleCell') {
       response = updateSingleCell(args[0], args[1], args[2]);
+    } else if (action === 'updateEntireRow') {
+      response = updateEntireRow(args[0], args[1]);
     }
   } catch (err) {
     response = { success: false, error: err.toString() };
@@ -663,6 +665,29 @@ function updateSingleCell(rowNumber, headerName, newValue) {
     if (colIndex === -1) return { success: false, error: "Column not found: " + headerName };
     
     sheet.getRange(rowNumber, colIndex + 1).setValue(newValue);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+// ─────────────────────────────────────────────
+//  UPDATE ENTIRE ROW FROM EDIT MODAL
+// ─────────────────────────────────────────────
+function updateEntireRow(rowNumber, updatedObj) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+    if (!sheet) return { success: false, error: "Sheet not found" };
+
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    
+    headers.forEach((header, colIdx) => {
+      if (header && updatedObj.hasOwnProperty(header)) {
+        sheet.getRange(rowNumber, colIdx + 1).setValue(updatedObj[header]);
+      }
+    });
+    
     return { success: true };
   } catch (err) {
     return { success: false, error: err.toString() };

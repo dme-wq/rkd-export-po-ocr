@@ -1203,6 +1203,43 @@
       font-weight: 800;
     }
 
+    .sap-btn-edit-row {
+      background: rgba(37, 99, 235, 0.12);
+      color: #2563eb;
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .sap-btn-edit-row:hover {
+      background: #2563eb;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    [data-theme="dark"] .sap-btn-edit-row {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border-color: rgba(96, 165, 250, 0.4);
+    }
+
+    /* CAPITALIZATION & TYPOGRAPHY */
+    #poDataTable .tabulator-cell {
+      text-transform: capitalize !important;
+    }
+
+    .sap-group-vendor, .sap-group-po-num {
+      text-transform: capitalize !important;
+    }
+
     /* Switch toggle */
     .toggle-switch {
       position: relative;
@@ -1533,6 +1570,27 @@
       <div style="display:flex; gap:0.75rem;">
         <button class="btn btn-gradient" onclick="saveApiUrl()">Save Endpoint</button>
         <button class="btn btn-outline" onclick="closeApiSettingsModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATABASE ROW EDIT MODAL -->
+  <div class="custom-modal" id="dbEditModal">
+    <div class="modal-content" style="max-width: 780px;">
+      <i class="fa-solid fa-xmark modal-close" onclick="closeDbEditModal()"></i>
+      <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">
+        <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Database Record
+      </h2>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Update saved Purchase Order details in Google Sheets database.</p>
+
+      <input type="hidden" id="editRowId">
+      <div class="form-grid" id="dbEditFieldsContainer" style="margin-bottom: 1.5rem;">
+        <!-- Dynamic Row Input Fields -->
+      </div>
+
+      <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+        <button class="btn btn-gradient" style="width:auto;" onclick="saveDbRowEdit()"><i class="fa-solid fa-check"></i> Save Changes</button>
+        <button class="btn btn-outline" onclick="closeDbEditModal()">Cancel</button>
       </div>
     </div>
   </div>
@@ -2332,11 +2390,15 @@
       if (tableInstance) tableInstance.download("csv", "po_extracted_database.csv");
     }
 
+    let currentDbData = [];
+
     function renderTabulator(data) {
       if (!data || data.length === 0) {
         Swal.fire('No Data', 'There is no saved data to display yet.', 'info');
         return;
       }
+
+      currentDbData = data;
 
       // Calculate SAP ERP KPI Stats
       const uniquePOs = new Set(data.map(d => d['PO Number']).filter(Boolean)).size;
@@ -2355,8 +2417,17 @@
 
       const columns = [];
 
+      // 1. Secured Action Edit Column
       columns.push({
-        formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 45
+        title: "Action",
+        field: "_action",
+        width: 95,
+        hozAlign: "center",
+        headerSort: false,
+        formatter: function(cell) {
+          const rowId = cell.getRow().getData()._id;
+          return `<button class="sap-btn-edit-row" onclick="openDbEditModalWithPasscode(event, ${rowId})"><i class="fa-solid fa-pen-to-square"></i> Edit</button>`;
+        }
       });
 
       Object.keys(data[0]).filter(k => k !== '_id').forEach(key => {
@@ -2364,8 +2435,8 @@
           title: key,
           field: key,
           minWidth: 160,
-          formatter: "textarea", // Multiline Wrap Text formatter!
-          editor: "input", // Enable SAP Inline Cell Editing
+          formatter: "textarea",
+          editor: false, // Direct cell editing disabled per user request
           headerFilter: false
         };
 
@@ -2384,6 +2455,13 @@
             return `<strong>${currentCurrencySymbol}${num.toFixed(2)}</strong>`;
           };
           colDef.hozAlign = "right";
+        } else {
+          // Capitalize Each Word
+          colDef.formatter = function(cell) {
+            const val = cell.getValue();
+            if (!val) return '';
+            return toTitleCase(String(val));
+          };
         }
 
         columns.push(colDef);
@@ -2394,10 +2472,10 @@
       } else {
         tableInstance = new Tabulator("#poDataTable", {
           data: data,
-          layout: "fitDataFill", // Horizontal SAP Enterprise Grid Layout
+          layout: "fitDataFill",
           columns: columns,
-          groupBy: "PO Number", // Native SAP Grouping by PO Number!
-          groupStartOpen: false, // Start collapsed for clean executive overview
+          groupBy: "PO Number",
+          groupStartOpen: false,
           groupHeader: function(value, count, data, group) {
             let totalPOAmt = 0;
             data.forEach(d => {
@@ -2405,7 +2483,7 @@
               totalPOAmt += val;
             });
 
-            const vendor = data[0]['Vendor Name'] || data[0]['Buyer / Company Name'] || 'PO Record';
+            const vendor = toTitleCase(data[0]['Vendor Name'] || data[0]['Buyer / Company Name'] || 'PO Record');
             const orderDate = data[0]['Order Date'] || data[0]['Timestamp'] || '';
 
             return `
@@ -2427,26 +2505,100 @@
           paginationSizeSelector: [10, 20, 50, 100],
           initialSort: [{ column: "Timestamp", dir: "desc" }]
         });
+      }
+    }
 
-        // SAP Live Cell Sync to Google Sheets
-        tableInstance.on("cellEdited", async function(cell) {
-          const rowData = cell.getRow().getData();
-          const rowNum = rowData._id;
-          const field = cell.getField();
-          const newVal = cell.getValue();
+    function toTitleCase(str) {
+      if (!str) return '';
+      return String(str).replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    }
 
-          if (rowNum) {
-            try {
-              await callBackend('updateSingleCell', rowNum, field, newVal);
-              Swal.fire({
-                icon: 'success', title: 'SAP Grid Sync', text: `Saved "${field}" to Google Sheets`,
-                toast: true, position: 'top-end', timer: 2000, showConfirmButton: false
-              });
-            } catch(e) {
-              console.error("Cell sync error:", e);
+    function openDbEditModalWithPasscode(event, rowId) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      
+      if (!appPasscode) {
+        showDbEditModal(rowId);
+        return;
+      }
+
+      Swal.fire({
+        title: 'Security Access',
+        text: 'Enter passcode to edit database record',
+        input: 'password',
+        inputPlaceholder: 'Enter Passcode...',
+        showCancelButton: true,
+        showConfirmButton: false,
+        didOpen: () => {
+          const input = Swal.getInput();
+          input.addEventListener('input', () => {
+            if (input.value === appPasscode) {
+              Swal.close();
+              showDbEditModal(rowId);
             }
-          }
-        });
+          });
+        }
+      });
+    }
+
+    function showDbEditModal(rowId) {
+      const rowData = currentDbData.find(r => r._id === rowId);
+      if (!rowData) return;
+
+      document.getElementById('editRowId').value = rowId;
+      const container = document.getElementById('dbEditFieldsContainer');
+      container.innerHTML = '';
+
+      Object.keys(rowData).filter(k => k !== '_id' && k !== 'Timestamp' && k !== 'Source File').forEach(key => {
+        const group = document.createElement('div');
+        group.className = 'form-group';
+        const formattedVal = toTitleCase(String(rowData[key] || ''));
+        group.innerHTML = `
+          <label>${key}</label>
+          <input type="text" data-dbfield="${key}" value="${formattedVal}">
+        `;
+        container.appendChild(group);
+      });
+
+      document.getElementById('dbEditModal').style.display = 'flex';
+    }
+
+    function closeDbEditModal() {
+      document.getElementById('dbEditModal').style.display = 'none';
+    }
+
+    async function saveDbRowEdit() {
+      const rowId = parseInt(document.getElementById('editRowId').value);
+      const container = document.getElementById('dbEditFieldsContainer');
+      const inputs = container.querySelectorAll('input[data-dbfield]');
+
+      const updatedObj = {};
+      inputs.forEach(inp => {
+        const field = inp.getAttribute('data-dbfield');
+        updatedObj[field] = inp.value;
+      });
+
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('loadingText').textContent = 'Saving Database Changes...';
+
+      try {
+        const res = await callBackend('updateEntireRow', rowId, updatedObj);
+        document.getElementById('overlay').style.display = 'none';
+
+        if (res.success) {
+          closeDbEditModal();
+          Swal.fire({
+            icon: 'success', title: 'Updated!', text: 'Database entry updated successfully.',
+            toast: true, position: 'top-end', timer: 2000, showConfirmButton: false
+          });
+          showDataTable();
+        } else {
+          Swal.fire('Error', res.error, 'error');
+        }
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        Swal.fire('Error', err.message || err.toString(), 'error');
       }
     }
 
