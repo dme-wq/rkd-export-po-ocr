@@ -8,14 +8,19 @@
   <title>RKD Group — Purchase Order Data Extractor AI Suite</title>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png">
-  <link rel="shortcut icon" type="image/png" href="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png">
-  <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png">
+  <link rel="icon" type="image/png"
+    href="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png">
+  <link rel="shortcut icon" type="image/png"
+    href="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png">
+  <link rel="apple-touch-icon"
+    href="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png">
 
   <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -55,10 +60,10 @@
       --input-bg: #ffffff;
       --input-border: #cbd5e1;
       --input-focus: #2563eb;
-      
+
       --dropzone-bg: rgba(241, 245, 249, 0.65);
       --dropzone-border: #cbd5e1;
-      
+
       --header-sub: #475569;
     }
 
@@ -198,7 +203,9 @@
       gap: 0.75rem;
     }
 
-    .theme-btn, .settings-btn, .nav-btn {
+    .theme-btn,
+    .settings-btn,
+    .nav-btn {
       background: var(--input-bg);
       border: 1px solid var(--input-border);
       color: var(--text-main);
@@ -216,7 +223,9 @@
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .theme-btn:hover, .settings-btn:hover, .nav-btn:hover {
+    .theme-btn:hover,
+    .settings-btn:hover,
+    .nav-btn:hover {
       transform: translateY(-2px);
       border-color: var(--primary);
       color: var(--primary);
@@ -237,8 +246,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .page-header {
@@ -284,7 +300,8 @@
       margin-bottom: 1.5rem;
     }
 
-    .upload-zone:hover, .upload-zone.dragover {
+    .upload-zone:hover,
+    .upload-zone.dragover {
       border-color: var(--primary);
       background: var(--primary-light);
       transform: scale(1.01);
@@ -309,7 +326,9 @@
       transform: translateY(-4px) scale(1.08);
     }
 
-    .upload-icon-wrapper, .upload-title, .upload-hint {
+    .upload-icon-wrapper,
+    .upload-title,
+    .upload-hint {
       pointer-events: none;
     }
 
@@ -328,8 +347,10 @@
 
     #fileInput {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       opacity: 0;
       cursor: pointer;
       z-index: 10;
@@ -396,7 +417,8 @@
       border: none;
       background: none;
       font-size: 1.2rem;
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -493,7 +515,8 @@
     }
 
     .stat-icon {
-      width: 50px; height: 50px;
+      width: 50px;
+      height: 50px;
       border-radius: 16px;
       background: var(--primary-light);
       color: var(--primary);
@@ -578,7 +601,9 @@
       border-color: rgba(234, 179, 8, 0.4);
     }
 
-    .form-group input, .form-group textarea, .form-group select {
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
       background-color: #fefce8 !important;
       border: 1px solid #fde047 !important;
       border-left: 4px solid #eab308 !important;
@@ -590,29 +615,32 @@
       transition: all 0.2s ease;
     }
 
-    [data-theme="dark"] .form-group input, 
-    [data-theme="dark"] .form-group textarea, 
+    [data-theme="dark"] .form-group input,
+    [data-theme="dark"] .form-group textarea,
     [data-theme="dark"] .form-group select {
       background-color: rgba(234, 179, 8, 0.12) !important;
       border: 1px solid rgba(234, 179, 8, 0.32) !important;
       border-left: 4px solid #f59e0b !important;
     }
 
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
       background-color: #fef08a !important;
       border-color: #eab308 !important;
       box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.28) !important;
     }
 
-    [data-theme="dark"] .form-group input:focus, 
-    [data-theme="dark"] .form-group textarea:focus, 
+    [data-theme="dark"] .form-group input:focus,
+    [data-theme="dark"] .form-group textarea:focus,
     [data-theme="dark"] .form-group select:focus {
       background-color: rgba(234, 179, 8, 0.24) !important;
       border-color: #f59e0b !important;
       box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.32) !important;
     }
 
-    input.missing-field, textarea.missing-field {
+    input.missing-field,
+    textarea.missing-field {
       border-color: var(--danger) !important;
       border-left: 4px solid var(--danger) !important;
       background-color: rgba(239, 68, 68, 0.12) !important;
@@ -727,7 +755,8 @@
       background: none;
       color: var(--text-muted);
       cursor: pointer;
-      width: 30px; height: 30px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -751,8 +780,10 @@
     .overlay {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(10px);
       z-index: 2000;
@@ -786,8 +817,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     .loading-text {
@@ -805,8 +841,10 @@
     .custom-modal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(10px);
       z-index: 2100;
@@ -831,11 +869,13 @@
 
     .modal-close {
       position: absolute;
-      top: 1.5rem; right: 1.5rem;
+      top: 1.5rem;
+      right: 1.5rem;
       font-size: 1.4rem;
       cursor: pointer;
       color: var(--text-muted);
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -926,7 +966,8 @@
     }
 
     .sap-logo-badge {
-      width: 50px; height: 50px;
+      width: 50px;
+      height: 50px;
       border-radius: 14px;
       background: rgba(59, 130, 246, 0.25);
       color: #60a5fa;
@@ -1059,7 +1100,8 @@
     }
 
     .sap-btn-icon {
-      width: 40px; height: 40px;
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       border: 1px solid var(--input-border);
       background: var(--input-bg);
@@ -1238,7 +1280,13 @@
     }
 
     /* CAPITALIZATION & TYPOGRAPHY */
-    .page-title, .brand-title, .brand-subtitle, .sap-title, .section-title, .modal-content h2, .form-group label {
+    .page-title,
+    .brand-title,
+    .brand-subtitle,
+    .sap-title,
+    .section-title,
+    .modal-content h2,
+    .form-group label {
       text-transform: capitalize !important;
     }
 
@@ -1246,7 +1294,8 @@
       text-transform: capitalize !important;
     }
 
-    .sap-group-vendor, .sap-group-po-num {
+    .sap-group-vendor,
+    .sap-group-po-num {
       text-transform: capitalize !important;
     }
 
@@ -1258,33 +1307,64 @@
       height: 24px;
     }
 
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
 
     .slider {
-      position: absolute; cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-color: var(--input-border);
       transition: .3s;
       border-radius: 24px;
     }
 
     .slider:before {
-      position: absolute; content: "";
-      height: 18px; width: 18px;
-      left: 3px; bottom: 3px;
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
       background-color: white;
       transition: .3s;
       border-radius: 50%;
     }
 
-    input:checked + .slider { background-color: var(--primary); }
-    input:checked + .slider:before { transform: translateX(20px); }
+    input:checked+.slider {
+      background-color: var(--primary);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+    }
 
     @media (max-width: 768px) {
-      .container { padding: 1.5rem; border-radius: 24px; }
-      .navbar { padding: 0.85rem 1.25rem; border-radius: 20px; flex-wrap: wrap; gap: 1rem; }
-      .page-title { font-size: 1.8rem; }
-      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .container {
+        padding: 1.5rem;
+        border-radius: 24px;
+      }
+
+      .navbar {
+        padding: 0.85rem 1.25rem;
+        border-radius: 20px;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .page-title {
+        font-size: 1.8rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
 </head>
@@ -1297,7 +1377,9 @@
   <!-- TOP NAVBAR -->
   <nav class="navbar">
     <div class="brand">
-      <img src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png" alt="RKD Logo" class="brand-logo-img">
+      <img
+        src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png"
+        alt="RKD Logo" class="brand-logo-img">
       <div class="brand-text">
         <span class="brand-title">RKD Group</span>
         <span class="brand-subtitle">Purchase Order Data Extractor</span>
@@ -1306,7 +1388,8 @@
 
     <div class="nav-actions">
       <!-- Currency Switcher -->
-      <select id="currencySelector" class="nav-btn" onchange="updateCurrencySymbol()" style="cursor:pointer; outline:none;">
+      <select id="currencySelector" class="nav-btn" onchange="updateCurrencySymbol()"
+        style="cursor:pointer; outline:none;">
         <option value="$">USD ($)</option>
         <option value="₹">INR (₹)</option>
         <option value="€">EUR (€)</option>
@@ -1314,7 +1397,8 @@
       </select>
 
       <button class="nav-btn" onclick="showDataTable()">
-        <i class="fa-solid fa-database"></i> <span style="display:none; @media(min-width:600px){inline;}">Database</span>
+        <i class="fa-solid fa-database"></i> <span
+          style="display:none; @media(min-width:600px){inline;}">Database</span>
       </button>
       <button class="settings-btn" title="API Configuration Settings" onclick="openApiSettingsModal()">
         <i class="fa-solid fa-sliders"></i>
@@ -1336,7 +1420,8 @@
 
       <div class="upload-label">
         <span><i class="fa-solid fa-cloud-arrow-up"></i> Upload Documents</span>
-        <span id="fileCountBadge" style="font-size:0.85rem; color:var(--text-muted); font-weight:500;">0 files selected</span>
+        <span id="fileCountBadge" style="font-size:0.85rem; color:var(--text-muted); font-weight:500;">0 files
+          selected</span>
       </div>
 
       <div class="upload-zone" id="dropZone">
@@ -1361,7 +1446,8 @@
         <div class="section-title">
           <i class="fa-solid fa-clipboard-check" style="color:var(--primary);"></i>
           <span>Extracted Data Preview</span>
-          <span class="editable-badge"><i class="fa-solid fa-highlighter" style="color:#d97706;"></i> Yellow = Editable</span>
+          <span class="editable-badge"><i class="fa-solid fa-highlighter" style="color:#d97706;"></i> Yellow =
+            Editable</span>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="exportDataToCSV()" title="Quick Download CSV">
@@ -1466,8 +1552,10 @@
         </div>
       </div>
       <div class="sap-actions-row">
-        <button class="sap-btn sap-btn-primary" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Export Excel/CSV</button>
-        <button class="sap-btn sap-btn-secondary" onclick="hideDataTable()"><i class="fa-solid fa-arrow-left"></i> Back to Extractor</button>
+        <button class="sap-btn sap-btn-primary" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Export
+          Excel/CSV</button>
+        <button class="sap-btn sap-btn-secondary" onclick="hideDataTable()"><i class="fa-solid fa-arrow-left"></i> Back
+          to Extractor</button>
       </div>
     </div>
 
@@ -1495,12 +1583,15 @@
     <div class="sap-grid-toolbar">
       <div class="sap-search-box">
         <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
-        <input type="text" id="sapGridSearchInput" placeholder="Filter SAP PO Grid (PO #, SKU, Vendor, Buyer...)" oninput="filterSapGrid()">
+        <input type="text" id="sapGridSearchInput" placeholder="Filter SAP PO Grid (PO #, SKU, Vendor, Buyer...)"
+          oninput="filterSapGrid()">
       </div>
       <div style="display:flex; gap:0.75rem; align-items:center;">
-        <button class="sap-btn sap-btn-secondary" style="padding:0.4rem 0.85rem; font-size:0.82rem;" onclick="toggleGroupsExpandCollapse()"><i class="fa-solid fa-folder-open"></i> Expand / Collapse POs</button>
+        <button class="sap-btn sap-btn-secondary" style="padding:0.4rem 0.85rem; font-size:0.82rem;"
+          onclick="toggleGroupsExpandCollapse()"><i class="fa-solid fa-folder-open"></i> Expand / Collapse POs</button>
         <span class="sap-grid-counter" id="sapGridCounterText">Showing 0 entries</span>
-        <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i class="fa-solid fa-rotate-right"></i></button>
+        <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
+            class="fa-solid fa-rotate-right"></i></button>
       </div>
     </div>
 
@@ -1521,7 +1612,8 @@
   <div class="custom-modal" id="editModal">
     <div class="modal-content">
       <i class="fa-solid fa-xmark modal-close" onclick="closeEditModal()"></i>
-      <h2 style="color: var(--text-main); margin-bottom: 1rem; font-family: var(--font-display);">Field Configuration</h2>
+      <h2 style="color: var(--text-main); margin-bottom: 1rem; font-family: var(--font-display);">Field Configuration
+      </h2>
 
       <div class="tabs">
         <div class="tab active" onclick="switchTab('visibilityTab', event)">Hide/Show Fields</div>
@@ -1532,7 +1624,8 @@
         <h4 style="margin-bottom:0.75rem; color:var(--text-muted); font-size:0.9rem;">Main PO Info Fields</h4>
         <div class="field-list" id="mainFieldsToggleList"></div>
 
-        <h4 style="margin-bottom:0.75rem; color:var(--text-muted); margin-top:1.5rem; font-size:0.9rem;">Line Item Fields</h4>
+        <h4 style="margin-bottom:0.75rem; color:var(--text-muted); margin-top:1.5rem; font-size:0.9rem;">Line Item
+          Fields</h4>
         <div class="field-list" id="itemFieldsToggleList"></div>
 
         <button class="btn btn-gradient" style="margin-top: 1rem;" onclick="saveFieldVisibility()">
@@ -1569,8 +1662,10 @@
   <div class="custom-modal" id="apiModal">
     <div class="modal-content">
       <i class="fa-solid fa-xmark modal-close" onclick="closeApiSettingsModal()"></i>
-      <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">API Endpoint Configuration</h2>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Configure your Google Apps Script Web App URL for hosting on Vercel / GitHub Pages.</p>
+      <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">API Endpoint
+        Configuration</h2>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Configure your Google Apps Script Web
+        App URL for hosting on Vercel / GitHub Pages.</p>
 
       <div class="form-group" style="margin-bottom: 1.5rem;">
         <label>Google Apps Script Web App URL</label>
@@ -1591,7 +1686,8 @@
       <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">
         <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Database Record
       </h2>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Update saved Purchase Order details in Google Sheets database.</p>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Update saved Purchase Order details
+        in Google Sheets database.</p>
 
       <input type="hidden" id="editRowId">
       <div class="form-grid" id="dbEditFieldsContainer" style="margin-bottom: 1.5rem;">
@@ -1599,7 +1695,8 @@
       </div>
 
       <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-        <button class="btn btn-gradient" style="width:auto;" onclick="saveDbRowEdit()"><i class="fa-solid fa-check"></i> Save Changes</button>
+        <button class="btn btn-gradient" style="width:auto;" onclick="saveDbRowEdit()"><i class="fa-solid fa-check"></i>
+          Save Changes</button>
         <button class="btn btn-outline" onclick="closeDbEditModal()">Cancel</button>
       </div>
     </div>
@@ -1621,9 +1718,10 @@
     }
     const SERVER_DRAFT_ID = rawDraftId;
 
-    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbwUL818gwGY_jfcwP6CEhQoIbIPOGocepKEcgcUi7psPxtCBt8C50NQoDVJEqP1oOkmZw/exec' ?>";
+    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI--c1N4JBE3QGe5UDXUuKmaJX0I6CgeCZ-Q/exec";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI--c1N4JBE3QGe5UDXUuKmaJX0I6CgeCZ-Q/exec' ?>";
 
-    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? 'https://script.google.com/macros/s/AKfycbwUL818gwGY_jfcwP6CEhQoIbIPOGocepKEcgcUi7psPxtCBt8C50NQoDVJEqP1oOkmZw/exec' : INITIAL_SCRIPT_URL);
+    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? DEFAULT_DEPLOY_URL : INITIAL_SCRIPT_URL);
     let currentCurrencySymbol = localStorage.getItem('rkd_currency') || '$';
 
     function initTheme() {
@@ -1670,7 +1768,7 @@
           google.script.run
             .withSuccessHandler(res => resolve(res))
             .withFailureHandler(err => reject(err))
-            [actionName](...args);
+          [actionName](...args);
         });
       }
 
@@ -1712,6 +1810,158 @@
     }
 
     // ─────────────────────────────────────────────
+    //  DATE CONVERSION & FORMATTING UTILITIES
+    //  Short Date: dd-MMM-yyyy | Long Date & Time: dd-MMM-yyyy hh:mm:ss
+    // ─────────────────────────────────────────────
+    function parseAnyDate(val) {
+      if (val === null || val === undefined || val === '') return null;
+      if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+
+      let str = String(val).trim();
+      if (!str) return null;
+
+      // Handle Excel date serial numbers (e.g. 45130 -> 2023-07-23)
+      if (/^\d{5}(\.\d+)?$/.test(str)) {
+        const serial = parseFloat(str);
+        const utcDays = Math.floor(serial - 25569);
+        const utcValue = utcDays * 86400;
+        const dateObj = new Date(utcValue * 1000);
+        if (!isNaN(dateObj.getTime())) return dateObj;
+      }
+
+      const monthMap = {
+        jan: 0, january: 0,
+        feb: 1, february: 1,
+        mar: 2, march: 2,
+        apr: 3, april: 3,
+        may: 4,
+        jun: 5, june: 5,
+        jul: 6, july: 6,
+        aug: 7, august: 7,
+        sep: 8, sept: 8, september: 8,
+        oct: 9, october: 9,
+        nov: 10, november: 10,
+        dec: 11, december: 11
+      };
+
+      // 1. DD-MMM-YYYY or DD MMM YYYY or DD/MMM/YYYY with optional time
+      let match = str.match(/^(\d{1,2})[\s\/\-\.]?([a-zA-Z]{3,9})[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      if (match) {
+        let day = parseInt(match[1], 10);
+        let mStr = match[2].toLowerCase();
+        let year = parseInt(match[3], 10);
+        if (year < 100) year += 2000;
+        let month = monthMap[mStr];
+        if (month !== undefined) {
+          let hh = match[4] ? parseInt(match[4], 10) : 0;
+          let mm = match[5] ? parseInt(match[5], 10) : 0;
+          let ss = match[6] ? parseInt(match[6], 10) : 0;
+          return new Date(year, month, day, hh, mm, ss);
+        }
+      }
+
+      // 2. MMM DD, YYYY or MMM DD YYYY with optional time
+      match = str.match(/^([a-zA-Z]{3,9})[\s\/\-\.]?(\d{1,2}),?[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      if (match) {
+        let mStr = match[1].toLowerCase();
+        let day = parseInt(match[2], 10);
+        let year = parseInt(match[3], 10);
+        if (year < 100) year += 2000;
+        let month = monthMap[mStr];
+        if (month !== undefined) {
+          let hh = match[4] ? parseInt(match[4], 10) : 0;
+          let mm = match[5] ? parseInt(match[5], 10) : 0;
+          let ss = match[6] ? parseInt(match[6], 10) : 0;
+          return new Date(year, month, day, hh, mm, ss);
+        }
+      }
+
+      // 3. YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD with optional time
+      match = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      if (match) {
+        let year = parseInt(match[1], 10);
+        let month = parseInt(match[2], 10) - 1;
+        let day = parseInt(match[3], 10);
+        let hh = match[4] ? parseInt(match[4], 10) : 0;
+        let mm = match[5] ? parseInt(match[5], 10) : 0;
+        let ss = match[6] ? parseInt(match[6], 10) : 0;
+        return new Date(year, month, day, hh, mm, ss);
+      }
+
+      // 4. DD-MM-YYYY or DD/MM/YYYY or MM/DD/YYYY or DD.MM.YYYY
+      match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      if (match) {
+        let p1 = parseInt(match[1], 10);
+        let p2 = parseInt(match[2], 10);
+        let year = parseInt(match[3], 10);
+        if (year < 100) year += 2000;
+        let hh = match[4] ? parseInt(match[4], 10) : 0;
+        let mm = match[5] ? parseInt(match[5], 10) : 0;
+        let ss = match[6] ? parseInt(match[6], 10) : 0;
+
+        let day, month;
+        if (p1 > 12) {
+          day = p1;
+          month = p2 - 1;
+        } else if (p2 > 12) {
+          day = p2;
+          month = p1 - 1;
+        } else {
+          day = p1;
+          month = p2 - 1;
+        }
+        if (month >= 0 && month < 12 && day >= 1 && day <= 31) {
+          return new Date(year, month, day, hh, mm, ss);
+        }
+      }
+
+      let d = new Date(str);
+      if (!isNaN(d.getTime())) return d;
+
+      return null;
+    }
+
+    function formatShortDate(val) {
+      if (val === null || val === undefined || val === '') return '';
+      const d = parseAnyDate(val);
+      if (!d) return String(val);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+
+    function formatLongDateTime(val) {
+      if (val === null || val === undefined || val === '') return '';
+      const d = parseAnyDate(val);
+      if (!d) return String(val);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      return `${day}-${month}-${year} ${hh}:${mm}:${ss}`;
+    }
+
+    function isDateKey(keyName, cfg) {
+      if (!keyName) return false;
+      const k = String(keyName).toLowerCase().trim();
+      if (k === 'timestamp') return true;
+      if (k.includes('date') || k.includes('dob')) return true;
+      const configObj = cfg || appConfig;
+      if (configObj) {
+        const mainF = (configObj.mainFields || []).find(f => String(f.name).toLowerCase() === k);
+        if (mainF && mainF.type === 'date') return true;
+        const itemF = (configObj.itemFields || []).find(f => String(f.name).toLowerCase() === k);
+        if (itemF && itemF.type === 'date') return true;
+      }
+      return false;
+    }
+
+    // ─────────────────────────────────────────────
     //  APP STATE & INITIAL LOAD
     // ─────────────────────────────────────────────
     let uploadedFiles = [];
@@ -1723,7 +1973,7 @@
       try {
         const passRes = await callBackend('getPasscode');
         appPasscode = passRes.passcode || passRes;
-      } catch(e) {}
+      } catch (e) { }
 
       loadAppConfig();
     };
@@ -1865,7 +2115,7 @@
       try {
         const fileDataArray = await Promise.all(uploadedFiles.map(f => readFileAsBase64(f)));
         const response = await callBackend('processMultipleFiles', fileDataArray);
-        
+
         document.getElementById('overlay').style.display = 'none';
 
         if (response.success) {
@@ -1898,7 +2148,10 @@
 
         const div = document.createElement('div');
         div.className = 'form-group';
-        div.innerHTML = `<label>${field.name}</label><input type="${field.type || 'text'}" data-fieldname="${field.name}">`;
+        const isDate = isDateKey(field.name, appConfig) || field.type === 'date';
+        const inputType = isDate ? 'text' : (field.type || 'text');
+        const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
+        div.innerHTML = `<label>${field.name}</label><input type="${inputType}" ${extraAttr} data-fieldname="${field.name}">`;
         mainContainer.appendChild(div);
       });
 
@@ -1929,10 +2182,14 @@
         }
         const el = document.querySelector(`input[data-fieldname="${f.name}"]`);
         if (el) {
-          el.value = data[f.name] || '';
+          let val = data[f.name] || '';
+          if (isDateKey(f.name, appConfig) || f.type === 'date') {
+            val = formatShortDate(val);
+          }
+          el.value = val;
           el.classList.remove('missing-field');
 
-          if (!data[f.name] || String(data[f.name]).trim() === '') {
+          if (!val || String(val).trim() === '') {
             el.classList.add('missing-field');
             missingCount++;
           }
@@ -1968,8 +2225,14 @@
       appConfig.itemFields.forEach(f => {
         if (!f.visible) return;
         const td = document.createElement('td');
-        const val = item[f.name] || '';
-        td.innerHTML = `<input type="${f.type || 'text'}" data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
+        let val = item[f.name] || '';
+        const isDate = isDateKey(f.name, appConfig) || f.type === 'date';
+        if (isDate && val) {
+          val = formatShortDate(val);
+        }
+        const inputType = isDate ? 'text' : (f.type || 'text');
+        const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
+        td.innerHTML = `<input type="${inputType}" ${extraAttr} data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
         tr.appendChild(td);
       });
 
@@ -2010,8 +2273,8 @@
       const lineAmtEl = tr.querySelector('input[data-itemfieldname="Line Amount"]');
 
       if (qtyEl && priceEl && lineAmtEl) {
-        const q = parseFloat(qtyEl.value.replace(/[^0-9.-]+/g,"")) || 0;
-        const p = parseFloat(priceEl.value.replace(/[^0-9.-]+/g,"")) || 0;
+        const q = parseFloat(qtyEl.value.replace(/[^0-9.-]+/g, "")) || 0;
+        const p = parseFloat(priceEl.value.replace(/[^0-9.-]+/g, "")) || 0;
         if (q && p) {
           lineAmtEl.value = (q * p).toFixed(2);
         }
@@ -2042,10 +2305,10 @@
       trs.forEach(tr => {
         const lineAmtEl = tr.querySelector('input[data-itemfieldname="Line Amount"]') || tr.querySelector('input[data-itemfieldname="Unit Price"]');
         if (lineAmtEl && lineAmtEl.value) {
-          totalAmt += parseFloat(lineAmtEl.value.replace(/[^0-9.-]+/g,"")) || 0;
+          totalAmt += parseFloat(lineAmtEl.value.replace(/[^0-9.-]+/g, "")) || 0;
         }
       });
-      
+
       document.getElementById('statTotalAmount').textContent = currentCurrencySymbol + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
       const missing = document.querySelectorAll('.missing-field');
@@ -2415,7 +2678,7 @@
       const uniqueVendors = new Set(data.map(d => d['Vendor Name']).filter(Boolean)).size;
       let totalVal = 0;
       data.forEach(d => {
-        const amt = parseFloat(String(d['Line Amount'] || d['Unit Price'] || d['Total Order Amount'] || '0').replace(/[^0-9.-]+/g,"")) || 0;
+        const amt = parseFloat(String(d['Line Amount'] || d['Unit Price'] || d['Total Order Amount'] || '0').replace(/[^0-9.-]+/g, "")) || 0;
         totalVal += amt;
       });
 
@@ -2434,7 +2697,7 @@
         width: 95,
         hozAlign: "center",
         headerSort: false,
-        formatter: function(cell) {
+        formatter: function (cell) {
           const rowId = cell.getRow().getData()._id;
           return `<button class="sap-btn-edit-row" onclick="openDbEditModalWithPasscode(event, ${rowId})"><i class="fa-solid fa-pen-to-square"></i> Edit</button>`;
         }
@@ -2450,24 +2713,34 @@
           headerFilter: false
         };
 
-        if (key === 'PO Number') {
-          colDef.formatter = function(cell) {
+        if (key === 'Timestamp') {
+          colDef.formatter = function (cell) {
+            const val = cell.getValue();
+            return val ? formatLongDateTime(val) : '';
+          };
+        } else if (isDateKey(key, appConfig)) {
+          colDef.formatter = function (cell) {
+            const val = cell.getValue();
+            return val ? formatShortDate(val) : '';
+          };
+        } else if (key === 'PO Number') {
+          colDef.formatter = function (cell) {
             const val = cell.getValue();
             return val ? `<span class="sap-po-badge"><i class="fa-solid fa-hashtag"></i> ${val}</span>` : '';
           };
         } else if (key === 'Source File') {
           colDef.formatter = 'html';
         } else if (key === 'Line Amount' || key === 'Unit Price' || key === 'Total Order Amount') {
-          colDef.formatter = function(cell) {
+          colDef.formatter = function (cell) {
             const val = cell.getValue();
             if (!val) return '';
-            const num = parseFloat(String(val).replace(/[^0-9.-]+/g,"")) || 0;
+            const num = parseFloat(String(val).replace(/[^0-9.-]+/g, "")) || 0;
             return `<strong>${currentCurrencySymbol}${num.toFixed(2)}</strong>`;
           };
           colDef.hozAlign = "right";
         } else {
           // Capitalize Each Word
-          colDef.formatter = function(cell) {
+          colDef.formatter = function (cell) {
             const val = cell.getValue();
             if (!val) return '';
             return toTitleCase(String(val));
@@ -2486,15 +2759,16 @@
           columns: columns,
           groupBy: "PO Number",
           groupStartOpen: false,
-          groupHeader: function(value, count, data, group) {
+          groupHeader: function (value, count, data, group) {
             let totalPOAmt = 0;
             data.forEach(d => {
-              const val = parseFloat(String(d['Line Amount'] || d['Unit Price'] || d['Total Order Amount'] || '0').replace(/[^0-9.-]+/g,"")) || 0;
+              const val = parseFloat(String(d['Line Amount'] || d['Unit Price'] || d['Total Order Amount'] || '0').replace(/[^0-9.-]+/g, "")) || 0;
               totalPOAmt += val;
             });
 
             const vendor = toTitleCase(data[0]['Vendor Name'] || data[0]['Buyer / Company Name'] || 'PO Record');
-            const orderDate = data[0]['Order Date'] || data[0]['Timestamp'] || '';
+            const rawDate = data[0]['Order Date'] || data[0]['Timestamp'] || '';
+            const orderDate = rawDate ? (data[0]['Order Date'] ? formatShortDate(rawDate) : formatLongDateTime(rawDate)) : '';
 
             return `
               <div class="sap-group-header-content">
@@ -2520,14 +2794,14 @@
 
     function toTitleCase(str) {
       if (!str) return '';
-      return String(str).replace(/\w\S*/g, function(txt) {
+      return String(str).replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
     }
 
     function openDbEditModalWithPasscode(event, rowId) {
       if (event && event.stopPropagation) event.stopPropagation();
-      
+
       if (!appPasscode) {
         showDbEditModal(rowId);
         return;
@@ -2563,10 +2837,12 @@
       Object.keys(rowData).filter(k => k !== '_id' && k !== 'Timestamp' && k !== 'Source File').forEach(key => {
         const group = document.createElement('div');
         group.className = 'form-group';
-        const formattedVal = toTitleCase(String(rowData[key] || ''));
+        const isDate = isDateKey(key, appConfig);
+        const formattedVal = isDate ? formatShortDate(rowData[key]) : toTitleCase(String(rowData[key] || ''));
+        const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
         group.innerHTML = `
           <label>${key}</label>
-          <input type="text" data-dbfield="${key}" value="${formattedVal}">
+          <input type="text" ${extraAttr} data-dbfield="${key}" value="${formattedVal}">
         `;
         container.appendChild(group);
       });
@@ -2586,7 +2862,11 @@
       const updatedObj = {};
       inputs.forEach(inp => {
         const field = inp.getAttribute('data-dbfield');
-        updatedObj[field] = inp.value;
+        let val = inp.value;
+        if (isDateKey(field, appConfig)) {
+          val = formatShortDate(val);
+        }
+        updatedObj[field] = val;
       });
 
       document.getElementById('overlay').style.display = 'flex';
@@ -2626,7 +2906,7 @@
     function filterSapGrid() {
       const query = document.getElementById('sapGridSearchInput').value.toLowerCase();
       if (tableInstance) {
-        tableInstance.setFilter(function(data) {
+        tableInstance.setFilter(function (data) {
           return Object.values(data).some(val => String(val).toLowerCase().includes(query));
         });
       }

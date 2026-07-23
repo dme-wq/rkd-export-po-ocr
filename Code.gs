@@ -290,7 +290,7 @@ function callGeminiAPI(documentParts) {
   // Construct dynamic JSON schema with Data Type instructions
   const getTypeInstruction = (type) => {
     if (type === 'number') return 'string (Extract ONLY the numerical value/digits. Remove any currency symbols like $ or commas)';
-    if (type === 'date') return 'string (Extract as a cleanly formatted Date, e.g., DD MMM YYYY or YYYY-MM-DD)';
+    if (type === 'date') return 'string (Extract and format as Short Date: dd-MMM-yyyy, e.g., 23-Jul-2026)';
     return 'string (Extract as text)';
   };
 
@@ -322,7 +322,8 @@ CRITICAL RULES FOR UNIVERSAL PO EXTRACTION:
    - If the layout is complex/nested (e.g., a "Master Style" with multiple "child" sizes/colors beneath it), extract EACH child row as a SEPARATE item, inheriting prices/quantities from the master if necessary. Never skip items.
 4. DATA MERGING: If multiple documents/pages are provided, merge ALL line items into a SINGLE continuous "items" array. If PO numbers differ across docs, comma-separate them.
 5. IF A FIELD IS MISSING OR YOU CANNOT FIND IT, return an empty string "". Do not make up data.
-6. Return ONLY valid JSON, exactly matching the structure below. Do not add markdown code blocks like \`\`\`json.
+6. DATE FORMATTING: Convert and format ALL extracted dates into Short Date format dd-MMM-yyyy (e.g., 23-Jul-2026).
+7. Return ONLY valid JSON, exactly matching the structure below. Do not add markdown code blocks like \`\`\`json.
 
 Required JSON Structure:
 ${JSON.stringify(expectedJsonStructure, null, 2)}`;
@@ -353,7 +354,8 @@ ${JSON.stringify(expectedJsonStructure, null, 2)}`;
     let contentText = jsonResponse.candidates[0].content.parts[0].text;
     // Strip markdown JSON wrapping if present
     contentText = contentText.replace(/^```json/mi, '').replace(/```$/m, '').trim();
-    return JSON.parse(contentText);
+    let parsedData = JSON.parse(contentText);
+    return formatExtractedObjectDates(parsedData, config);
   } catch (e) {
     throw new Error("Failed to parse Gemini response: " + e.message);
   }
@@ -417,6 +419,7 @@ function saveToSheet(rowsData) {
     
     const headersRange = sheet.getRange(1, 1, 1, sheet.getLastColumn());
     const sheetHeaders = headersRange.getValues()[0];
+    const appConfig = getAppConfig();
 
     // ── Duplicate Check ────────────────────────
     const poHeader = 'PO Number';
@@ -447,18 +450,22 @@ function saveToSheet(rowsData) {
     }
 
     // ── Append rows ────────────────────────────
-    const timestamp = new Date();
+    const timestampFormatted = formatLongDateTime(new Date());
     let rowsAdded   = 0;
 
     rowsData.forEach(data => {
       const row = [];
       sheetHeaders.forEach(header => {
         if (header === 'Timestamp') {
-          row.push(timestamp);
+          row.push(timestampFormatted);
         } else if (header === 'Source File') {
           row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || ''}")` : (data.sourceFile || ''));
         } else {
-          row.push(data[header] || '');
+          let val = data[header] || '';
+          if (val && isDateKey(header, appConfig)) {
+            val = formatShortDate(val);
+          }
+          row.push(val);
         }
       });
       sheet.appendRow(row);
@@ -630,15 +637,21 @@ function getSavedData() {
     
     const headers = data[0];
     const rows = [];
+    const config = getAppConfig();
     
     for (let i = 1; i < data.length; i++) {
       let obj = { _id: i + 1 };
       for (let j = 0; j < headers.length; j++) {
         let val = data[i][j];
-        if (val instanceof Date) {
-          val = Utilities.formatDate(val, Session.getScriptTimeZone(), "yyyy-MM-dd");
+        const headerName = headers[j];
+        if (headerName === 'Timestamp') {
+          if (val) val = formatLongDateTime(val);
+        } else if (isDateKey(headerName, config)) {
+          if (val) val = formatShortDate(val);
+        } else if (val instanceof Date) {
+          val = formatShortDate(val);
         }
-        obj[headers[j]] = val;
+        obj[headerName] = val;
       }
       rows.push(obj);
     }
@@ -664,6 +677,13 @@ function updateSingleCell(rowNumber, headerName, newValue) {
     
     if (colIndex === -1) return { success: false, error: "Column not found: " + headerName };
     
+    const config = getAppConfig();
+    if (headerName === 'Timestamp' && newValue) {
+      newValue = formatLongDateTime(newValue);
+    } else if (isDateKey(headerName, config) && newValue) {
+      newValue = formatShortDate(newValue);
+    }
+
     sheet.getRange(rowNumber, colIndex + 1).setValue(newValue);
     return { success: true };
   } catch (err) {
@@ -681,10 +701,17 @@ function updateEntireRow(rowNumber, updatedObj) {
     if (!sheet) return { success: false, error: "Sheet not found" };
 
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const config = getAppConfig();
     
     headers.forEach((header, colIdx) => {
       if (header && updatedObj.hasOwnProperty(header)) {
-        sheet.getRange(rowNumber, colIdx + 1).setValue(updatedObj[header]);
+        let val = updatedObj[header];
+        if (header === 'Timestamp' && val) {
+          val = formatLongDateTime(val);
+        } else if (isDateKey(header, config) && val) {
+          val = formatShortDate(val);
+        }
+        sheet.getRange(rowNumber, colIdx + 1).setValue(val);
       }
     });
     
@@ -692,4 +719,187 @@ function updateEntireRow(rowNumber, updatedObj) {
   } catch (err) {
     return { success: false, error: err.toString() };
   }
+}
+
+// ─────────────────────────────────────────────
+//  DATE EXTRACTION & FORMATTING UTILITIES
+// ─────────────────────────────────────────────
+function parseAnyDate(val) {
+  if (val === null || val === undefined || val === '') return null;
+  if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+
+  let str = String(val).trim();
+  if (!str) return null;
+
+  // Handle Excel date serial numbers (e.g. 45130 -> 2023-07-23)
+  if (/^\d{5}(\.\d+)?$/.test(str)) {
+    const serial = parseFloat(str);
+    const utcDays = Math.floor(serial - 25569);
+    const utcValue = utcDays * 86400;
+    const dateObj = new Date(utcValue * 1000);
+    if (!isNaN(dateObj.getTime())) return dateObj;
+  }
+
+  const monthMap = {
+    jan: 0, january: 0,
+    feb: 1, february: 1,
+    mar: 2, march: 2,
+    apr: 3, april: 3,
+    may: 4,
+    jun: 5, june: 5,
+    jul: 6, july: 6,
+    aug: 7, august: 7,
+    sep: 8, sept: 8, september: 8,
+    oct: 9, october: 9,
+    nov: 10, november: 10,
+    dec: 11, december: 11
+  };
+
+  // 1. DD-MMM-YYYY or DD MMM YYYY or DD/MMM/YYYY with optional time
+  let match = str.match(/^(\d{1,2})[\s\/\-\.]?([a-zA-Z]{3,9})[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (match) {
+    let day = parseInt(match[1], 10);
+    let mStr = match[2].toLowerCase();
+    let year = parseInt(match[3], 10);
+    if (year < 100) year += 2000;
+    let month = monthMap[mStr];
+    if (month !== undefined) {
+      let hh = match[4] ? parseInt(match[4], 10) : 0;
+      let mm = match[5] ? parseInt(match[5], 10) : 0;
+      let ss = match[6] ? parseInt(match[6], 10) : 0;
+      return new Date(year, month, day, hh, mm, ss);
+    }
+  }
+
+  // 2. MMM DD, YYYY or MMM DD YYYY with optional time
+  match = str.match(/^([a-zA-Z]{3,9})[\s\/\-\.]?(\d{1,2}),?[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (match) {
+    let mStr = match[1].toLowerCase();
+    let day = parseInt(match[2], 10);
+    let year = parseInt(match[3], 10);
+    if (year < 100) year += 2000;
+    let month = monthMap[mStr];
+    if (month !== undefined) {
+      let hh = match[4] ? parseInt(match[4], 10) : 0;
+      let mm = match[5] ? parseInt(match[5], 10) : 0;
+      let ss = match[6] ? parseInt(match[6], 10) : 0;
+      return new Date(year, month, day, hh, mm, ss);
+    }
+  }
+
+  // 3. YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD with optional time
+  match = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (match) {
+    let year = parseInt(match[1], 10);
+    let month = parseInt(match[2], 10) - 1;
+    let day = parseInt(match[3], 10);
+    let hh = match[4] ? parseInt(match[4], 10) : 0;
+    let mm = match[5] ? parseInt(match[5], 10) : 0;
+    let ss = match[6] ? parseInt(match[6], 10) : 0;
+    return new Date(year, month, day, hh, mm, ss);
+  }
+
+  // 4. DD-MM-YYYY or DD/MM/YYYY or MM/DD/YYYY or DD.MM.YYYY
+  match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (match) {
+    let p1 = parseInt(match[1], 10);
+    let p2 = parseInt(match[2], 10);
+    let year = parseInt(match[3], 10);
+    if (year < 100) year += 2000;
+    let hh = match[4] ? parseInt(match[4], 10) : 0;
+    let mm = match[5] ? parseInt(match[5], 10) : 0;
+    let ss = match[6] ? parseInt(match[6], 10) : 0;
+
+    let day, month;
+    if (p1 > 12) {
+      day = p1;
+      month = p2 - 1;
+    } else if (p2 > 12) {
+      day = p2;
+      month = p1 - 1;
+    } else {
+      day = p1;
+      month = p2 - 1;
+    }
+    if (month >= 0 && month < 12 && day >= 1 && day <= 31) {
+      return new Date(year, month, day, hh, mm, ss);
+    }
+  }
+
+  let d = new Date(str);
+  if (!isNaN(d.getTime())) return d;
+
+  return null;
+}
+
+function formatShortDate(val) {
+  if (val === null || val === undefined || val === '') return '';
+  const d = parseAnyDate(val);
+  if (!d) return String(val);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = months[d.getMonth()];
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+function formatLongDateTime(val) {
+  if (val === null || val === undefined || val === '') return '';
+  const d = parseAnyDate(val);
+  if (!d) return String(val);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = months[d.getMonth()];
+  const year = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return `${day}-${month}-${year} ${hh}:${mm}:${ss}`;
+}
+
+function isDateKey(keyName, config) {
+  if (!keyName) return false;
+  const k = String(keyName).toLowerCase().trim();
+  if (k === 'timestamp') return true;
+  if (k.includes('date') || k.includes('dob')) return true;
+  if (config) {
+    const mainF = (config.mainFields || []).find(f => String(f.name).toLowerCase() === k);
+    if (mainF && mainF.type === 'date') return true;
+    const itemF = (config.itemFields || []).find(f => String(f.name).toLowerCase() === k);
+    if (itemF && itemF.type === 'date') return true;
+  }
+  return false;
+}
+
+function formatExtractedObjectDates(data, config) {
+  if (!data) return data;
+
+  Object.keys(data).forEach(key => {
+    if (key === 'items' && Array.isArray(data.items)) {
+      data.items.forEach(item => {
+        if (item && typeof item === 'object') {
+          Object.keys(item).forEach(itemKey => {
+            if (isDateKey(itemKey, config) || parseAnyDate(item[itemKey])) {
+              if (item[itemKey]) {
+                const parsed = formatShortDate(item[itemKey]);
+                if (parsed) item[itemKey] = parsed;
+              }
+            }
+          });
+        }
+      });
+    } else if (key === 'Timestamp') {
+      if (data[key]) {
+        const parsed = formatLongDateTime(data[key]);
+        if (parsed) data[key] = parsed;
+      }
+    } else if (isDateKey(key, config) || parseAnyDate(data[key])) {
+      if (data[key]) {
+        const parsed = formatShortDate(data[key]);
+        if (parsed) data[key] = parsed;
+      }
+    }
+  });
+
+  return data;
 }
