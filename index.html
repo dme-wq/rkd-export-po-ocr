@@ -1718,11 +1718,11 @@
     }
     const SERVER_DRAFT_ID = rawDraftId;
 
-    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI--c1N4JBE3QGe5UDXUuKmaJX0I6CgeCZ-Q/exec";
-    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI--c1N4JBE3QGe5UDXUuKmaJX0I6CgeCZ-Q/exec' ?>";
+    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbzqJ8ANhQVpkJRXsBmd24koKYoBYQKAu-OB7LZnE8yvqfTZKLgOQ6r9YifYv861blJ2Jg/exec";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbzqJ8ANhQVpkJRXsBmd24koKYoBYQKAu-OB7LZnE8yvqfTZKLgOQ6r9YifYv861blJ2Jg/exec' ?>";
 
     let savedUrl = localStorage.getItem('rkd_api_url');
-    if (!savedUrl || savedUrl.includes('AKfycbwUL818gwGY')) {
+    if (!savedUrl || savedUrl.includes('AKfycbwUL818gwGY') || savedUrl.includes('AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI')) {
       savedUrl = DEFAULT_DEPLOY_URL;
       localStorage.setItem('rkd_api_url', DEFAULT_DEPLOY_URL);
     }
