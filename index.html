@@ -1263,7 +1263,10 @@
       transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 0.35rem;
+      white-space: nowrap;
+      word-break: keep-all;
     }
 
     .sap-btn-edit-row:hover {
@@ -2732,8 +2735,10 @@
       columns.push({
         title: "Action",
         field: "_action",
-        width: 95,
+        width: 110,
+        minWidth: 110,
         hozAlign: "center",
+        vertAlign: "middle",
         headerSort: false,
         formatter: function (cell) {
           const rowId = cell.getRow().getData()._id;
