@@ -1,0 +1,14 @@
+# Node / Environment
+node_modules/
+.env
+.env.local
+.env.*.local
+.DS_Store
+
+# Vercel
+.vercel
+
+# IDE / Editor
+.vscode/
+.idea/
+*.log

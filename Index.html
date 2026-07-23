@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RKD PO Data Extractor — AI Suite</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- FontAwesome 6 Pro icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Tabulator -->
+  <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+
+  <style>
+    :root {
+      --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-display: 'Outfit', sans-serif;
+
+      /* Light Theme Palette */
+      --bg-gradient: linear-gradient(135deg, #eef2f7 0%, #e2e8f0 40%, #f1f5f9 70%, #e0e7ff 100%);
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-border: rgba(255, 255, 255, 0.9);
+      --shadow-color: rgba(15, 23, 42, 0.08);
+
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: rgba(37, 99, 235, 0.1);
+      --primary-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+
+      --accent: #6366f1;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --input-focus: #2563eb;
+      
+      --dropzone-bg: rgba(241, 245, 249, 0.6);
+      --dropzone-border: #cbd5e1;
+      
+      --header-sub: #475569;
+    }
+
+    [data-theme="dark"] {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #090d16 100%);
+      --card-bg: rgba(30, 41, 59, 0.75);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --shadow-color: rgba(0, 0, 0, 0.4);
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-light: #64748b;
+
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-light: rgba(59, 130, 246, 0.15);
+      --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+
+      --input-bg: #1e293b;
+      --input-border: #334155;
+      --input-focus: #60a5fa;
+
+      --dropzone-bg: rgba(15, 23, 42, 0.5);
+      --dropzone-border: #334155;
+
+      --header-sub: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem 1rem;
+      background-attachment: fixed;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background glows */
+    .bg-glow-1 {
+      position: fixed;
+      top: -10%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-glow-2 {
+      position: fixed;
+      bottom: -10%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* TOP NAVBAR */
+    .navbar {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1rem 1.5rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px var(--shadow-color);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: var(--primary-gradient);
+      color: #ffffff;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .theme-btn, .settings-btn {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-main);
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 6px var(--shadow-color);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .theme-btn:hover, .settings-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* MAIN CONTAINER */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 32px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px var(--shadow-color);
+      animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .page-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* UPLOAD ZONE */
+    .upload-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--dropzone-border);
+      border-radius: 24px;
+      padding: 3.5rem 2rem;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: var(--dropzone-bg);
+      cursor: pointer;
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      transform: scale(1.01);
+    }
+
+    .upload-icon-wrapper {
+      width: 70px;
+      height: 70px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem auto;
+      font-size: 2.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .upload-zone:hover .upload-icon-wrapper {
+      transform: translateY(-4px) scale(1.05);
+    }
+
+    .upload-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+
+    .upload-hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    #fileInput {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* FILE LIST */
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .file-details {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      overflow: hidden;
+    }
+
+    .file-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .file-name {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+
+    .file-size {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .remove-file {
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 1.2rem;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .remove-file:hover {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* BUTTONS */
+    .btn {
+      padding: 0.9rem 1.8rem;
+      border: none;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      letter-spacing: -0.2px;
+    }
+
+    .btn-gradient {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+      width: 100%;
+    }
+
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
+    }
+
+    .btn-outline {
+      background: var(--input-bg);
+      color: var(--text-main);
+      border: 1px solid var(--input-border);
+      box-shadow: 0 2px 8px var(--shadow-color);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(37, 211, 102, 0.25);
+      width: 100%;
+    }
+
+    .btn-whatsapp:hover {
+      background: #20bd5a;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(37, 211, 102, 0.35);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      border-radius: 12px;
+    }
+
+    /* DATA PREVIEW & FORM */
+    #dataPreview {
+      display: none;
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 20px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-icon {
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .stat-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-main);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-main);
+      padding: 0.8rem 1rem;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    input.missing-field, textarea.missing-field {
+      border-color: var(--danger) !important;
+      background-color: rgba(239, 68, 68, 0.08) !important;
+    }
+
+    /* TABLE DESIGN */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 20px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background: var(--dropzone-bg);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--input-border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--input-border);
+      white-space: nowrap;
+    }
+
+    td input {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-main);
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    td input:focus {
+      background: var(--input-bg);
+      border-color: var(--primary);
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    /* OVERLAY SPINNER */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .spinner-box {
+      background: var(--card-bg);
+      padding: 2.5rem 3rem;
+      border-radius: 28px;
+      border: 1px solid var(--card-border);
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--primary-light);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-main);
+    }
+
+    /* MODALS */
+    .custom-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 2100;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      padding: 2.5rem;
+      border-radius: 32px;
+      width: 90%;
+      max-width: 650px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 25px 50px var(--shadow-color);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.5rem; right: 1.5rem;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: var(--dropzone-bg);
+      color: var(--text-main);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      border-bottom: 2px solid var(--input-border);
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      padding: 0.6rem 1.25rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .field-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .field-toggle-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1.25rem;
+      background: var(--input-bg);
+      border-radius: 16px;
+      border: 1px solid var(--input-border);
+      font-weight: 500;
+    }
+
+    /* DATA TABLE SECTION */
+    #dataTableSection {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .tabulator {
+      border-radius: 20px !important;
+      border: 1px solid var(--input-border) !important;
+      background: var(--input-bg) !important;
+      overflow: hidden;
+      box-shadow: 0 10px 30px var(--shadow-color);
+    }
+
+    .tabulator .tabulator-header {
+      background: var(--dropzone-bg) !important;
+      color: var(--text-main) !important;
+      border-bottom: 1px solid var(--input-border) !important;
+      font-weight: 700 !important;
+    }
+
+    .tabulator-row {
+      background: var(--input-bg) !important;
+      color: var(--text-main) !important;
+      border-bottom: 1px solid var(--input-border) !important;
+    }
+
+    .tabulator-row:hover {
+      background: var(--primary-light) !important;
+    }
+
+    /* Switch toggle */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--input-border);
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute; content: "";
+      height: 18px; width: 18px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    @media (max-width: 768px) {
+      .container { padding: 1.5rem; border-radius: 24px; }
+      .navbar { padding: 0.85rem 1rem; border-radius: 18px; }
+      .page-title { font-size: 1.75rem; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- TOP NAVBAR -->
+  <nav class="navbar">
+    <div class="brand">
+      <div class="brand-logo">RKD</div>
+      <div class="brand-text">
+        <span class="brand-title">RKD Furnishings</span>
+        <span class="brand-subtitle">PO OCR Extraction Suite</span>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn btn-outline btn-sm" onclick="showDataTable()">
+        <i class="fa-solid fa-database"></i> <span style="display:none; @media(min-width:600px){inline;}">Database</span>
+      </button>
+      <button class="settings-btn" title="API Configuration Settings" onclick="openApiSettingsModal()">
+        <i class="fa-solid fa-sliders"></i>
+      </button>
+      <button class="theme-btn" id="themeToggleBtn" title="Toggle Theme" onclick="toggleTheme()">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN SECTION -->
+  <main class="container">
+    <!-- UPLOAD SECTION -->
+    <div id="uploadSection">
+      <div class="page-header">
+        <h1 class="page-title">Extract Purchase Order Data</h1>
+        <p class="page-desc">Upload PO Documents (PDF, Excel, Images) for AI-powered multi-file item extraction.</p>
+      </div>
+
+      <div class="upload-label">
+        <span><i class="fa-solid fa-cloud-arrow-up"></i> Upload Documents</span>
+        <span id="fileCountBadge" style="font-size:0.8rem; color:var(--text-muted); font-weight:500;">0 files selected</span>
+      </div>
+
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".pdf,image/*,.xls,.xlsx" multiple>
+        <div class="upload-icon-wrapper">
+          <i class="fa-solid fa-file-circle-plus"></i>
+        </div>
+        <div class="upload-title">Drag & Drop files or click to browse</div>
+        <div class="upload-hint">Supports PDF, JPG, PNG, and Excel Files (.xlsx, .xls)</div>
+      </div>
+
+      <div class="file-list" id="fileList"></div>
+
+      <button class="btn btn-gradient" id="extractBtn" onclick="processFiles()" style="display: none;">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Merge & Extract Data with AI
+      </button>
+    </div>
+
+    <!-- DATA PREVIEW SECTION -->
+    <div id="dataPreview">
+      <div class="section-title">
+        <span><i class="fa-solid fa-clipboard-check"></i> Extracted Data Preview</span>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-outline btn-sm" onclick="openEditModal()">
+            <i class="fa-solid fa-gear"></i> Edit Fields
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="resetUI()">
+            <i class="fa-solid fa-rotate-left"></i> Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats summary cards -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <div>
+            <div class="stat-val" id="statTotalItems">0</div>
+            <div class="stat-lbl">Total Line Items</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+          <div>
+            <div class="stat-val" id="statTotalAmount">$0.00</div>
+            <div class="stat-lbl">Calculated Total</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger)"></i></div>
+          <div>
+            <div class="stat-val" id="statMissingCount">0</div>
+            <div class="stat-lbl">Missing Fields</div>
+          </div>
+        </div>
+      </div>
+
+      <form id="poForm">
+        <div class="form-grid" id="mainFieldsContainer">
+          <!-- Dynamic Main Fields -->
+        </div>
+
+        <div class="section-title" style="margin-top: 1.5rem;">
+          <span><i class="fa-solid fa-list-ul"></i> Line Items</span>
+          <button type="button" class="btn btn-outline btn-sm" onclick="addTableRow()">
+            <i class="fa-solid fa-plus"></i> Add Row
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table id="itemsTable">
+            <thead>
+              <tr id="itemsHeaderRow">
+                <!-- Dynamic Headers -->
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 2rem;">
+          <label><i class="fa-solid fa-note-sticky"></i> Remarks / Notes</label>
+          <textarea id="remarks" rows="2" placeholder="Add manual notes or specific instructions..."></textarea>
+        </div>
+
+        <div class="action-buttons">
+          <button type="button" class="btn btn-gradient" onclick="submitToSheet()" id="submitBtn">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Save to Google Sheet
+          </button>
+          <button type="button" class="btn btn-whatsapp" onclick="requestMissingInfoViaWhatsApp()" id="waBtn">
+            <i class="fa-brands fa-whatsapp"></i> Request Missing Info via WhatsApp
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- DATABASE VIEW CONTAINER -->
+  <div id="dataTableSection">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h2 style="font-family: var(--font-display); color: var(--text-main); font-size: 1.8rem; font-weight: 700;">
+        <i class="fa-solid fa-database"></i> Database Extracted Entries
+      </h2>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="hideDataTable()"><i class="fa-solid fa-arrow-left"></i> Back to Upload</button>
+      </div>
+    </div>
+    <div id="poDataTable"></div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="overlay" id="overlay">
+    <div class="spinner-box">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingText">Processing...</div>
+    </div>
+  </div>
+
+  <!-- EDIT FIELDS MODAL -->
+  <div class="custom-modal" id="editModal">
+    <div class="modal-content">
+      <i class="fa-solid fa-xmark modal-close" onclick="closeEditModal()"></i>
+      <h2 style="color: var(--text-main); margin-bottom: 1rem; font-family: var(--font-display);">Field Configuration</h2>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('visibilityTab', event)">Hide/Show Fields</div>
+        <div class="tab" onclick="switchTab('addFieldTab', event)">Add Custom Field</div>
+      </div>
+
+      <div id="visibilityTab" class="tab-content active">
+        <h4 style="margin-bottom:0.75rem; color:var(--text-muted); font-size:0.9rem;">Main PO Info Fields</h4>
+        <div class="field-list" id="mainFieldsToggleList"></div>
+
+        <h4 style="margin-bottom:0.75rem; color:var(--text-muted); margin-top:1.5rem; font-size:0.9rem;">Line Item Fields</h4>
+        <div class="field-list" id="itemFieldsToggleList"></div>
+
+        <button class="btn btn-gradient" style="margin-top: 1rem;" onclick="saveFieldVisibility()">
+          Save Visibility Settings
+        </button>
+      </div>
+
+      <div id="addFieldTab" class="tab-content">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label>Field Name</label>
+          <input type="text" id="newFieldName" placeholder="e.g. Buyer Code">
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label>Add to Section</label>
+          <select id="newFieldSection">
+            <option value="Main">Upper Section (Main Info)</option>
+            <option value="Item">Lower Section (Line Items)</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label>Data Type</label>
+          <select id="newFieldType">
+            <option value="text">Text</option>
+            <option value="number">Number</option>
+            <option value="date">Date</option>
+          </select>
+        </div>
+        <button class="btn btn-gradient" onclick="addNewCustomField()">Add New Field</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- API SETTINGS MODAL (For Vercel & External Deployments) -->
+  <div class="custom-modal" id="apiModal">
+    <div class="modal-content">
+      <i class="fa-solid fa-xmark modal-close" onclick="closeApiSettingsModal()"></i>
+      <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">API Endpoint Configuration</h2>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Configure your Google Apps Script Web App URL for hosting on Vercel / GitHub Pages.</p>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label>Google Apps Script Web App URL</label>
+        <input type="url" id="apiUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+
+      <div style="display:flex; gap:0.75rem;">
+        <button class="btn btn-gradient" onclick="saveApiUrl()">Save Endpoint</button>
+        <button class="btn btn-outline" onclick="closeApiSettingsModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─────────────────────────────────────────────
+    //  THEME & INITIALIZATION
+    // ─────────────────────────────────────────────
+    const SERVER_DRAFT_ID = "<?= typeof draftId !== 'undefined' ? draftId : '' ?>";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycby1DgPqjRIJ2AZja26UXpbkEie4y5XHqQMriXcwSmIswsCsJ-dBsDSRUHsh1SJzKlwDaw/exec' ?>";
+
+    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? 'https://script.google.com/macros/s/AKfycby1DgPqjRIJ2AZja26UXpbkEie4y5XHqQMriXcwSmIswsCsJ-dBsDSRUHsh1SJzKlwDaw/exec' : INITIAL_SCRIPT_URL);
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('rkd_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('rkd_theme', next);
+      updateThemeIcon(next);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('themeToggleBtn');
+      if (theme === 'dark') {
+        btn.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i>';
+      } else {
+        btn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+      }
+    }
+
+    initTheme();
+
+    // ─────────────────────────────────────────────
+    //  HYBRID BACKEND API BRIDGE
+    // ─────────────────────────────────────────────
+    async function callBackend(actionName, ...args) {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        return new Promise((resolve, reject) => {
+          google.script.run
+            .withSuccessHandler(res => resolve(res))
+            .withFailureHandler(err => reject(err))
+            [actionName](...args);
+        });
+      }
+
+      if (!storedApiUrl) {
+        openApiSettingsModal();
+        throw new Error("Please configure your Google Apps Script Web App URL in API Settings.");
+      }
+
+      try {
+        const response = await fetch(storedApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: actionName, args: args })
+        });
+        const json = await response.json();
+        return json;
+      } catch (err) {
+        console.error('Backend Call Failed:', err);
+        throw err;
+      }
+    }
+
+    function openApiSettingsModal() {
+      document.getElementById('apiUrlInput').value = storedApiUrl || '';
+      document.getElementById('apiModal').style.display = 'flex';
+    }
+
+    function closeApiSettingsModal() {
+      document.getElementById('apiModal').style.display = 'none';
+    }
+
+    function saveApiUrl() {
+      const val = document.getElementById('apiUrlInput').value.trim();
+      storedApiUrl = val;
+      localStorage.setItem('rkd_api_url', val);
+      closeApiSettingsModal();
+      Swal.fire('Saved!', 'API Endpoint updated successfully.', 'success');
+      loadAppConfig();
+    }
+
+    // ─────────────────────────────────────────────
+    //  APP STATE & INITIAL LOAD
+    // ─────────────────────────────────────────────
+    let uploadedFiles = [];
+    let extractedPayload = null;
+    let appConfig = { mainFields: [], itemFields: [] };
+    let appPasscode = "";
+
+    window.onload = async function () {
+      try {
+        const passRes = await callBackend('getPasscode');
+        appPasscode = passRes.passcode || passRes;
+      } catch(e) {}
+
+      loadAppConfig();
+    };
+
+    async function loadAppConfig() {
+      try {
+        const config = await callBackend('getAppConfig');
+        appConfig = config.config || config;
+        renderDynamicForm();
+        if (SERVER_DRAFT_ID) loadDraft();
+      } catch (err) {
+        console.log("Config load notice:", err);
+      }
+    }
+
+    async function loadDraft() {
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('loadingText').textContent = 'Loading Draft Data...';
+
+      try {
+        const response = await callBackend('getDraft', SERVER_DRAFT_ID);
+        document.getElementById('overlay').style.display = 'none';
+        if (response.success) {
+          extractedPayload = { extractedData: response.payload };
+          populateForm(response.payload);
+          document.getElementById('dataPreview').style.display = 'block';
+          document.getElementById('waBtn').style.display = 'none';
+        } else {
+          Swal.fire('Error', response.error, 'error');
+          document.getElementById('uploadSection').style.display = 'block';
+        }
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        Swal.fire('Error', err.message || err.toString(), 'error');
+      }
+    }
+
+    // ─────────────────────────────────────────────
+    //  FILE DRAG & DROP HANDLING
+    // ─────────────────────────────────────────────
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, prevDef, false));
+    function prevDef(e) { e.preventDefault(); e.stopPropagation(); }
+    ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('dragover'), false));
+    ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('dragover'), false));
+
+    dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+    fileInput.addEventListener('change', function () { handleFiles(this.files); });
+
+    function handleFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        uploadedFiles.push(files[i]);
+      }
+      renderFileList();
+    }
+
+    function removeFile(index) {
+      uploadedFiles.splice(index, 1);
+      renderFileList();
+    }
+
+    function renderFileList() {
+      const list = document.getElementById('fileList');
+      list.innerHTML = '';
+      const badge = document.getElementById('fileCountBadge');
+
+      if (uploadedFiles.length === 0) {
+        document.getElementById('extractBtn').style.display = 'none';
+        badge.textContent = '0 files selected';
+        return;
+      }
+
+      badge.textContent = `${uploadedFiles.length} file(s) selected`;
+      document.getElementById('extractBtn').style.display = 'inline-flex';
+
+      uploadedFiles.forEach((file, idx) => {
+        let iconClass = 'fa-file-lines';
+        if (file.type.includes('pdf')) iconClass = 'fa-file-pdf';
+        else if (file.type.includes('image')) iconClass = 'fa-file-image';
+        else if (file.name.includes('xls')) iconClass = 'fa-file-excel';
+
+        list.innerHTML += `
+          <div class="file-item">
+            <div class="file-details">
+              <div class="file-icon-box">
+                <i class="fa-solid ${iconClass}"></i>
+              </div>
+              <div>
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${formatBytes(file.size)}</div>
+              </div>
+            </div>
+            <button class="remove-file" onclick="removeFile(${idx})"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        `;
+      });
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          name: file.name,
+          type: file.type,
+          base64: reader.result.split(',')[1]
+        });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function processFiles() {
+      if (uploadedFiles.length === 0) return;
+
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('loadingText').textContent = 'Gemini AI is merging & extracting...';
+
+      try {
+        const fileDataArray = await Promise.all(uploadedFiles.map(f => readFileAsBase64(f)));
+        const response = await callBackend('processMultipleFiles', fileDataArray);
+        
+        document.getElementById('overlay').style.display = 'none';
+
+        if (response.success) {
+          extractedPayload = response;
+          populateForm(response.extractedData);
+
+          document.getElementById('uploadSection').style.display = 'none';
+          document.getElementById('dataPreview').style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          Swal.fire('Extraction Error', response.error, 'error');
+        }
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        Swal.fire('Error', 'Failed: ' + (err.message || err), 'error');
+      }
+    }
+
+    // ─────────────────────────────────────────────
+    //  DYNAMIC FORM & TABLE RENDERING
+    // ─────────────────────────────────────────────
+    function renderDynamicForm() {
+      const mainContainer = document.getElementById('mainFieldsContainer');
+      mainContainer.innerHTML = '';
+
+      if (!appConfig.mainFields) return;
+
+      appConfig.mainFields.forEach((field) => {
+        if (!field.visible || field.name === 'Remarks') return;
+
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.innerHTML = `<label>${field.name}</label><input type="${field.type || 'text'}" data-fieldname="${field.name}">`;
+        mainContainer.appendChild(div);
+      });
+
+      const itemHeaderRow = document.getElementById('itemsHeaderRow');
+      itemHeaderRow.innerHTML = '';
+      appConfig.itemFields.forEach(field => {
+        if (!field.visible) return;
+        const th = document.createElement('th');
+        th.textContent = field.name;
+        itemHeaderRow.appendChild(th);
+      });
+      const actionTh = document.createElement('th');
+      actionTh.style.width = '50px';
+      itemHeaderRow.appendChild(actionTh);
+    }
+
+    function populateForm(data) {
+      let missingCount = 0;
+
+      // Main Fields
+      appConfig.mainFields.forEach(f => {
+        if (!f.visible) return;
+        if (f.name === 'Remarks') {
+          const el = document.getElementById('remarks');
+          if (el) el.value = data[f.name] || '';
+          return;
+        }
+        const el = document.querySelector(`input[data-fieldname="${f.name}"]`);
+        if (el) {
+          el.value = data[f.name] || '';
+          el.classList.remove('missing-field');
+
+          if (!data[f.name] || String(data[f.name]).trim() === '') {
+            el.classList.add('missing-field');
+            missingCount++;
+          }
+        }
+      });
+
+      // Clear missing status on edit
+      document.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('input', function () {
+          if (this.value.trim() !== '') this.classList.remove('missing-field');
+          updateFormStats();
+        });
+      });
+
+      const tbody = document.getElementById('itemsBody');
+      tbody.innerHTML = '';
+
+      if (data.items && data.items.length > 0) {
+        data.items.forEach((item) => {
+          addTableRow(item);
+        });
+      } else {
+        addTableRow(); // Add 1 empty row by default
+      }
+
+      updateFormStats();
+    }
+
+    function addTableRow(item = {}) {
+      const tbody = document.getElementById('itemsBody');
+      const tr = document.createElement('tr');
+
+      appConfig.itemFields.forEach(f => {
+        if (!f.visible) return;
+        const td = document.createElement('td');
+        const val = item[f.name] || '';
+        td.innerHTML = `<input type="${f.type || 'text'}" data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
+        tr.appendChild(td);
+      });
+
+      const actionTd = document.createElement('td');
+      actionTd.innerHTML = `<button type="button" class="remove-file" onclick="removeTableRow(this)"><i class="fa-solid fa-trash-can"></i></button>`;
+      tr.appendChild(actionTd);
+
+      tbody.appendChild(tr);
+      updateFormStats();
+    }
+
+    function removeTableRow(btn) {
+      const row = btn.closest('tr');
+      row.remove();
+      updateFormStats();
+    }
+
+    function recalcRowAmounts(input) {
+      const tr = input.closest('tr');
+      const qtyEl = tr.querySelector('input[data-itemfieldname="Quantity"]');
+      const priceEl = tr.querySelector('input[data-itemfieldname="Unit Price"]');
+      const lineAmtEl = tr.querySelector('input[data-itemfieldname="Line Amount"]');
+
+      if (qtyEl && priceEl && lineAmtEl) {
+        const q = parseFloat(qtyEl.value.replace(/[^0-9.-]+/g,"")) || 0;
+        const p = parseFloat(priceEl.value.replace(/[^0-9.-]+/g,"")) || 0;
+        if (q && p) {
+          lineAmtEl.value = (q * p).toFixed(2);
+        }
+      }
+      updateFormStats();
+    }
+
+    function updateFormStats() {
+      const trs = document.querySelectorAll('#itemsBody tr');
+      document.getElementById('statTotalItems').textContent = trs.length;
+
+      let totalAmt = 0;
+      trs.forEach(tr => {
+        const lineAmtEl = tr.querySelector('input[data-itemfieldname="Line Amount"]') || tr.querySelector('input[data-itemfieldname="Unit Price"]');
+        if (lineAmtEl && lineAmtEl.value) {
+          totalAmt += parseFloat(lineAmtEl.value.replace(/[^0-9.-]+/g,"")) || 0;
+        }
+      });
+      document.getElementById('statTotalAmount').textContent = '$' + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      const missing = document.querySelectorAll('.missing-field');
+      document.getElementById('statMissingCount').textContent = missing.length;
+    }
+
+    // ─────────────────────────────────────────────
+    //  WHATSAPP MISSING INFO REQUEST
+    // ─────────────────────────────────────────────
+    async function requestMissingInfoViaWhatsApp() {
+      const missing = document.querySelectorAll('.missing-field');
+      if (missing.length === 0) {
+        Swal.fire('All Good!', 'There are no missing fields to request info for.', 'info');
+        return;
+      }
+
+      const missingFieldNames = Array.from(missing).map(el => {
+        let name = 'Line Item Field';
+        if (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL') {
+          name = el.previousElementSibling.innerText;
+        }
+        return name;
+      });
+
+      const uniqueMissing = [...new Set(missingFieldNames)];
+
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('loadingText').textContent = 'Saving Draft...';
+
+      const draftPayload = buildFormDataPayload();
+
+      try {
+        const resp = await callBackend('saveDraft', draftPayload);
+        if (resp.success) {
+          document.getElementById('loadingText').textContent = 'Sending WhatsApp Notification...';
+          const waResp = await callBackend('sendWhatsAppNotification', resp.draftId, uniqueMissing, storedApiUrl || INITIAL_SCRIPT_URL);
+          document.getElementById('overlay').style.display = 'none';
+
+          if (waResp.success) {
+            Swal.fire('Sent!', `WhatsApp notification sent to ${waResp.sentCount} number(s).`, 'success');
+          } else {
+            Swal.fire('Error', 'WhatsApp Failed: ' + waResp.error, 'error');
+          }
+        } else {
+          document.getElementById('overlay').style.display = 'none';
+          Swal.fire('Error', 'Failed to save draft: ' + resp.error, 'error');
+        }
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        Swal.fire('Error', err.message || err.toString(), 'error');
+      }
+    }
+
+    function buildFormDataPayload() {
+      const formData = {
+        remarks: document.getElementById('remarks').value,
+        fileNames: (extractedPayload && extractedPayload.extractedData && extractedPayload.extractedData.fileNames) ? extractedPayload.extractedData.fileNames : (uploadedFiles.length > 0 ? uploadedFiles.map(f => f.name).join(', ') : ''),
+        mainFileUrl: (extractedPayload && extractedPayload.extractedData && extractedPayload.extractedData.mainFileUrl) ? extractedPayload.extractedData.mainFileUrl : '',
+        items: []
+      };
+
+      appConfig.mainFields.forEach(f => {
+        if (!f.visible || f.name === 'Remarks') return;
+        const el = document.querySelector(`input[data-fieldname="${f.name}"]`);
+        formData[f.name] = el ? el.value : '';
+      });
+
+      const trs = document.getElementById('itemsBody').querySelectorAll('tr');
+      trs.forEach(tr => {
+        const itemObj = {};
+        appConfig.itemFields.forEach(f => {
+          if (!f.visible) return;
+          const el = tr.querySelector(`input[data-itemfieldname="${f.name}"]`);
+          itemObj[f.name] = el ? el.value : '';
+        });
+        formData.items.push(itemObj);
+      });
+      return formData;
+    }
+
+    // ─────────────────────────────────────────────
+    //  SUBMIT TO GOOGLE SHEET
+    // ─────────────────────────────────────────────
+    async function submitToSheet() {
+      const missing = document.querySelectorAll('.missing-field');
+      if (missing.length > 0) {
+        Swal.fire('Incomplete', 'Please fill all highlighted red fields before saving.', 'warning');
+        return;
+      }
+
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('loadingText').textContent = 'Saving to Google Sheet...';
+      document.getElementById('submitBtn').disabled = true;
+
+      const payload = buildFormDataPayload();
+      const rowsData = [];
+
+      if (payload.items.length === 0) {
+        payload.sourceFile = payload.fileNames;
+        payload.fileUrl = payload.mainFileUrl;
+        rowsData.push(payload);
+      } else {
+        payload.items.forEach(item => {
+          const itemData = { ...payload, ...item };
+          itemData.sourceFile = payload.fileNames;
+          itemData.fileUrl = payload.mainFileUrl;
+          delete itemData.items;
+          rowsData.push(itemData);
+        });
+      }
+
+      try {
+        const response = await callBackend('saveToSheet', rowsData);
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+
+        if (response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Saved Successfully!',
+            html: `Data saved to Google Sheet.<br><a href="#" onclick="Swal.close(); showDataTable();" style="color:var(--primary); text-decoration:none; margin-top:10px; display:inline-block; font-weight:600;"><i class="fa-solid fa-database"></i> View Database</a>`,
+            confirmButtonText: 'Extract Another PO'
+          }).then(() => {
+            resetUI();
+          });
+        } else {
+          Swal.fire('Error', response.error, 'error');
+        }
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+        Swal.fire('Error', 'Failed to save: ' + (err.message || err), 'error');
+      }
+    }
+
+    function resetUI() {
+      uploadedFiles = [];
+      extractedPayload = null;
+      fileInput.value = '';
+      renderFileList();
+      document.getElementById('uploadSection').style.display = 'block';
+      document.getElementById('dataPreview').style.display = 'none';
+      document.getElementById('poForm').reset();
+    }
+
+    function formatBytes(bytes, decimals = 2) {
+      if (!+bytes) return '0 Bytes';
+      const k = 1024, dm = decimals < 0 ? 0 : decimals, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+    }
+
+    // ─────────────────────────────────────────────
+    //  EDIT MODE MODAL & PASSCODE
+    // ─────────────────────────────────────────────
+    function openEditModal() {
+      if (!appPasscode) {
+        showEditModalContent();
+        return;
+      }
+
+      Swal.fire({
+        title: 'Security Access',
+        text: 'Enter passcode to configure system fields',
+        input: 'password',
+        inputPlaceholder: 'Enter Passcode...',
+        showCancelButton: true,
+        showConfirmButton: false,
+        didOpen: () => {
+          const input = Swal.getInput();
+          input.addEventListener('input', () => {
+            if (input.value === appPasscode) {
+              Swal.close();
+              showEditModalContent();
+            }
+          });
+        }
+      });
+    }
+
+    function showEditModalContent() {
+      document.getElementById('editModal').style.display = 'flex';
+      renderToggles();
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    function switchTab(tabId, ev) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      ev.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function renderToggles() {
+      const mainList = document.getElementById('mainFieldsToggleList');
+      const itemList = document.getElementById('itemFieldsToggleList');
+      mainList.innerHTML = ''; itemList.innerHTML = '';
+
+      const createToggle = (f, idx, sectionPrefix) => `
+        <div class="field-toggle-item">
+          <span>${f.name}</span>
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <select id="type_${sectionPrefix}_${idx}" style="padding:0.4rem; border-radius:8px; border:1px solid var(--input-border); font-size:0.85rem;">
+              <option value="text" ${f.type === 'text' || !f.type ? 'selected' : ''}>Text</option>
+              <option value="number" ${f.type === 'number' ? 'selected' : ''}>Number</option>
+              <option value="date" ${f.type === 'date' ? 'selected' : ''}>Date</option>
+            </select>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle${sectionPrefix}_${idx}" ${f.visible ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      `;
+
+      appConfig.mainFields.forEach((f, idx) => { mainList.innerHTML += createToggle(f, idx, 'Main'); });
+      appConfig.itemFields.forEach((f, idx) => { itemList.innerHTML += createToggle(f, idx, 'Item'); });
+    }
+
+    async function saveFieldVisibility() {
+      appConfig.mainFields.forEach((f, idx) => {
+        f.visible = document.getElementById(`toggleMain_${idx}`).checked;
+        f.type = document.getElementById(`type_Main_${idx}`).value;
+      });
+      appConfig.itemFields.forEach((f, idx) => {
+        f.visible = document.getElementById(`toggleItem_${idx}`).checked;
+        f.type = document.getElementById(`type_Item_${idx}`).value;
+      });
+
+      document.getElementById('loadingText').textContent = 'Saving Preferences...';
+      document.getElementById('overlay').style.display = 'flex';
+
+      try {
+        const res = await callBackend('updateFieldVisibility', appConfig);
+        document.getElementById('overlay').style.display = 'none';
+
+        if (res.success) {
+          Swal.fire('Saved', 'Visibility preferences updated!', 'success');
+          renderDynamicForm();
+          if (extractedPayload && extractedPayload.extractedData) {
+            populateForm(extractedPayload.extractedData);
+          }
+          closeEditModal();
+        } else {
+          Swal.fire('Error', res.error, 'error');
+        }
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        Swal.fire('Error', err.message || err.toString(), 'error');
+      }
+    }
+
+    async function addNewCustomField() {
+      const name = document.getElementById('newFieldName').value.trim();
+      const section = document.getElementById('newFieldSection').value;
+      const type = document.getElementById('newFieldType').value;
+      if (!name) { Swal.fire('Warning', 'Please enter a field name', 'warning'); return; }
+
+      document.getElementById('loadingText').textContent = 'Adding Field...';
+      document.getElementById('overlay').style.display = 'flex';
+
+      try {
+        const res = await callBackend('addCustomColumn', name, section, type);
+        document.getElementById('overlay').style.display = 'none';
+
+        if (res.success) {
+          appConfig = res.newConfig;
+          document.getElementById('newFieldName').value = '';
+          Swal.fire('Added!', `Field "${name}" added to ${section} section.`, 'success');
+          renderDynamicForm();
+          if (extractedPayload && extractedPayload.extractedData) {
+            populateForm(extractedPayload.extractedData);
+          }
+          closeEditModal();
+        } else {
+          Swal.fire('Error', res.error, 'error');
+        }
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        Swal.fire('Error', err.message || err.toString(), 'error');
+      }
+    }
+
+    // ─────────────────────────────────────────────
+    //  DATA TABLE / DATABASE VIEW LOGIC
+    // ─────────────────────────────────────────────
+    let tableInstance = null;
+
+    async function showDataTable() {
+      document.querySelector('.container').style.display = 'none';
+      document.getElementById('dataTableSection').style.display = 'block';
+
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('loadingText').textContent = 'Loading Database...';
+
+      try {
+        const res = await callBackend('getSavedData');
+        document.getElementById('overlay').style.display = 'none';
+        const data = res.data || res;
+        renderTabulator(data);
+      } catch (err) {
+        document.getElementById('overlay').style.display = 'none';
+        Swal.fire('Error', err.message || err.toString(), 'error');
+      }
+    }
+
+    function hideDataTable() {
+      document.getElementById('dataTableSection').style.display = 'none';
+      document.querySelector('.container').style.display = 'block';
+    }
+
+    function exportCSV() {
+      if (tableInstance) tableInstance.download("csv", "po_extracted_database.csv");
+    }
+
+    function renderTabulator(data) {
+      if (!data || data.length === 0) {
+        Swal.fire('No Data', 'There is no saved data to display yet.', 'info');
+        return;
+      }
+
+      const columns = [];
+
+      columns.push({
+        formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 50
+      });
+
+      Object.keys(data[0]).filter(k => k !== '_id').forEach(key => {
+        columns.push({
+          title: key,
+          field: key,
+          minWidth: 160,
+          headerFilter: "input",
+          formatter: key === 'Source File' ? 'html' : 'plaintext'
+        });
+      });
+
+      if (tableInstance) {
+        tableInstance.setData(data);
+      } else {
+        tableInstance = new Tabulator("#poDataTable", {
+          data: data,
+          layout: "fitDataFill",
+          columns: columns,
+          pagination: "local",
+          paginationSize: 15,
+          responsiveLayout: "collapse",
+          initialSort: [{ column: "Timestamp", dir: "desc" }]
+        });
+      }
+    }
+  </script>
+</body>
+
+</html>
