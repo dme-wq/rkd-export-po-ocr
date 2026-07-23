@@ -6,8 +6,19 @@
 //  Sheet Name   : Data
 // ============================================================
 
+function getGeminiApiKey() {
+  const propKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+  if (propKey && propKey.trim() !== '') return propKey.trim();
+  try {
+    const encodedDefault = 'QVEuQWI4Uk42TGlwSElQV3Z5RzQ4TWt0SjhCSXQ2UFZUZWQyNXlFYkh6akR1ZHRKTEZIOVE=';
+    return Utilities.newBlob(Utilities.base64Decode(encodedDefault)).getDataAsString();
+  } catch (e) {
+    return '';
+  }
+}
+
 const CONFIG = {
-  GEMINI_API_KEY: PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY') || 'YOUR_GEMINI_API_KEY',
+  GEMINI_API_KEY: getGeminiApiKey(),
   FOLDER_ID : '1do_kkIqVM9BUnIR9hLlT92HelH1vjnnF',
   SHEET_ID  : '1uCyRLko_G9OEOBuim8RI8uZqm5kNQrOUiDSTYlyFLXU',
   SHEET_NAME: 'Data',
@@ -296,7 +307,8 @@ function callGeminiAPI(documentParts) {
     "items": [ itemSchema ]
   };
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
+  const apiKey = getGeminiApiKey();
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
   
   const promptText = `You are a highly skilled data extraction AI. You will be provided with one or MULTIPLE Purchase Order (PO) documents (images/pdfs/text). 
 Your task is to merge the data from ALL provided documents into a single JSON object.
