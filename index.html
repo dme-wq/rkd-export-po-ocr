@@ -667,13 +667,15 @@
       letter-spacing: 0.8px;
       padding: 1rem 1.25rem;
       border-bottom: 1px solid var(--input-border);
-      white-space: nowrap;
+      white-space: normal !important;
+      word-break: break-word !important;
     }
 
     td {
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--input-border);
-      white-space: nowrap;
+      white-space: normal !important;
+      word-break: break-word !important;
     }
 
     td input {
@@ -686,6 +688,8 @@
       border-radius: 10px;
       font-size: 0.9rem;
       outline: none;
+      white-space: normal !important;
+      word-break: break-word !important;
       transition: all 0.2s ease;
     }
 
@@ -1107,6 +1111,14 @@
     #poDataTable .tabulator-cell {
       padding: 0.75rem 1rem !important;
       border-right: 1px solid var(--input-border) !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+
+    #poDataTable .tabulator-col-content {
+      white-space: normal !important;
+      word-break: break-word !important;
     }
 
     .sap-po-badge {
@@ -2288,6 +2300,7 @@
           title: key,
           field: key,
           minWidth: 160,
+          formatter: "textarea", // Multiline Wrap Text formatter!
           editor: "input", // Enable SAP Inline Cell Editing
           headerFilter: false
         };
