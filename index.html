@@ -1721,7 +1721,12 @@
     const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI--c1N4JBE3QGe5UDXUuKmaJX0I6CgeCZ-Q/exec";
     const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI--c1N4JBE3QGe5UDXUuKmaJX0I6CgeCZ-Q/exec' ?>";
 
-    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? DEFAULT_DEPLOY_URL : INITIAL_SCRIPT_URL);
+    let savedUrl = localStorage.getItem('rkd_api_url');
+    if (!savedUrl || savedUrl.includes('AKfycbwUL818gwGY')) {
+      savedUrl = DEFAULT_DEPLOY_URL;
+      localStorage.setItem('rkd_api_url', DEFAULT_DEPLOY_URL);
+    }
+    let storedApiUrl = savedUrl;
     let currentCurrencySymbol = localStorage.getItem('rkd_currency') || '$';
 
     function initTheme() {
@@ -1844,40 +1849,8 @@
         dec: 11, december: 11
       };
 
-      // 1. DD-MMM-YYYY or DD MMM YYYY or DD/MMM/YYYY with optional time
-      let match = str.match(/^(\d{1,2})[\s\/\-\.]?([a-zA-Z]{3,9})[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-      if (match) {
-        let day = parseInt(match[1], 10);
-        let mStr = match[2].toLowerCase();
-        let year = parseInt(match[3], 10);
-        if (year < 100) year += 2000;
-        let month = monthMap[mStr];
-        if (month !== undefined) {
-          let hh = match[4] ? parseInt(match[4], 10) : 0;
-          let mm = match[5] ? parseInt(match[5], 10) : 0;
-          let ss = match[6] ? parseInt(match[6], 10) : 0;
-          return new Date(year, month, day, hh, mm, ss);
-        }
-      }
-
-      // 2. MMM DD, YYYY or MMM DD YYYY with optional time
-      match = str.match(/^([a-zA-Z]{3,9})[\s\/\-\.]?(\d{1,2}),?[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-      if (match) {
-        let mStr = match[1].toLowerCase();
-        let day = parseInt(match[2], 10);
-        let year = parseInt(match[3], 10);
-        if (year < 100) year += 2000;
-        let month = monthMap[mStr];
-        if (month !== undefined) {
-          let hh = match[4] ? parseInt(match[4], 10) : 0;
-          let mm = match[5] ? parseInt(match[5], 10) : 0;
-          let ss = match[6] ? parseInt(match[6], 10) : 0;
-          return new Date(year, month, day, hh, mm, ss);
-        }
-      }
-
-      // 3. YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD with optional time
-      match = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      // 1. YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD with optional time
+      let match = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
       if (match) {
         let year = parseInt(match[1], 10);
         let month = parseInt(match[2], 10) - 1;
@@ -1885,25 +1858,84 @@
         let hh = match[4] ? parseInt(match[4], 10) : 0;
         let mm = match[5] ? parseInt(match[5], 10) : 0;
         let ss = match[6] ? parseInt(match[6], 10) : 0;
-        return new Date(year, month, day, hh, mm, ss);
+        if (month >= 0 && month < 12 && day >= 1 && day <= 31) {
+          return new Date(year, month, day, hh, mm, ss);
+        }
       }
 
-      // 4. DD-MM-YYYY or DD/MM/YYYY or MM/DD/YYYY or DD.MM.YYYY
-      match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      // 2. DD-MMM-YYYY or DD MMM YYYY or DD/MMM/YYYY with optional time
+      match = str.match(/^(\d{1,2})[\s\/\-\.]?([a-zA-Z]{3,9})[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+      if (match) {
+        let day = parseInt(match[1], 10);
+        let mStr = match[2].toLowerCase();
+        let year = parseInt(match[3], 10);
+        if (year < 100) year += 2000;
+        let month = monthMap[mStr];
+        if (month !== undefined && day >= 1 && day <= 31) {
+          let hh = match[4] ? parseInt(match[4], 10) : 0;
+          let mm = match[5] ? parseInt(match[5], 10) : 0;
+          let ss = match[6] ? parseInt(match[6], 10) : 0;
+          return new Date(year, month, day, hh, mm, ss);
+        }
+      }
+
+      // 3. MMM DD, YYYY or MMM DD YYYY with optional time
+      match = str.match(/^([a-zA-Z]{3,9})[\s\/\-\.]?(\d{1,2}),?[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+      if (match) {
+        let mStr = match[1].toLowerCase();
+        let day = parseInt(match[2], 10);
+        let year = parseInt(match[3], 10);
+        if (year < 100) year += 2000;
+        let month = monthMap[mStr];
+        if (month !== undefined && day >= 1 && day <= 31) {
+          let hh = match[4] ? parseInt(match[4], 10) : 0;
+          let mm = match[5] ? parseInt(match[5], 10) : 0;
+          let ss = match[6] ? parseInt(match[6], 10) : 0;
+          return new Date(year, month, day, hh, mm, ss);
+        }
+      }
+
+      // 4. DD-MM-YYYY or DD/MM/YYYY or MM/DD/YYYY or DD.MM.YYYY with 4-digit year at end
+      match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
       if (match) {
         let p1 = parseInt(match[1], 10);
         let p2 = parseInt(match[2], 10);
         let year = parseInt(match[3], 10);
-        if (year < 100) year += 2000;
         let hh = match[4] ? parseInt(match[4], 10) : 0;
         let mm = match[5] ? parseInt(match[5], 10) : 0;
         let ss = match[6] ? parseInt(match[6], 10) : 0;
 
         let day, month;
-        if (p1 > 12) {
+        if (p1 > 12 && p2 <= 12) {
           day = p1;
           month = p2 - 1;
-        } else if (p2 > 12) {
+        } else if (p2 > 12 && p1 <= 12) {
+          day = p2;
+          month = p1 - 1;
+        } else {
+          day = p1;
+          month = p2 - 1;
+        }
+        if (month >= 0 && month < 12 && day >= 1 && day <= 31) {
+          return new Date(year, month, day, hh, mm, ss);
+        }
+      }
+
+      // 5. DD-MM-YY or MM/DD/YY with 2-digit year at end
+      match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+      if (match) {
+        let p1 = parseInt(match[1], 10);
+        let p2 = parseInt(match[2], 10);
+        let year = parseInt(match[3], 10) + 2000;
+        let hh = match[4] ? parseInt(match[4], 10) : 0;
+        let mm = match[5] ? parseInt(match[5], 10) : 0;
+        let ss = match[6] ? parseInt(match[6], 10) : 0;
+
+        let day, month;
+        if (p1 > 12 && p2 <= 12) {
+          day = p1;
+          month = p2 - 1;
+        } else if (p2 > 12 && p1 <= 12) {
           day = p2;
           month = p1 - 1;
         } else {
@@ -1923,8 +1955,11 @@
 
     function formatShortDate(val) {
       if (val === null || val === undefined || val === '') return '';
+      const str = String(val).trim();
+      if (/^\d{2}-[a-zA-Z]{3}-\d{4}$/.test(str)) return str;
+
       const d = parseAnyDate(val);
-      if (!d) return String(val);
+      if (!d) return str;
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const day = String(d.getDate()).padStart(2, '0');
       const month = months[d.getMonth()];
@@ -1934,8 +1969,11 @@
 
     function formatLongDateTime(val) {
       if (val === null || val === undefined || val === '') return '';
+      const str = String(val).trim();
+      if (/^\d{2}-[a-zA-Z]{3}-\d{4} \d{2}:\d{2}:\d{2}$/.test(str)) return str;
+
       const d = parseAnyDate(val);
-      if (!d) return String(val);
+      if (!d) return str;
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const day = String(d.getDate()).padStart(2, '0');
       const month = months[d.getMonth()];
@@ -2718,7 +2756,7 @@
             const val = cell.getValue();
             return val ? formatLongDateTime(val) : '';
           };
-        } else if (isDateKey(key, appConfig)) {
+        } else if (isDateKey(key, appConfig) || key.toLowerCase().includes('date')) {
           colDef.formatter = function (cell) {
             const val = cell.getValue();
             return val ? formatShortDate(val) : '';
@@ -2739,10 +2777,13 @@
           };
           colDef.hozAlign = "right";
         } else {
-          // Capitalize Each Word
+          // Capitalize Each Word (unless it's a date string)
           colDef.formatter = function (cell) {
             const val = cell.getValue();
             if (!val) return '';
+            if (parseAnyDate(val)) {
+              return formatShortDate(val);
+            }
             return toTitleCase(String(val));
           };
         }
@@ -2767,8 +2808,18 @@
             });
 
             const vendor = toTitleCase(data[0]['Vendor Name'] || data[0]['Buyer / Company Name'] || 'PO Record');
-            const rawDate = data[0]['Order Date'] || data[0]['Timestamp'] || '';
-            const orderDate = rawDate ? (data[0]['Order Date'] ? formatShortDate(rawDate) : formatLongDateTime(rawDate)) : '';
+            
+            let rawDate = '';
+            if (data[0]) {
+              for (let k in data[0]) {
+                if (k.toLowerCase().includes('date') && data[0][k]) {
+                  rawDate = data[0][k];
+                  break;
+                }
+              }
+              if (!rawDate) rawDate = data[0]['Timestamp'] || '';
+            }
+            const orderDate = rawDate ? formatShortDate(rawDate) : '';
 
             return `
               <div class="sap-group-header-content">

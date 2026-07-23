@@ -646,10 +646,15 @@ function getSavedData() {
         const headerName = headers[j];
         if (headerName === 'Timestamp') {
           if (val) val = formatLongDateTime(val);
-        } else if (isDateKey(headerName, config)) {
+        } else if (isDateKey(headerName, config) || (headerName && String(headerName).toLowerCase().includes('date'))) {
           if (val) val = formatShortDate(val);
         } else if (val instanceof Date) {
           val = formatShortDate(val);
+        } else if (val && typeof val === 'string' && val.trim() !== '') {
+          const parsed = parseAnyDate(val);
+          if (parsed && (String(headerName).toLowerCase().includes('date') || String(headerName).toLowerCase().includes('time'))) {
+            val = formatShortDate(val);
+          }
         }
         obj[headerName] = val;
       }
@@ -755,40 +760,8 @@ function parseAnyDate(val) {
     dec: 11, december: 11
   };
 
-  // 1. DD-MMM-YYYY or DD MMM YYYY or DD/MMM/YYYY with optional time
-  let match = str.match(/^(\d{1,2})[\s\/\-\.]?([a-zA-Z]{3,9})[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-  if (match) {
-    let day = parseInt(match[1], 10);
-    let mStr = match[2].toLowerCase();
-    let year = parseInt(match[3], 10);
-    if (year < 100) year += 2000;
-    let month = monthMap[mStr];
-    if (month !== undefined) {
-      let hh = match[4] ? parseInt(match[4], 10) : 0;
-      let mm = match[5] ? parseInt(match[5], 10) : 0;
-      let ss = match[6] ? parseInt(match[6], 10) : 0;
-      return new Date(year, month, day, hh, mm, ss);
-    }
-  }
-
-  // 2. MMM DD, YYYY or MMM DD YYYY with optional time
-  match = str.match(/^([a-zA-Z]{3,9})[\s\/\-\.]?(\d{1,2}),?[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
-  if (match) {
-    let mStr = match[1].toLowerCase();
-    let day = parseInt(match[2], 10);
-    let year = parseInt(match[3], 10);
-    if (year < 100) year += 2000;
-    let month = monthMap[mStr];
-    if (month !== undefined) {
-      let hh = match[4] ? parseInt(match[4], 10) : 0;
-      let mm = match[5] ? parseInt(match[5], 10) : 0;
-      let ss = match[6] ? parseInt(match[6], 10) : 0;
-      return new Date(year, month, day, hh, mm, ss);
-    }
-  }
-
-  // 3. YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD with optional time
-  match = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  // 1. YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD with optional time
+  let match = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
   if (match) {
     let year = parseInt(match[1], 10);
     let month = parseInt(match[2], 10) - 1;
@@ -796,25 +769,84 @@ function parseAnyDate(val) {
     let hh = match[4] ? parseInt(match[4], 10) : 0;
     let mm = match[5] ? parseInt(match[5], 10) : 0;
     let ss = match[6] ? parseInt(match[6], 10) : 0;
-    return new Date(year, month, day, hh, mm, ss);
+    if (month >= 0 && month < 12 && day >= 1 && day <= 31) {
+      return new Date(year, month, day, hh, mm, ss);
+    }
   }
 
-  // 4. DD-MM-YYYY or DD/MM/YYYY or MM/DD/YYYY or DD.MM.YYYY
-  match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  // 2. DD-MMM-YYYY or DD MMM YYYY or DD/MMM/YYYY with optional time
+  match = str.match(/^(\d{1,2})[\s\/\-\.]?([a-zA-Z]{3,9})[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (match) {
+    let day = parseInt(match[1], 10);
+    let mStr = match[2].toLowerCase();
+    let year = parseInt(match[3], 10);
+    if (year < 100) year += 2000;
+    let month = monthMap[mStr];
+    if (month !== undefined && day >= 1 && day <= 31) {
+      let hh = match[4] ? parseInt(match[4], 10) : 0;
+      let mm = match[5] ? parseInt(match[5], 10) : 0;
+      let ss = match[6] ? parseInt(match[6], 10) : 0;
+      return new Date(year, month, day, hh, mm, ss);
+    }
+  }
+
+  // 3. MMM DD, YYYY or MMM DD YYYY with optional time
+  match = str.match(/^([a-zA-Z]{3,9})[\s\/\-\.]?(\d{1,2}),?[\s\/\-\.]?(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (match) {
+    let mStr = match[1].toLowerCase();
+    let day = parseInt(match[2], 10);
+    let year = parseInt(match[3], 10);
+    if (year < 100) year += 2000;
+    let month = monthMap[mStr];
+    if (month !== undefined && day >= 1 && day <= 31) {
+      let hh = match[4] ? parseInt(match[4], 10) : 0;
+      let mm = match[5] ? parseInt(match[5], 10) : 0;
+      let ss = match[6] ? parseInt(match[6], 10) : 0;
+      return new Date(year, month, day, hh, mm, ss);
+    }
+  }
+
+  // 4. DD-MM-YYYY or DD/MM/YYYY or MM/DD/YYYY or DD.MM.YYYY with 4-digit year at end
+  match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
   if (match) {
     let p1 = parseInt(match[1], 10);
     let p2 = parseInt(match[2], 10);
     let year = parseInt(match[3], 10);
-    if (year < 100) year += 2000;
     let hh = match[4] ? parseInt(match[4], 10) : 0;
     let mm = match[5] ? parseInt(match[5], 10) : 0;
     let ss = match[6] ? parseInt(match[6], 10) : 0;
 
     let day, month;
-    if (p1 > 12) {
+    if (p1 > 12 && p2 <= 12) {
       day = p1;
       month = p2 - 1;
-    } else if (p2 > 12) {
+    } else if (p2 > 12 && p1 <= 12) {
+      day = p2;
+      month = p1 - 1;
+    } else {
+      day = p1;
+      month = p2 - 1;
+    }
+    if (month >= 0 && month < 12 && day >= 1 && day <= 31) {
+      return new Date(year, month, day, hh, mm, ss);
+    }
+  }
+
+  // 5. DD-MM-YY or MM/DD/YY with 2-digit year at end
+  match = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2})(?:[\sT](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (match) {
+    let p1 = parseInt(match[1], 10);
+    let p2 = parseInt(match[2], 10);
+    let year = parseInt(match[3], 10) + 2000;
+    let hh = match[4] ? parseInt(match[4], 10) : 0;
+    let mm = match[5] ? parseInt(match[5], 10) : 0;
+    let ss = match[6] ? parseInt(match[6], 10) : 0;
+
+    let day, month;
+    if (p1 > 12 && p2 <= 12) {
+      day = p1;
+      month = p2 - 1;
+    } else if (p2 > 12 && p1 <= 12) {
       day = p2;
       month = p1 - 1;
     } else {
@@ -834,8 +866,11 @@ function parseAnyDate(val) {
 
 function formatShortDate(val) {
   if (val === null || val === undefined || val === '') return '';
+  const str = String(val).trim();
+  if (/^\d{2}-[a-zA-Z]{3}-\d{4}$/.test(str)) return str;
+
   const d = parseAnyDate(val);
-  if (!d) return String(val);
+  if (!d) return str;
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const day = String(d.getDate()).padStart(2, '0');
   const month = months[d.getMonth()];
@@ -845,8 +880,11 @@ function formatShortDate(val) {
 
 function formatLongDateTime(val) {
   if (val === null || val === undefined || val === '') return '';
+  const str = String(val).trim();
+  if (/^\d{2}-[a-zA-Z]{3}-\d{4} \d{2}:\d{2}:\d{2}$/.test(str)) return str;
+
   const d = parseAnyDate(val);
-  if (!d) return String(val);
+  if (!d) return str;
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const day = String(d.getDate()).padStart(2, '0');
   const month = months[d.getMonth()];
