@@ -1611,9 +1611,9 @@
     }
     const SERVER_DRAFT_ID = rawDraftId;
 
-    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbz35R8MpakV6m9t-Smbh1_fqIMs6urYBVK2oro4ITH1B5mAQEQnF3MCxwXJleCm_fxhbg/exec' ?>";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbwUL818gwGY_jfcwP6CEhQoIbIPOGocepKEcgcUi7psPxtCBt8C50NQoDVJEqP1oOkmZw/exec' ?>";
 
-    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? 'https://script.google.com/macros/s/AKfycbz35R8MpakV6m9t-Smbh1_fqIMs6urYBVK2oro4ITH1B5mAQEQnF3MCxwXJleCm_fxhbg/exec' : INITIAL_SCRIPT_URL);
+    let storedApiUrl = localStorage.getItem('rkd_api_url') || (INITIAL_SCRIPT_URL.includes('<?=') ? 'https://script.google.com/macros/s/AKfycbwUL818gwGY_jfcwP6CEhQoIbIPOGocepKEcgcUi7psPxtCBt8C50NQoDVJEqP1oOkmZw/exec' : INITIAL_SCRIPT_URL);
     let currentCurrencySymbol = localStorage.getItem('rkd_currency') || '$';
 
     function initTheme() {
