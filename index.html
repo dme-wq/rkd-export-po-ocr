@@ -887,36 +887,245 @@
       font-weight: 500;
     }
 
-    /* DATA TABLE SECTION */
+    /* SAP FIORI ENTERPRISE ERP DESIGN SYSTEM */
     #dataTableSection {
       display: none;
       width: 100%;
-      max-width: 1240px;
+      max-width: 1280px;
     }
 
-    .tabulator {
+    .sap-fiori-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: linear-gradient(135deg, #1c2d42 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 1.5rem 2rem;
+      border-radius: 24px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sap-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sap-logo-badge {
+      width: 50px; height: 50px;
+      border-radius: 14px;
+      background: rgba(59, 130, 246, 0.25);
+      color: #60a5fa;
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .sap-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .sap-subtitle {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .sap-actions-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .sap-btn {
+      padding: 0.65rem 1.25rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .sap-btn-primary {
+      background: #3b82f6;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .sap-btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .sap-btn-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sap-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .sap-kpi-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sap-kpi-tile {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-top: 4px solid var(--primary);
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 14px var(--shadow-color);
+    }
+
+    .sap-kpi-val {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .sap-kpi-lbl {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .sap-grid-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .sap-search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      padding: 0.65rem 1.25rem;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 2px 8px var(--shadow-color);
+    }
+
+    .sap-search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .sap-grid-counter {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sap-btn-icon {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sap-btn-icon:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* SAP TABULATOR GRID CUSTOM STYLING */
+    #poDataTable .tabulator {
       border-radius: 20px !important;
       border: 1px solid var(--input-border) !important;
       background: var(--input-bg) !important;
       overflow: hidden;
       box-shadow: 0 10px 30px var(--shadow-color);
+      font-family: var(--font-main) !important;
+      font-size: 0.88rem !important;
     }
 
-    .tabulator .tabulator-header {
-      background: var(--dropzone-bg) !important;
-      color: var(--text-main) !important;
-      border-bottom: 1px solid var(--input-border) !important;
+    #poDataTable .tabulator .tabulator-header {
+      background: #1c2d42 !important;
+      color: #ffffff !important;
       font-weight: 700 !important;
+      border-bottom: 2px solid #334155 !important;
     }
 
-    .tabulator-row {
+    #poDataTable .tabulator .tabulator-header .tabulator-col {
+      background: transparent !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+      padding: 0.75rem 0.5rem !important;
+    }
+
+    #poDataTable .tabulator-row {
       background: var(--input-bg) !important;
       color: var(--text-main) !important;
       border-bottom: 1px solid var(--input-border) !important;
     }
 
-    .tabulator-row:hover {
+    #poDataTable .tabulator-row:nth-child(even) {
+      background: var(--dropzone-bg) !important;
+    }
+
+    #poDataTable .tabulator-row:hover {
       background: var(--primary-light) !important;
+    }
+
+    #poDataTable .tabulator-cell {
+      padding: 0.75rem 1rem !important;
+      border-right: 1px solid var(--input-border) !important;
+    }
+
+    .sap-po-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(37, 99, 235, 0.12);
+      color: #2563eb;
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    [data-theme="dark"] .sap-po-badge {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border-color: rgba(96, 165, 250, 0.4);
     }
 
     /* Switch toggle */
@@ -1121,17 +1330,58 @@
     </div>
   </main>
 
-  <!-- DATABASE VIEW CONTAINER -->
+  <!-- SAP FIORI ERP DATABASE WORKBENCH CONTAINER -->
   <div id="dataTableSection">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap:wrap; gap:1rem;">
-      <h2 style="font-family: var(--font-display); color: var(--text-main); font-size: 1.8rem; font-weight: 800;">
-        <i class="fa-solid fa-database" style="color:var(--primary);"></i> Database Extracted Entries
-      </h2>
-      <div style="display: flex; gap: 0.75rem;">
-        <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
-        <button class="btn btn-outline btn-sm" onclick="hideDataTable()"><i class="fa-solid fa-arrow-left"></i> Back to Upload</button>
+    <!-- SAP Fiori Header Toolbar -->
+    <div class="sap-fiori-header">
+      <div class="sap-brand-row">
+        <div class="sap-logo-badge">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <div>
+          <h2 class="sap-title">SAP S/4HANA Enterprise PO Data Workbench</h2>
+          <p class="sap-subtitle">Real-time Central Procurement Repository & Extracted Line Items Grid</p>
+        </div>
+      </div>
+      <div class="sap-actions-row">
+        <button class="sap-btn sap-btn-primary" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Export Excel/CSV</button>
+        <button class="sap-btn sap-btn-secondary" onclick="hideDataTable()"><i class="fa-solid fa-arrow-left"></i> Back to Extractor</button>
       </div>
     </div>
+
+    <!-- SAP KPI Summary Tiles -->
+    <div class="sap-kpi-bar">
+      <div class="sap-kpi-tile">
+        <div class="sap-kpi-val" id="sapKpiTotalRows">0</div>
+        <div class="sap-kpi-lbl">Extracted Line Items</div>
+      </div>
+      <div class="sap-kpi-tile">
+        <div class="sap-kpi-val" id="sapKpiUniquePOs">0</div>
+        <div class="sap-kpi-lbl">Total Purchase Orders</div>
+      </div>
+      <div class="sap-kpi-tile">
+        <div class="sap-kpi-val" id="sapKpiTotalValue">$0.00</div>
+        <div class="sap-kpi-lbl">Total Extracted Value</div>
+      </div>
+      <div class="sap-kpi-tile">
+        <div class="sap-kpi-val" id="sapKpiVendors">0</div>
+        <div class="sap-kpi-lbl">Active Vendors</div>
+      </div>
+    </div>
+
+    <!-- SAP Grid Search & Filter Toolbar -->
+    <div class="sap-grid-toolbar">
+      <div class="sap-search-box">
+        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
+        <input type="text" id="sapGridSearchInput" placeholder="Filter SAP PO Grid (PO #, SKU, Vendor, Buyer...)" oninput="filterSapGrid()">
+      </div>
+      <div style="display:flex; gap:0.75rem; align-items:center;">
+        <span class="sap-grid-counter" id="sapGridCounterText">Showing 0 entries</span>
+        <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i class="fa-solid fa-rotate-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Tabulator SAP Grid Container -->
     <div id="poDataTable"></div>
   </div>
 
@@ -2012,20 +2262,54 @@
         return;
       }
 
+      // Calculate SAP ERP KPI Stats
+      const uniquePOs = new Set(data.map(d => d['PO Number']).filter(Boolean)).size;
+      const uniqueVendors = new Set(data.map(d => d['Vendor Name']).filter(Boolean)).size;
+      let totalVal = 0;
+      data.forEach(d => {
+        const amt = parseFloat(String(d['Line Amount'] || d['Unit Price'] || d['Total Order Amount'] || '0').replace(/[^0-9.-]+/g,"")) || 0;
+        totalVal += amt;
+      });
+
+      document.getElementById('sapKpiTotalRows').textContent = data.length;
+      document.getElementById('sapKpiUniquePOs').textContent = uniquePOs;
+      document.getElementById('sapKpiTotalValue').textContent = currentCurrencySymbol + totalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('sapKpiVendors').textContent = uniqueVendors;
+      document.getElementById('sapGridCounterText').textContent = `Showing ${data.length} entries`;
+
       const columns = [];
 
       columns.push({
-        formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 50
+        formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 45
       });
 
       Object.keys(data[0]).filter(k => k !== '_id').forEach(key => {
-        columns.push({
+        let colDef = {
           title: key,
           field: key,
           minWidth: 160,
-          headerFilter: "input",
-          formatter: key === 'Source File' ? 'html' : 'plaintext'
-        });
+          editor: "input", // Enable SAP Inline Cell Editing
+          headerFilter: false
+        };
+
+        if (key === 'PO Number') {
+          colDef.formatter = function(cell) {
+            const val = cell.getValue();
+            return val ? `<span class="sap-po-badge"><i class="fa-solid fa-hashtag"></i> ${val}</span>` : '';
+          };
+        } else if (key === 'Source File') {
+          colDef.formatter = 'html';
+        } else if (key === 'Line Amount' || key === 'Unit Price' || key === 'Total Order Amount') {
+          colDef.formatter = function(cell) {
+            const val = cell.getValue();
+            if (!val) return '';
+            const num = parseFloat(String(val).replace(/[^0-9.-]+/g,"")) || 0;
+            return `<strong>${currentCurrencySymbol}${num.toFixed(2)}</strong>`;
+          };
+          colDef.hozAlign = "right";
+        }
+
+        columns.push(colDef);
       });
 
       if (tableInstance) {
@@ -2033,12 +2317,41 @@
       } else {
         tableInstance = new Tabulator("#poDataTable", {
           data: data,
-          layout: "fitDataFill",
+          layout: "fitDataFill", // Horizontal SAP Enterprise Grid Layout
           columns: columns,
           pagination: "local",
-          paginationSize: 15,
-          responsiveLayout: "collapse",
+          paginationSize: 20,
+          paginationSizeSelector: [10, 20, 50, 100],
           initialSort: [{ column: "Timestamp", dir: "desc" }]
+        });
+
+        // SAP Live Cell Sync to Google Sheets
+        tableInstance.on("cellEdited", async function(cell) {
+          const rowData = cell.getRow().getData();
+          const rowNum = rowData._id;
+          const field = cell.getField();
+          const newVal = cell.getValue();
+
+          if (rowNum) {
+            try {
+              await callBackend('updateSingleCell', rowNum, field, newVal);
+              Swal.fire({
+                icon: 'success', title: 'SAP Grid Sync', text: `Saved "${field}" to Google Sheets`,
+                toast: true, position: 'top-end', timer: 2000, showConfirmButton: false
+              });
+            } catch(e) {
+              console.error("Cell sync error:", e);
+            }
+          }
+        });
+      }
+    }
+
+    function filterSapGrid() {
+      const query = document.getElementById('sapGridSearchInput').value.toLowerCase();
+      if (tableInstance) {
+        tableInstance.setFilter(function(data) {
+          return Object.values(data).some(val => String(val).toLowerCase().includes(query));
         });
       }
     }
