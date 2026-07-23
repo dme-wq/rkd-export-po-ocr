@@ -551,9 +551,31 @@
       letter-spacing: 0.2px;
     }
 
+    /* EDITABLE YELLOW HIGHLIGHTER STYLING */
+    .editable-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #fef9c3;
+      color: #854d0e;
+      border: 1px solid #fef08a;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(234, 179, 8, 0.15);
+    }
+
+    [data-theme="dark"] .editable-badge {
+      background: rgba(234, 179, 8, 0.2);
+      color: #fef08a;
+      border-color: rgba(234, 179, 8, 0.4);
+    }
+
     .form-group input, .form-group textarea, .form-group select {
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
+      background-color: #fefce8 !important;
+      border: 1px solid #fde047 !important;
+      border-left: 4px solid #eab308 !important;
       color: var(--text-main);
       padding: 0.8rem 1rem;
       border-radius: 14px;
@@ -562,14 +584,32 @@
       transition: all 0.2s ease;
     }
 
+    [data-theme="dark"] .form-group input, 
+    [data-theme="dark"] .form-group textarea, 
+    [data-theme="dark"] .form-group select {
+      background-color: rgba(234, 179, 8, 0.12) !important;
+      border: 1px solid rgba(234, 179, 8, 0.32) !important;
+      border-left: 4px solid #f59e0b !important;
+    }
+
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-      border-color: var(--input-focus);
-      box-shadow: 0 0 0 3px var(--primary-light);
+      background-color: #fef08a !important;
+      border-color: #eab308 !important;
+      box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.28) !important;
+    }
+
+    [data-theme="dark"] .form-group input:focus, 
+    [data-theme="dark"] .form-group textarea:focus, 
+    [data-theme="dark"] .form-group select:focus {
+      background-color: rgba(234, 179, 8, 0.24) !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.32) !important;
     }
 
     input.missing-field, textarea.missing-field {
       border-color: var(--danger) !important;
-      background-color: rgba(239, 68, 68, 0.08) !important;
+      border-left: 4px solid var(--danger) !important;
+      background-color: rgba(239, 68, 68, 0.12) !important;
     }
 
     /* TABLE DESIGN */
@@ -637,19 +677,34 @@
     }
 
     td input {
-      background: transparent;
-      border: 1px solid transparent;
+      background-color: #fefce8 !important;
+      border: 1px solid #fef08a !important;
+      border-left: 3px solid #eab308 !important;
       color: var(--text-main);
       width: 100%;
       padding: 0.5rem 0.75rem;
       border-radius: 10px;
       font-size: 0.9rem;
       outline: none;
+      transition: all 0.2s ease;
+    }
+
+    [data-theme="dark"] td input {
+      background-color: rgba(234, 179, 8, 0.1) !important;
+      border: 1px solid rgba(234, 179, 8, 0.28) !important;
+      border-left: 3px solid #f59e0b !important;
     }
 
     td input:focus {
-      background: var(--input-bg);
-      border-color: var(--primary);
+      background-color: #fef08a !important;
+      border-color: #eab308 !important;
+      box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.3) !important;
+    }
+
+    [data-theme="dark"] td input:focus {
+      background-color: rgba(234, 179, 8, 0.22) !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35) !important;
     }
 
     .row-actions {
@@ -975,6 +1030,7 @@
         <div class="section-title">
           <i class="fa-solid fa-clipboard-check" style="color:var(--primary);"></i>
           <span>Extracted Data Preview</span>
+          <span class="editable-badge"><i class="fa-solid fa-highlighter" style="color:#d97706;"></i> Yellow = Editable</span>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="exportDataToCSV()" title="Quick Download CSV">
