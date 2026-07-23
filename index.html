@@ -1120,13 +1120,13 @@
 
     /* SAP TABULATOR GRID CUSTOM STYLING */
     #poDataTable .tabulator {
-      border-radius: 16px !important;
-      border: 1px solid #cbd5e1 !important;
-      background: #ffffff !important;
+      border-radius: 20px !important;
+      border: 1px solid var(--input-border) !important;
+      background: var(--input-bg) !important;
       overflow: hidden;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-      font-family: 'Calibri', 'Segoe UI', Arial, sans-serif !important;
-      font-size: 0.78rem !important;
+      box-shadow: 0 10px 30px var(--shadow-color);
+      font-family: var(--font-main) !important;
+      font-size: 0.88rem !important;
     }
 
     #poDataTable .tabulator .tabulator-header {
@@ -1134,41 +1134,31 @@
       color: #ffffff !important;
       font-weight: 700 !important;
       border-bottom: 2px solid #334155 !important;
-      font-family: 'Calibri', 'Segoe UI', Arial, sans-serif !important;
-      font-size: 0.80rem !important;
     }
 
     #poDataTable .tabulator .tabulator-header .tabulator-col {
       background: transparent !important;
-      border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
-      padding: 0.45rem 0.35rem !important;
-      text-align: center !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+      padding: 0.75rem 0.5rem !important;
     }
 
     #poDataTable .tabulator-row {
-      background: #ffffff !important;
-      color: #1e293b !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-      font-family: 'Calibri', 'Segoe UI', Arial, sans-serif !important;
+      background: var(--input-bg) !important;
+      color: var(--text-main) !important;
+      border-bottom: 1px solid var(--input-border) !important;
     }
 
     #poDataTable .tabulator-row:nth-child(even) {
-      background: #f8fafc !important;
+      background: var(--dropzone-bg) !important;
     }
 
     #poDataTable .tabulator-row:hover {
-      background: #e2e8f0 !important;
+      background: var(--primary-light) !important;
     }
 
     #poDataTable .tabulator-cell {
-      padding: 0.35rem 0.45rem !important;
-      border-right: 1px solid #e2e8f0 !important;
-      text-align: center !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      font-family: 'Calibri', 'Segoe UI', Arial, sans-serif !important;
-      font-size: 0.78rem !important;
+      padding: 0.75rem 1rem !important;
+      border-right: 1px solid var(--input-border) !important;
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: break-word !important;
@@ -1177,10 +1167,6 @@
     #poDataTable .tabulator-col-content {
       white-space: normal !important;
       word-break: break-word !important;
-      text-align: center !important;
-      justify-content: center !important;
-      display: flex !important;
-      align-items: center !important;
     }
 
     /* SAP PO ACCORDION GROUP HEADER STYLING */
@@ -2764,9 +2750,7 @@
         let colDef = {
           title: key,
           field: key,
-          minWidth: 130,
-          hozAlign: "center",
-          vertAlign: "middle",
+          minWidth: 160,
           formatter: "textarea",
           editor: false, // Direct cell editing disabled per user request
           headerFilter: false
@@ -2796,7 +2780,7 @@
             const num = parseFloat(String(val).replace(/[^0-9.-]+/g, "")) || 0;
             return `<strong>${currentCurrencySymbol}${num.toFixed(2)}</strong>`;
           };
-          colDef.hozAlign = "center";
+          colDef.hozAlign = "right";
         } else {
           // Capitalize Each Word (unless it's a date string)
           colDef.formatter = function (cell) {
