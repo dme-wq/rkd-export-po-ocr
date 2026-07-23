@@ -48,7 +48,7 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  var template = HtmlService.createTemplateFromFile('Index');
+  var template = HtmlService.createTemplateFromFile('index');
   template.draftId = (e.parameters && e.parameters.draftId && e.parameters.draftId.length > 0) ? e.parameters.draftId[0] : '';
   template.scriptUrl = ScriptApp.getService().getUrl();
   return template.evaluate()
