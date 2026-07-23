@@ -1121,23 +1121,86 @@
       word-break: break-word !important;
     }
 
-    .sap-po-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: rgba(37, 99, 235, 0.12);
-      color: #2563eb;
-      border: 1px solid rgba(37, 99, 235, 0.3);
-      padding: 0.25rem 0.65rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.82rem;
+    /* SAP PO ACCORDION GROUP HEADER STYLING */
+    #poDataTable .tabulator-group {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+      color: #ffffff !important;
+      border-bottom: 2px solid var(--primary) !important;
+      border-radius: 14px !important;
+      margin: 0.6rem 0 !important;
+      padding: 0.85rem 1.25rem !important;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2) !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
     }
 
-    [data-theme="dark"] .sap-po-badge {
-      background: rgba(59, 130, 246, 0.2);
+    #poDataTable .tabulator-group:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1e293b 100%) !important;
+    }
+
+    #poDataTable .tabulator-group .tabulator-arrow {
+      border-left-color: #60a5fa !important;
+      margin-right: 0.75rem !important;
+    }
+
+    .sap-group-header-content {
+      display: inline-flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      width: calc(100% - 30px);
+      vertical-align: middle;
+    }
+
+    .sap-group-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .sap-group-po-num {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
       color: #60a5fa;
-      border-color: rgba(96, 165, 250, 0.4);
+    }
+
+    .sap-group-vendor {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .sap-group-date {
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    .sap-group-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sap-group-count-badge {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .sap-group-total-badge {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 0.25rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
     }
 
     /* Switch toggle */
@@ -1388,6 +1451,7 @@
         <input type="text" id="sapGridSearchInput" placeholder="Filter SAP PO Grid (PO #, SKU, Vendor, Buyer...)" oninput="filterSapGrid()">
       </div>
       <div style="display:flex; gap:0.75rem; align-items:center;">
+        <button class="sap-btn sap-btn-secondary" style="padding:0.4rem 0.85rem; font-size:0.82rem;" onclick="toggleGroupsExpandCollapse()"><i class="fa-solid fa-folder-open"></i> Expand / Collapse POs</button>
         <span class="sap-grid-counter" id="sapGridCounterText">Showing 0 entries</span>
         <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i class="fa-solid fa-rotate-right"></i></button>
       </div>
@@ -2332,6 +2396,32 @@
           data: data,
           layout: "fitDataFill", // Horizontal SAP Enterprise Grid Layout
           columns: columns,
+          groupBy: "PO Number", // Native SAP Grouping by PO Number!
+          groupStartOpen: false, // Start collapsed for clean executive overview
+          groupHeader: function(value, count, data, group) {
+            let totalPOAmt = 0;
+            data.forEach(d => {
+              const val = parseFloat(String(d['Line Amount'] || d['Unit Price'] || d['Total Order Amount'] || '0').replace(/[^0-9.-]+/g,"")) || 0;
+              totalPOAmt += val;
+            });
+
+            const vendor = data[0]['Vendor Name'] || data[0]['Buyer / Company Name'] || 'PO Record';
+            const orderDate = data[0]['Order Date'] || data[0]['Timestamp'] || '';
+
+            return `
+              <div class="sap-group-header-content">
+                <div class="sap-group-left">
+                  <span class="sap-group-po-num"><i class="fa-solid fa-folder-closed"></i> PO #${value || 'Unassigned'}</span>
+                  <span class="sap-group-vendor"><i class="fa-solid fa-building"></i> ${vendor}</span>
+                  ${orderDate ? `<span class="sap-group-date"><i class="fa-solid fa-calendar-day"></i> ${orderDate}</span>` : ''}
+                </div>
+                <div class="sap-group-right">
+                  <span class="sap-group-count-badge">${count} Line Item(s)</span>
+                  <span class="sap-group-total-badge">Total: ${currentCurrencySymbol}${totalPOAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            `;
+          },
           pagination: "local",
           paginationSize: 20,
           paginationSizeSelector: [10, 20, 50, 100],
@@ -2358,6 +2448,17 @@
           }
         });
       }
+    }
+
+    let groupsExpanded = false;
+    function toggleGroupsExpandCollapse() {
+      if (!tableInstance) return;
+      groupsExpanded = !groupsExpanded;
+      const groups = tableInstance.getGroups();
+      groups.forEach(g => {
+        if (groupsExpanded) g.show();
+        else g.hide();
+      });
     }
 
     function filterSapGrid() {
