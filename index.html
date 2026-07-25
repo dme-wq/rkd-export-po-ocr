@@ -32,6 +32,11 @@
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
 
+  <!-- Flatpickr Datepicker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
   <style>
     :root {
       --font-main: 'Inter', system-ui, -apple-system, sans-serif;
@@ -598,13 +603,14 @@
     .form-group input,
     .form-group textarea,
     .form-group select {
-      background-color: #fefce8 !important;
-      border: 1px solid #fde047 !important;
-      border-left: 4px solid #eab308 !important;
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
+      border-left: 3px solid var(--primary) !important;
       color: var(--text-main);
-      padding: 0.8rem 1rem;
-      border-radius: 14px;
-      font-size: 0.95rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      font-size: 0.86rem;
+      text-align: center;
       outline: none;
       transition: all 0.2s ease;
     }
@@ -612,25 +618,25 @@
     [data-theme="dark"] .form-group input,
     [data-theme="dark"] .form-group textarea,
     [data-theme="dark"] .form-group select {
-      background-color: rgba(234, 179, 8, 0.12) !important;
-      border: 1px solid rgba(234, 179, 8, 0.32) !important;
-      border-left: 4px solid #f59e0b !important;
+      background-color: rgba(30, 41, 59, 0.6) !important;
+      border: 1px solid rgba(148, 163, 184, 0.2) !important;
+      border-left: 3px solid var(--primary-hover) !important;
     }
 
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
-      background-color: #fef08a !important;
-      border-color: #eab308 !important;
-      box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.28) !important;
+      background-color: #ffffff !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
     }
 
     [data-theme="dark"] .form-group input:focus,
     [data-theme="dark"] .form-group textarea:focus,
     [data-theme="dark"] .form-group select:focus {
-      background-color: rgba(234, 179, 8, 0.24) !important;
-      border-color: #f59e0b !important;
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.32) !important;
+      background-color: rgba(30, 41, 59, 0.9) !important;
+      border-color: var(--primary-hover) !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25) !important;
     }
 
     input.missing-field,
@@ -668,12 +674,13 @@
       color: var(--text-main);
       font-size: 0.88rem;
       width: 100%;
+      text-align: left;
     }
 
     .table-container {
       width: 100%;
       overflow-x: auto;
-      border-radius: 20px;
+      border-radius: 16px;
       border: 1px solid var(--input-border);
       background: var(--input-bg);
       margin-bottom: 2rem;
@@ -683,38 +690,41 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      text-align: left;
+      text-align: center;
     }
 
     th {
       background: var(--dropzone-bg);
       color: var(--text-muted);
       font-weight: 700;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      padding: 1rem 1.25rem;
+      padding: 0.8rem 1rem;
       border-bottom: 1px solid var(--input-border);
+      text-align: center;
       white-space: normal !important;
       word-break: break-word !important;
     }
 
     td {
-      padding: 0.75rem 1rem;
+      padding: 0.55rem 0.75rem;
       border-bottom: 1px solid var(--input-border);
+      text-align: center;
       white-space: normal !important;
       word-break: break-word !important;
     }
 
     td input {
-      background-color: #fefce8 !important;
-      border: 1px solid #fef08a !important;
-      border-left: 3px solid #eab308 !important;
+      background-color: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      border-left: 2px solid var(--primary) !important;
       color: var(--text-main);
       width: 100%;
-      padding: 0.5rem 0.75rem;
-      border-radius: 10px;
-      font-size: 0.9rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      text-align: center;
       outline: none;
       white-space: normal !important;
       word-break: break-word !important;
@@ -722,21 +732,21 @@
     }
 
     [data-theme="dark"] td input {
-      background-color: rgba(234, 179, 8, 0.1) !important;
-      border: 1px solid rgba(234, 179, 8, 0.28) !important;
-      border-left: 3px solid #f59e0b !important;
+      background-color: rgba(30, 41, 59, 0.4) !important;
+      border: 1px solid rgba(148, 163, 184, 0.2) !important;
+      border-left: 2px solid var(--primary-hover) !important;
     }
 
     td input:focus {
-      background-color: #fef08a !important;
-      border-color: #eab308 !important;
-      box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.3) !important;
+      background-color: #ffffff !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
     }
 
     [data-theme="dark"] td input:focus {
-      background-color: rgba(234, 179, 8, 0.22) !important;
-      border-color: #f59e0b !important;
-      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35) !important;
+      background-color: rgba(30, 41, 59, 0.8) !important;
+      border-color: var(--primary-hover) !important;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
     }
 
     .row-actions {
@@ -2035,6 +2045,16 @@
       return false;
     }
 
+    function initAllDatePickers() {
+      if (typeof flatpickr !== 'undefined') {
+        flatpickr('input[placeholder="dd-MMM-yyyy"], #piDateInput', {
+          dateFormat: "d-M-Y",
+          allowInput: true,
+          disableMobile: "true"
+        });
+      }
+    }
+
     // ─────────────────────────────────────────────
     //  APP STATE & INITIAL LOAD
     // ─────────────────────────────────────────────
@@ -2241,6 +2261,7 @@
       actionTh.style.width = '80px';
       actionTh.textContent = 'Actions';
       itemHeaderRow.appendChild(actionTh);
+      initAllDatePickers();
     }
 
     function populateForm(data) {
@@ -2290,6 +2311,7 @@
       }
 
       updateFormStats();
+      initAllDatePickers();
     }
 
     function addTableRow(item = {}) {
@@ -2321,6 +2343,7 @@
 
       tbody.appendChild(tr);
       updateFormStats();
+      initAllDatePickers();
     }
 
     function duplicateTableRow(btn) {
@@ -2959,6 +2982,7 @@
       });
 
       document.getElementById('dbEditModal').style.display = 'flex';
+      initAllDatePickers();
     }
 
     function closeDbEditModal() {
@@ -3091,6 +3115,7 @@
       });
       
       document.getElementById('piModal').style.display = 'flex';
+      initAllDatePickers();
     }
 
     function closePiModal() {
