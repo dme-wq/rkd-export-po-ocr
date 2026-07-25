@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      font-size: 11px;
+    }
+    .invoice-box {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    td, th {
+      padding: 5px;
+      vertical-align: top;
+      word-wrap: break-word;
+    }
+    .header-section {
+      margin-bottom: 20px;
+    }
+    .header-left {
+      width: 50%;
+    }
+    .header-right {
+      width: 50%;
+      text-align: right;
+    }
+    .brand-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #555;
+    }
+    .invoice-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+    .section-title {
+      background-color: #a7a7a7;
+      color: #fff;
+      font-weight: bold;
+      padding: 6px;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+    .bg-gray {
+      background-color: #f5f5f5;
+    }
+    .box-container {
+      margin-bottom: 10px;
+    }
+    .items-table th {
+      background-color: #a7a7a7;
+      color: #fff;
+      text-align: left;
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 8px 5px;
+    }
+    .items-table td {
+      border-bottom: 1px solid #eee;
+      padding: 8px 5px;
+    }
+    .items-table .text-right {
+      text-align: right;
+    }
+    .items-table .text-center {
+      text-align: center;
+    }
+    .total-row td {
+      font-weight: bold;
+      font-size: 12px;
+      border-bottom: none;
+    }
+    .total-box {
+      background-color: #a7a7a7;
+      color: #fff;
+      padding: 6px 12px;
+      display: inline-block;
+      text-transform: uppercase;
+    }
+    .total-val {
+      font-size: 14px;
+      font-weight: bold;
+      display: inline-block;
+      margin-left: 10px;
+      padding-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-box">
+    
+    <!-- HEADER -->
+    <table class="header-section">
+      <tr>
+        <td class="header-left">
+          <img src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png" alt="RKD Group Logo" style="height:60px; margin-bottom:10px;">
+          <div>PO Number: <?= poData['PO Number'] || 'N/A' ?></div>
+          <div>Order Date: <?= poData['Order Date'] || 'N/A' ?></div>
+        </td>
+        <td class="header-right">
+          <div class="invoice-title">PROFORMA INVOICE</div>
+          <div>PI No.: <?= piNumber ?></div>
+          <div>PI Date: <?= piDate ?></div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- ADDRESSES -->
+    <table class="box-container bg-gray">
+      <tr>
+        <td class="section-title" style="width:50%;">SUPPLIER</td>
+        <td class="section-title" style="width:50%;">BUYER / DELIVERY ADDRESS</td>
+      </tr>
+      <tr>
+        <td>
+          <strong><?= poData['Vendor Name'] || 'N/A' ?></strong>
+          <div>Supplier Details (as per record)</div>
+        </td>
+        <td>
+          <strong><?= poData['Buyer / Company Name'] || 'N/A' ?></strong>
+          <div><?= poData['Port of Entry / Destination'] || 'N/A' ?></div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- META INFO -->
+    <table class="box-container bg-gray">
+      <tr>
+        <td class="section-title">DELIVERY DATE</td>
+        <td class="section-title">SHIP VIA</td>
+        <td class="section-title">PAYMENT TERMS</td>
+        <td class="section-title">PORT OF DEPARTURE</td>
+      </tr>
+      <tr>
+        <td><?= poData['Ex-Factory Date'] || poData['Next Delivery Date'] || 'N/A' ?></td>
+        <td><?= poData['Ship Via'] || 'N/A' ?></td>
+        <td><?= poData['Payment Terms'] || 'N/A' ?></td>
+        <td><?= poData['FOB / Port of Departure'] || 'N/A' ?></td>
+      </tr>
+    </table>
+
+    <!-- NOTES -->
+    <table class="box-container bg-gray">
+      <tr>
+        <td class="section-title">NOTES / REMARKS</td>
+      </tr>
+      <tr>
+        <td><?= poData['Remarks'] || 'No specific remarks.' ?></td>
+      </tr>
+    </table>
+
+    <!-- ITEMS -->
+    <table class="items-table">
+      <tr>
+        <th style="width:40%;">ITEM NAME / DESCRIPTION</th>
+        <th style="width:20%;">SKU / ITEM CODE</th>
+        <th style="width:10%;" class="text-center">QTY</th>
+        <th style="width:12%;" class="text-right">ITEM PRICE</th>
+        <th style="width:18%;" class="text-right">TOTAL</th>
+      </tr>
+      
+      <? 
+        let grandTotal = 0;
+        let currency = '';
+        for (var i = 0; i < items.length; i++) { 
+          const item = items[i];
+          const qty = parseFloat(item['Quantity']) || 0;
+          let priceStr = String(item['Unit Price'] || '0').replace(/[^0-9.-]+/g, "");
+          const price = parseFloat(priceStr) || 0;
+          let totalStr = String(item['Line Amount'] || '0').replace(/[^0-9.-]+/g, "");
+          const itemTotal = parseFloat(totalStr) || (qty * price);
+          grandTotal += itemTotal;
+          
+          if(!currency && item['Currency']) currency = item['Currency'];
+      ?>
+      <tr>
+        <td>
+          <strong><?= item['Description'] || 'N/A' ?></strong>
+          <? if(item['Color'] || item['Size']) { ?>
+            <div style="font-size:9px; color:#666;">
+              Color: <?= item['Color'] || '-' ?> | Size: <?= item['Size'] || '-' ?>
+            </div>
+          <? } ?>
+        </td>
+        <td><?= item['SKU / Item #'] || item['Item Code'] || '-' ?></td>
+        <td class="text-center"><?= qty ?></td>
+        <td class="text-right"><?= price.toFixed(2) ?></td>
+        <td class="text-right"><?= itemTotal.toFixed(2) ?></td>
+      </tr>
+      <? } ?>
+      
+      <tr class="total-row">
+        <td colspan="3"></td>
+        <td colspan="2" class="text-right" style="padding-top:15px;">
+          <span class="total-box">ORDER TOTAL</span>
+          <span class="total-val"><?= currency ?> <?= grandTotal.toFixed(2) ?></span>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+</html>

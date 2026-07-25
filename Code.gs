@@ -101,6 +101,8 @@ function doPost(e) {
       response = updateSingleCell(args[0], args[1], args[2]);
     } else if (action === 'updateEntireRow') {
       response = updateEntireRow(args[0], args[1]);
+    } else if (action === 'generatePI') {
+      response = generatePI(args[0]);
     }
   } catch (err) {
     response = { success: false, error: err.toString() };
@@ -727,6 +729,88 @@ function updateEntireRow(rowNumber, updatedObj) {
 }
 
 // ─────────────────────────────────────────────
+//  GENERATE PROFORMA INVOICE
+// ─────────────────────────────────────────────
+function generatePI(payload) {
+  try {
+    let finalPiNum = payload.piNumber || '';
+    if (!finalPiNum) {
+      finalPiNum = getNextPINumber();
+    }
+  
+    const template = HtmlService.createTemplateFromFile('pi_template');
+    template.poData = payload.poData || {};
+    template.items = payload.selectedItems || [];
+    template.piNumber = finalPiNum;
+    template.piDate = payload.piDate || '';
+    
+    const htmlContent = template.evaluate().getContent();
+    const blob = Utilities.newBlob(htmlContent, 'text/html', 'PI_' + finalPiNum + '.html').getAs('application/pdf');
+    blob.setName('PI_' + finalPiNum + '.pdf');
+    
+    const folderId = '1M7x1SpPD94nxPiTk4PVeLbFL7M8lfZO9'; // Provided specific folder
+    const folder = DriveApp.getFolderById(folderId);
+    const file = folder.createFile(blob);
+    const fileUrl = file.getUrl();
+    
+    // Update the Sheet
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    
+    const piNumIdx = headers.indexOf('PI Number');
+    const piDateIdx = headers.indexOf('PI Date');
+    const piLinkIdx = headers.indexOf('PI PDF Link');
+    
+    if (payload.selectedItems && payload.selectedItems.length > 0) {
+      payload.selectedItems.forEach(item => {
+        const r = item._id; // _id maps directly to row number in sheet
+        if (r && r > 1) {
+          if (piNumIdx > -1) sheet.getRange(r, piNumIdx + 1).setValue(finalPiNum);
+          if (piDateIdx > -1) sheet.getRange(r, piDateIdx + 1).setValue(payload.piDate);
+          if (piLinkIdx > -1) sheet.getRange(r, piLinkIdx + 1).setValue(`=HYPERLINK("${fileUrl}", "View PI")`);
+        }
+      });
+    }
+    
+    return { success: true, url: fileUrl };
+  } catch (err) {
+    Logger.log('generatePI Error: ' + err);
+    return { success: false, error: err.toString() };
+  }
+}
+
+function getNextPINumber() {
+  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+  if (!sheet) return `RKD-EX-PI-${new Date().getFullYear()}/1`;
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length < 2) return `RKD-EX-PI-${new Date().getFullYear()}/1`;
+  
+  const headers = data[0];
+  const piNumIdx = headers.indexOf('PI Number');
+  if (piNumIdx === -1) return `RKD-EX-PI-${new Date().getFullYear()}/1`;
+  
+  const currentYear = new Date().getFullYear();
+  let maxSeq = 0;
+  
+  for (let i = 1; i < data.length; i++) {
+    const pi = data[i][piNumIdx];
+    if (pi && String(pi).includes(`RKD-EX-PI-${currentYear}/`)) {
+      const parts = String(pi).split('/');
+      if (parts.length === 2) {
+        const seq = parseInt(parts[1], 10);
+        if (!isNaN(seq) && seq > maxSeq) {
+          maxSeq = seq;
+        }
+      }
+    }
+  }
+  return `RKD-EX-PI-${currentYear}/${maxSeq + 1}`;
+}
+
+// ─────────────────────────────────────────────
 //  DATE EXTRACTION & FORMATTING UTILITIES
 // ─────────────────────────────────────────────
 function parseAnyDate(val) {
@@ -917,7 +1001,7 @@ function formatExtractedObjectDates(data, config) {
       data.items.forEach(item => {
         if (item && typeof item === 'object') {
           Object.keys(item).forEach(itemKey => {
-            if (isDateKey(itemKey, config) || parseAnyDate(item[itemKey])) {
+            if (isDateKey(itemKey, config)) {
               if (item[itemKey]) {
                 const parsed = formatShortDate(item[itemKey]);
                 if (parsed) item[itemKey] = parsed;
@@ -931,7 +1015,7 @@ function formatExtractedObjectDates(data, config) {
         const parsed = formatLongDateTime(data[key]);
         if (parsed) data[key] = parsed;
       }
-    } else if (isDateKey(key, config) || parseAnyDate(data[key])) {
+    } else if (isDateKey(key, config)) {
       if (data[key]) {
         const parsed = formatShortDate(data[key]);
         if (parsed) data[key] = parsed;
