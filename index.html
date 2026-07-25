@@ -1529,8 +1529,11 @@
         </div>
 
         <div class="action-buttons">
-          <button type="button" class="btn btn-gradient" onclick="submitToSheet()" id="submitBtn">
+          <button type="button" class="btn btn-gradient" onclick="submitToSheet(false)" id="submitBtn">
             <i class="fa-solid fa-cloud-arrow-up"></i> Save to Google Sheet
+          </button>
+          <button type="button" class="btn btn-outline" onclick="generatePiFromPreview()" id="piPreviewBtn" style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
+            <i class="fa-solid fa-file-invoice"></i> Generate PI
           </button>
           <button type="button" class="btn btn-whatsapp" onclick="requestMissingInfoViaWhatsApp()" id="waBtn">
             <i class="fa-brands fa-whatsapp"></i> Request Missing Info via WhatsApp
@@ -2497,7 +2500,16 @@
     // ─────────────────────────────────────────────
     //  SUBMIT TO GOOGLE SHEET
     // ─────────────────────────────────────────────
-    async function submitToSheet() {
+    async function generatePiFromPreview() {
+      const missing = document.querySelectorAll('.missing-field');
+      if (missing.length > 0) {
+        Swal.fire('Incomplete', 'Please fill all highlighted red fields before saving and generating PI.', 'warning');
+        return;
+      }
+      await submitToSheet(true);
+    }
+
+    async function submitToSheet(autoOpenPi = false) {
       const missing = document.querySelectorAll('.missing-field');
       if (missing.length > 0) {
         Swal.fire('Incomplete', 'Please fill all highlighted red fields before saving.', 'warning');
@@ -2532,14 +2544,29 @@
         document.getElementById('submitBtn').disabled = false;
 
         if (response.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Saved Successfully!',
-            html: `Data saved to Google Sheet.<br><a href="#" onclick="Swal.close(); showDataTable();" style="color:var(--primary); text-decoration:none; margin-top:10px; display:inline-block; font-weight:600;"><i class="fa-solid fa-database"></i> View Database</a>`,
-            confirmButtonText: 'Extract Another PO'
-          }).then(() => {
+          if (autoOpenPi) {
+            await showDataTable();
+            openPiModal(payload['PO Number']);
             resetUI();
-          });
+          } else {
+            Swal.fire({
+              icon: 'success',
+              title: 'Saved Successfully!',
+              text: 'Data saved to Google Sheet. Would you like to generate a Proforma Invoice (PI) for this order now?',
+              showCancelButton: true,
+              confirmButtonText: '<i class="fa-solid fa-file-invoice"></i> Yes, Generate PI',
+              cancelButtonText: 'No, Extract Another PO',
+              confirmButtonColor: 'var(--primary)'
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                await showDataTable();
+                openPiModal(payload['PO Number']);
+                resetUI();
+              } else {
+                resetUI();
+              }
+            });
+          }
         } else {
           Swal.fire('Error', response.error, 'error');
         }
