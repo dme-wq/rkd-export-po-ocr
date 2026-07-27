@@ -226,38 +226,73 @@
         </td>
         <td class="box-content">
           <strong style="font-size: 13px; color: #0f172a;">
-            <?= poData['Buyer / Company Name'] || 'N/A' ?>
+            <?= poData['Buyer / Company Name'] || poData['Buyer'] || 'N/A' ?>
           </strong>
           <div style="margin-top:6px; line-height:1.6; color:#334155;">
-            <?= poData['Port of Entry / Destination'] || 'Address not specified in PO' ?>
+            <?= poData['Customer Address'] || poData['Delivery Address'] || poData['Port of Entry / Destination'] || 'Address not specified in PO' ?>
           </div>
         </td>
       </tr>
     </table>
 
-    <!-- META INFO -->
-    <table class="box-container">
+    <!-- DYNAMIC META SUMMARY FIELDS -->
+    <?
+      const metaFields = [];
+      const ignoreMetaInGrid = ['po number', 'order date', 'buyer / company name', 'buyer', 'company name', 'vendor name', 'vendor', 'customer address', 'delivery address', 'address', 'remarks', 'notes', '_id', '_action', 'timestamp', 'source file', 'pi pdf link', 'pi number', 'pi date', 'actions', 'currency', 'currency symbol', 'currency_symbol'];
+      
+      const activeHeaders = (typeof selectedHeaderFields !== 'undefined' && selectedHeaderFields && selectedHeaderFields.length > 0)
+        ? selectedHeaderFields
+        : ['Ex-Factory Date', 'Ship Via', 'Payment Terms', 'FOB / Port of Departure'];
+
+      activeHeaders.forEach(k => {
+        const kLower = String(k).trim().toLowerCase();
+        if (!ignoreMetaInGrid.includes(kLower) && !kLower.startsWith('_') && !kLower.includes('link') && poData[k] !== undefined && poData[k] !== null && String(poData[k]).trim() !== '' && String(poData[k]).trim() !== '-' && String(poData[k]).trim() !== 'N/A') {
+          metaFields.push({ label: k, value: poData[k] });
+        }
+      });
+
+      // If nothing left in metaFields, ensure default 4 are shown
+      if (metaFields.length === 0) {
+        ['Ex-Factory Date', 'Ship Via', 'Payment Terms', 'FOB / Port of Departure'].forEach(k => {
+          if (poData[k]) metaFields.push({ label: k, value: poData[k] });
+        });
+      }
+
+      // Chunk into rows of up to 4 columns per row
+      const colsPerRow = Math.min(4, Math.max(1, metaFields.length));
+      const metaRows = [];
+      for (let r = 0; r < metaFields.length; r += colsPerRow) {
+        metaRows.push(metaFields.slice(r, r + colsPerRow));
+      }
+    ?>
+    <? if (metaRows.length > 0) { ?>
+    <table class="box-container" style="margin-bottom: 12px;">
+      <? metaRows.forEach((rowChunk, rIdx) => { 
+           const colWidth = Math.floor(100 / rowChunk.length) + '%';
+      ?>
       <tr>
-        <td class="section-title" style="width:25%; border-right: 1px solid #3b82f6;">DELIVERY DATE</td>
-        <td class="section-title" style="width:25%; border-right: 1px solid #3b82f6;">SHIP VIA</td>
-        <td class="section-title" style="width:25%; border-right: 1px solid #3b82f6;">PAYMENT TERMS</td>
-        <td class="section-title" style="width:25%;">PORT OF DEPARTURE</td>
+        <? rowChunk.forEach((item, cIdx) => { 
+             const isLast = (cIdx === rowChunk.length - 1);
+             let displayLabel = item.label.toUpperCase();
+             if (displayLabel === 'EX-FACTORY DATE' || displayLabel === 'NEXT DELIVERY DATE') displayLabel = 'DELIVERY DATE';
+             if (displayLabel === 'FOB / PORT OF DEPARTURE') displayLabel = 'PORT OF DEPARTURE';
+             if (displayLabel === 'PORT OF ENTRY / DESTINATION') displayLabel = 'DESTINATION';
+        ?>
+        <td class="section-title" style="width:<?= colWidth ?>; <?= !isLast ? 'border-right: 1px solid #3b82f6;' : '' ?>"><?= displayLabel ?></td>
+        <? }); ?>
       </tr>
       <tr>
-        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;">
-          <?= poData['Ex-Factory Date'] || poData['Next Delivery Date'] || 'N/A' ?>
+        <? rowChunk.forEach((item, cIdx) => { 
+             const isLast = (cIdx === rowChunk.length - 1);
+        ?>
+        <td class="box-content" style="text-align: center; font-weight: 600; <?= !isLast ? 'border-right: 1px solid #cbd5e1;' : '' ?>; <?= rIdx < metaRows.length - 1 ? 'border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;' : '' ?>">
+          <?= item.value || 'N/A' ?>
         </td>
-        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;">
-          <?= poData['Ship Via'] || 'N/A' ?>
-        </td>
-        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;">
-          <?= poData['Payment Terms'] || 'N/A' ?>
-        </td>
-        <td class="box-content" style="text-align: center; font-weight: 600;">
-          <?= poData['FOB / Port of Departure'] || 'N/A' ?>
-        </td>
+        <? }); ?>
       </tr>
+      <? }); ?>
     </table>
+    <? } ?>
 
     <!-- NOTES -->
     <? if (poData['Remarks'] && poData['Remarks'].trim() !== '') { ?>

@@ -1947,6 +1947,15 @@
       </div>
 
       <h3 style="font-size:1.05rem; margin-bottom:0.5rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+        <span><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> Customize PDF Header / Summary Fields</span>
+        <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">Tick fields to display in header boxes</span>
+      </h3>
+      <div id="piHeadersChecklist"
+        style="display:grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap:0.5rem; max-height:140px; overflow-y:auto; margin-bottom:1.25rem; padding:0.75rem; background:var(--bg-main); border:1px solid var(--input-border); border-radius:12px;">
+        <!-- Header fields checklist injected here -->
+      </div>
+
+      <h3 style="font-size:1.05rem; margin-bottom:0.5rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
         <span><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Customize PDF Table Columns</span>
         <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">Tick columns to print in PDF</span>
       </h3>
@@ -3480,6 +3489,64 @@
         });
       }
 
+      const headersContainer = document.getElementById('piHeadersChecklist');
+      if (headersContainer && currentPiData && currentPiData.length > 0) {
+        headersContainer.innerHTML = '';
+        const ignoreMeta = ['_id', '_action', 'timestamp', 'source file', 'pi pdf link', 'pi number', 'pi date', 'actions', 'currency', 'currency symbol', 'currency_symbol'];
+        const ignoreItemCols = ['s.no', 'sku / item #', 'sku', 'item code', 'item #', 'sku / item code', 'description', 'product description', 'item name / description', 'item name', 'item description', 'color', 'colour', 'size', 'unit price', 'price', 'rate', 'item price', 'quantity', 'qty', 'line amount', 'total amount', 'total', 'amount'];
+        
+        const availableHeaders = [];
+        Object.keys(currentPiData[0]).forEach(k => {
+          const kLower = String(k).trim().toLowerCase();
+          if (!ignoreMeta.includes(kLower) && !ignoreItemCols.includes(kLower) && !kLower.startsWith('_') && !kLower.includes('link') && !availableHeaders.includes(k)) {
+            availableHeaders.push(k);
+          }
+        });
+
+        const defaultCheckedHeaders = ['po number', 'order date', 'buyer / company name', 'buyer', 'customer address', 'delivery address', 'ex-factory date', 'next delivery date', 'delivery date', 'ship via', 'payment terms', 'fob / port of departure', 'port of departure', 'remarks', 'notes'];
+
+        availableHeaders.forEach((hdr, hIdx) => {
+          const div = document.createElement('div');
+          div.style.display = 'flex';
+          div.style.alignItems = 'center';
+          div.style.gap = '0.4rem';
+          div.style.padding = '0.35rem 0.5rem';
+          div.style.background = 'var(--input-bg)';
+          div.style.border = '1px solid var(--input-border)';
+          div.style.borderRadius = '8px';
+          div.style.fontSize = '0.82rem';
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = hdr;
+          cb.id = `pi_hdr_${hIdx}`;
+          cb.style.width = '15px';
+          cb.style.height = '15px';
+
+          const hLower = String(hdr).trim().toLowerCase();
+          if (defaultCheckedHeaders.includes(hLower)) {
+            cb.checked = true;
+          } else {
+            cb.checked = false;
+          }
+
+          const label = document.createElement('label');
+          label.htmlFor = `pi_hdr_${hIdx}`;
+          label.style.cursor = 'pointer';
+          label.style.userSelect = 'none';
+          label.style.flex = '1';
+          label.style.whiteSpace = 'nowrap';
+          label.style.overflow = 'hidden';
+          label.style.textOverflow = 'ellipsis';
+          label.textContent = hdr;
+          label.title = hdr;
+
+          div.appendChild(cb);
+          div.appendChild(label);
+          headersContainer.appendChild(div);
+        });
+      }
+
       document.getElementById('piModal').style.display = 'flex';
       initAllDatePickers();
     }
@@ -3501,6 +3568,8 @@
       const selectedColumns = Array.from(document.querySelectorAll('#piColumnsChecklist input[type="checkbox"]:checked')).map(cb => cb.value);
       if (selectedColumns.length === 0) return Swal.fire('Missing', 'Select at least one table column to include in the PDF', 'warning');
 
+      const selectedHeaderFields = Array.from(document.querySelectorAll('#piHeadersChecklist input[type="checkbox"]:checked')).map(cb => cb.value);
+
       const selectedItems = selectedIndices.map(i => currentPiData[i]);
 
       closePiModal();
@@ -3510,6 +3579,7 @@
         poData: currentPiData[0], // First item has all the header fields
         selectedItems: selectedItems,
         selectedColumns: selectedColumns,
+        selectedHeaderFields: selectedHeaderFields,
         piNumber: piNum,
         piDate: piDate
       };

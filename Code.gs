@@ -798,6 +798,7 @@ function generatePI(payload) {
     template.poData = payload.poData || {};
     template.items = payload.selectedItems || [];
     template.selectedColumns = payload.selectedColumns || null;
+    template.selectedHeaderFields = payload.selectedHeaderFields || null;
     template.piNumber = finalPiNum;
     template.piDate = payload.piDate || '';
     
