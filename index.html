@@ -3109,7 +3109,7 @@
         formatter: function (cell) {
           const rowId = cell.getRow().getData()._id;
           return `<button class="sap-btn-edit-row" onclick="openDbEditModalWithPasscode(event, ${rowId})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="sap-btn-edit-row" style="margin-left:4px; background:rgba(16,185,129,0.1); color:#10b981; border-color:rgba(16,185,129,0.2);" onclick="openPiModal('${String(cell.getRow().getData()['PO Number']).replace(/'/g, "\\'")}', event)" title="Generate PI"><i class="fa-solid fa-file-invoice"></i></button>`;
+                  <button class="sap-btn-edit-row" style="margin-left:4px; background:rgba(16,185,129,0.1); color:#10b981; border-color:rgba(16,185,129,0.2);" onclick="openPiModal('${String(cell.getRow().getData()['PO Number']).replace(/'/g, "\\'")}', event, true)" title="Generate PI"><i class="fa-solid fa-file-invoice"></i></button>`;
         }
       });
 
@@ -3327,7 +3327,7 @@
     // --- PI Generation Logic ---
     let currentPiData = [];
 
-    function openPiModal(poNumber, event) {
+    function openPiModal(poNumber, event, isFromDb = false) {
       if (event) event.stopPropagation();
       if (!tableInstance) return;
 
@@ -3349,13 +3349,42 @@
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const defaultDate = `${String(d.getDate()).padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
 
+      const numInput = document.getElementById('piNumberInput');
+      const dateInput = document.getElementById('piDateInput');
+
       if (existingPiNum) {
-        document.getElementById('piNumberInput').value = existingPiNum;
-        document.getElementById('piDateInput').value = existingPiDate || defaultDate;
+        numInput.value = existingPiNum;
+        dateInput.value = existingPiDate || defaultDate;
       } else {
-        document.getElementById('piNumberInput').value = '';
-        document.getElementById('piNumberInput').placeholder = 'Leave blank to auto-generate (e.g. RKD-EX-PI-2026/1)';
-        document.getElementById('piDateInput').value = defaultDate;
+        numInput.value = '';
+        numInput.placeholder = 'Leave blank to auto-generate (e.g. RKD-EX-PI-2026/1)';
+        dateInput.value = defaultDate;
+      }
+
+      if (isFromDb) {
+        numInput.readOnly = true;
+        numInput.disabled = true;
+        numInput.style.opacity = '0.65';
+        numInput.style.cursor = 'not-allowed';
+        numInput.title = 'Non-editable when generating from Database';
+
+        dateInput.readOnly = true;
+        dateInput.disabled = true;
+        dateInput.style.opacity = '0.65';
+        dateInput.style.cursor = 'not-allowed';
+        dateInput.title = 'Non-editable when generating from Database';
+      } else {
+        numInput.readOnly = false;
+        numInput.disabled = false;
+        numInput.style.opacity = '1';
+        numInput.style.cursor = '';
+        numInput.title = '';
+
+        dateInput.readOnly = false;
+        dateInput.disabled = false;
+        dateInput.style.opacity = '1';
+        dateInput.style.cursor = '';
+        dateInput.title = '';
       }
 
       const listContainer = document.getElementById('piItemsChecklist');
