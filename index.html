@@ -1179,6 +1179,64 @@
       flex-wrap: wrap;
     }
 
+    /* MODERN BOOTSTRAP-INSPIRED LOOKER FILTERS */
+    .looker-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .looker-filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .looker-filter-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .modern-form-input {
+      display: block;
+      width: 100%;
+      padding: 0.35rem 2.25rem 0.35rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #475569;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      appearance: none;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select.modern-form-input {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 16px 12px;
+    }
+
+    .modern-form-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
     .sap-search-box {
       display: flex;
       align-items: center;
@@ -2266,7 +2324,7 @@
 
     function initAllDatePickers() {
       if (typeof flatpickr !== 'undefined') {
-        flatpickr('input[placeholder="dd-MMM-yyyy"], #piDateInput', {
+        flatpickr('input[placeholder="dd-MMM-yyyy"], #piDateInput, .looker-date-input', {
           dateFormat: "d-M-Y",
           allowInput: true,
           disableMobile: "true"
@@ -3500,31 +3558,14 @@
 
         const item = document.createElement('div');
         item.className = 'looker-filter-item';
-        item.style.display = 'flex';
-        item.style.flexDirection = 'column';
-        item.style.gap = '0.15rem';
 
         const label = document.createElement('label');
-        label.style.fontSize = '0.7rem';
-        label.style.fontWeight = '700';
-        label.style.color = 'var(--text-muted)';
-        label.style.textTransform = 'uppercase';
-        label.style.letterSpacing = '0.5px';
+        label.className = 'looker-filter-label';
         label.textContent = f.label;
 
         const select = document.createElement('select');
         select.id = `looker_${f.id}`;
-        select.style.padding = '0.35rem 0.65rem';
-        select.style.borderRadius = '8px';
-        select.style.border = '1px solid var(--input-border)';
-        select.style.background = 'var(--input-bg)';
-        select.style.color = 'var(--text-main)';
-        select.style.fontSize = '0.8rem';
-        select.style.fontWeight = '600';
-        select.style.outline = 'none';
-        select.style.minWidth = '125px';
-        select.style.maxWidth = '180px';
-        select.style.cursor = 'pointer';
+        select.className = 'modern-form-input';
 
         select.onchange = () => {
           activeLookerFilters[f.id] = select.value;
@@ -3539,16 +3580,13 @@
       // Add Date Range Filter
       const dateItem = document.createElement('div');
       dateItem.className = 'looker-filter-item';
-      dateItem.style.display = 'flex';
-      dateItem.style.flexDirection = 'column';
-      dateItem.style.gap = '0.15rem';
 
       dateItem.innerHTML = `
-        <label style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;"><i class="fa-regular fa-calendar"></i> Date Range</label>
+        <label class="looker-filter-label"><i class="fa-regular fa-calendar"></i> Date Range</label>
         <div style="display:flex; align-items:center; gap:0.25rem;">
-          <input type="text" id="lookerDateFrom" placeholder="From (dd-MMM-yyyy)" style="padding:0.35rem 0.5rem; border-radius:8px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:0.78rem; font-weight:600; width:115px; outline:none; text-align:center;">
+          <input type="text" id="lookerDateFrom" class="modern-form-input looker-date-input" placeholder="From (dd-MMM-yyyy)" style="padding-left:0.5rem; text-align:center; min-width:115px;">
           <span style="color:var(--text-muted); font-size:0.75rem;">to</span>
-          <input type="text" id="lookerDateTo" placeholder="To (dd-MMM-yyyy)" style="padding:0.35rem 0.5rem; border-radius:8px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:0.78rem; font-weight:600; width:115px; outline:none; text-align:center;">
+          <input type="text" id="lookerDateTo" class="modern-form-input looker-date-input" placeholder="To (dd-MMM-yy)" style="padding-left:0.5rem; text-align:center; min-width:115px;">
         </div>
       `;
       container.appendChild(dateItem);
