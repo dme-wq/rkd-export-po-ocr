@@ -1182,7 +1182,7 @@
 
     #poDataTable {
       flex: 1;
-      min-height: 80vh;
+      min-height: 60vh;
       margin: 0.5rem;
     }
     /* Tabulator Glassmorphism Styles */
@@ -1612,25 +1612,6 @@
         alt="RKD Logo" class="brand-logo-img">
     </div>
 
-    <div id="dbNavbarExtensions" style="display: none; flex: 1; justify-content: center; align-items: center; gap: 1rem; margin: 0 1rem; flex-wrap: wrap;">
-      <div class="sap-kpi-bar" style="margin-bottom: 0; width: auto; gap: 0.5rem;">
-        <div class="scorecard-tile sc-blue"><div class="scorecard-top"><span class="scorecard-dot"></span><span>Extracted Line Items</span></div><div class="scorecard-pill"><span id="sapKpiTotalRows">0</span><i class="fa-solid fa-angles-right scorecard-arrow"></i></div></div>
-        <div class="scorecard-tile sc-purple"><div class="scorecard-top"><span class="scorecard-dot"></span><span>Total Purchase Orders</span></div><div class="scorecard-pill"><span id="sapKpiUniquePOs">0</span><i class="fa-solid fa-angles-right scorecard-arrow"></i></div></div>
-        <div class="scorecard-tile sc-amber"><div class="scorecard-top"><span class="scorecard-dot"></span><span>Total Extracted Value</span></div><div class="scorecard-pill"><span id="sapKpiTotalValue">$0.00</span><i class="fa-solid fa-angles-right scorecard-arrow"></i></div></div>
-        <div class="scorecard-tile sc-green"><div class="scorecard-top"><span class="scorecard-dot"></span><span>Active Vendors</span></div><div class="scorecard-pill"><span id="sapKpiVendors">0</span><i class="fa-solid fa-angles-right scorecard-arrow"></i></div></div>
-      </div>
-      <div class="looker-filter-bar" id="lookerFilterBar" style="margin-bottom: 0; padding: 0; border: none;">
-        <div class="dribbble-search-wrapper"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="sapGridSearchInput" class="modern-form-input" placeholder="Search keywords..." oninput="filterSapGrid()" style="width: 140px;"></div>
-        <div id="lookerDropdownsContainer" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;"></div>
-        <div style="display:flex; gap:0.4rem; align-items:center;">
-          <button class="btn btn-primary btn-sm" onclick="resetLookerFilters()" title="Reset All Filters" style="padding: 0.4rem 1rem; font-size: 0.75rem; font-weight:600; border-radius: 50px; display: flex; align-items: center; gap: 0.35rem; cursor: pointer; border: none; background: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.3);">Reset</button>
-          <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.65rem; font-size:0.75rem; font-weight:600; gap:0.35rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05); height: 32px;"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i></button>
-          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable(true)" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05); height: 32px; width: 32px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-rotate-right"></i></button>
-          <button class="sap-btn-icon" title="Full Screen Mode" onclick="toggleFullScreenTable()" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05); height: 32px; width: 32px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-expand"></i></button>
-        </div>
-      </div>
-    </div>
-
     <div class="nav-actions">
       <!-- Currency Switcher -->
       <select id="currencySelector" class="nav-btn" onchange="updateCurrencySymbol()"
@@ -1839,7 +1820,68 @@
       </div>
 
       <!-- SAP KPI Summary Tiles (Refined Scorecards) -->
-      <!-- Scorecards and Filters moved to Navbar -->
+      <div class="sap-kpi-bar">
+        <div class="scorecard-tile sc-blue">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Extracted Line Items</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiTotalRows">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
+        </div>
+        <div class="scorecard-tile sc-purple">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Total Purchase Orders</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiUniquePOs">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
+        </div>
+        <div class="scorecard-tile sc-amber">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Total Extracted Value</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiTotalValue">$0.00</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
+        </div>
+        <div class="scorecard-tile sc-green">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Active Vendors</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiVendors">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOOKER STUDIO STYLE DEPENDENT FILTERS BAR -->
+      <div class="looker-filter-bar" id="lookerFilterBar">
+        <div class="dribbble-search-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="sapGridSearchInput" class="modern-form-input" placeholder="Search keywords..." oninput="filterSapGrid()">
+        </div>
+        
+        <!-- Dynamically injected dropdowns will go here -->
+        <div id="lookerDropdownsContainer" style="display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center;"></div>
+
+        <div style="display:flex; gap:0.6rem; align-items:center;">
+          <button class="btn btn-primary btn-sm" onclick="resetLookerFilters()" title="Reset All Filters" style="padding: 0.5rem 1.25rem; font-size: 0.82rem; font-weight:600; border-radius: 50px; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; border: none; background: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.3);">
+            Reset
+          </button>
+          <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
+          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable(true)" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="sap-btn-icon" title="Full Screen Mode" onclick="toggleFullScreenTable()" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-expand"></i></button>
+        </div>
+      </div>
 
       <!-- Tabulator SAP Grid Container -->
       <div id="poDataTable"></div>
@@ -3065,8 +3107,6 @@
     async function showDataTable(forceRefresh = false) {
       document.querySelector('.container').style.display = 'none';
       document.getElementById('dataTableSection').classList.add('active-flex');
-      const dbNavExt = document.getElementById('dbNavbarExtensions');
-      if (dbNavExt) dbNavExt.style.display = 'flex';
       localStorage.setItem('activeView', 'database');
 
       const cached = localStorage.getItem('dbCache');
@@ -3101,8 +3141,6 @@
     function hideDataTable() {
       document.getElementById('dataTableSection').classList.remove('active-flex');
       document.querySelector('.container').style.display = 'block';
-      const dbNavExt = document.getElementById('dbNavbarExtensions');
-      if (dbNavExt) dbNavExt.style.display = 'none';
       localStorage.setItem('activeView', 'upload');
     }
 
