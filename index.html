@@ -504,89 +504,113 @@
       display: none;
     }
 
-    .stats-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
+    /* UNIFIED COMPACT SCORECARDS (Inspired by User's Reference Screenshot) */
+    .scorecard-bar, .stats-bar, .sap-kpi-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 0.75rem;
       margin-bottom: 1.25rem;
     }
-
-    .stat-card {
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 999px;
-      padding: 0.3rem 0.95rem 0.3rem 0.35rem;
-      height: 38px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      width: fit-content !important;
-      box-shadow: 0 2px 6px var(--shadow-color);
+    .scorecard-tile {
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      padding: 0.65rem 0.75rem;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px var(--shadow-color);
-    }
-
-    .stat-card>div:nth-child(2) {
       display: flex;
-      align-items: baseline;
-      gap: 0.35rem;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
-
-    .stat-card:nth-child(1) {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
-      border-color: rgba(59, 130, 246, 0.3);
+    .scorecard-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
     }
-
-    .stat-card:nth-child(2) {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%);
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .stat-card:nth-child(2) .stat-val {
-      color: #059669;
-    }
-
-    [data-theme="dark"] .stat-card:nth-child(2) .stat-val {
-      color: #34d399;
-    }
-
-    .stat-card:nth-child(3) {
-      background: linear-gradient(135deg, rgba(244, 63, 94, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);
-      border-color: rgba(244, 63, 94, 0.3);
-    }
-
-    .stat-icon {
-      width: 28px;
-      height: 28px;
+    .scorecard-tile::after {
+      content: "";
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 62px;
+      height: 62px;
       border-radius: 50%;
-      background: var(--primary-light);
-      color: var(--primary);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .scorecard-top {
+      position: relative;
+      z-index: 1;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .scorecard-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
       flex-shrink: 0;
     }
-
-    .stat-val {
+    .scorecard-pill {
+      position: relative;
+      z-index: 1;
+      margin-top: 0.45rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-family: var(--font-display);
-      font-size: 0.95rem;
       font-weight: 800;
-      color: var(--text-main);
-      line-height: 1;
+      font-size: 0.92rem;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+    .scorecard-arrow {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      margin-left: 0.5rem;
     }
 
-    .stat-lbl {
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      line-height: 1;
-    }
+    /* THEME 1: Blue / Yellow (Like All Tasks) */
+    .sc-blue { background: #6366f1; }
+    .sc-blue::after { background: #fde047; }
+    .sc-blue .scorecard-top { color: #ffffff; }
+    .sc-blue .scorecard-dot { background: #fde047; }
+    .sc-blue .scorecard-pill { background: #fef08a; color: #1e40af; }
+
+    /* THEME 2: Rose Pink / Yellow (Like Overdue) */
+    .sc-pink { background: #f43f5e; }
+    .sc-pink::after { background: #fde047; }
+    .sc-pink .scorecard-top { color: #ffffff; }
+    .sc-pink .scorecard-dot { background: #fde047; }
+    .sc-pink .scorecard-pill { background: #fef08a; color: #be123c; }
+
+    /* THEME 3: Warm Amber / Blue (Like Due Today) */
+    .sc-amber { background: #fde047; }
+    .sc-amber::after { background: #6366f1; }
+    .sc-amber .scorecard-top { color: #1e3a8a; }
+    .sc-amber .scorecard-dot { background: #6366f1; }
+    .sc-amber .scorecard-pill { background: #818cf8; color: #ffffff; }
+
+    /* THEME 4: Mint Green / Cream (Like Upcoming) */
+    .sc-green { background: #10b981; }
+    .sc-green::after { background: #d1fae5; }
+    .sc-green .scorecard-top { color: #ffffff; }
+    .sc-green .scorecard-dot { background: #d1fae5; }
+    .sc-green .scorecard-pill { background: #d1fae5; color: #065f46; }
+
+    /* THEME 5: Lilac Purple / Lavender (Like Done) */
+    .sc-purple { background: #a855f7; }
+    .sc-purple::after { background: #f3e8ff; }
+    .sc-purple .scorecard-top { color: #ffffff; }
+    .sc-purple .scorecard-dot { background: #f3e8ff; }
+    .sc-purple .scorecard-pill { background: #f3e8ff; color: #581c87; }
 
     .toolbar-row {
       display: flex;
@@ -1130,123 +1154,8 @@
       min-height: 0;
     }
 
-    .sap-fiori-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      background: var(--primary-gradient);
-      color: #ffffff;
-      padding: 1.5rem 2.5rem;
-      border-radius: 24px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 15px 35px rgba(37, 99, 235, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
 
-    .sap-brand-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
 
-    .sap-logo-badge {
-      width: 50px;
-      height: 50px;
-      border-radius: 14px;
-      background: rgba(59, 130, 246, 0.25);
-      color: #60a5fa;
-      border: 1px solid rgba(96, 165, 250, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-
-    .sap-title {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .sap-subtitle {
-      font-size: 0.82rem;
-      color: #94a3b8;
-      font-weight: 500;
-    }
-
-    .sap-actions-row {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .sap-btn {
-      padding: 0.65rem 1.25rem;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.88rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      border: none;
-      transition: all 0.2s ease;
-    }
-
-    .sap-btn-primary {
-      background: #3b82f6;
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .sap-btn-primary:hover {
-      background: #2563eb;
-      transform: translateY(-1px);
-    }
-
-    .sap-btn-secondary {
-      background: rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .sap-btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .sap-kpi-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .sap-kpi-tile {
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-top: 4px solid var(--primary);
-      border-radius: 20px;
-      padding: 1.25rem;
-      box-shadow: 0 4px 14px var(--shadow-color);
-    }
-
-    .sap-kpi-val {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--text-main);
-    }
-
-    .sap-kpi-lbl {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 4px;
-    }
 
     .sap-grid-toolbar {
       display: flex;
@@ -1666,27 +1575,36 @@
         </div>
       </div>
 
-      <!-- Stats summary cards -->
+      <!-- Stats summary cards (Refined Scorecards) -->
       <div class="stats-bar">
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
-          <div>
-            <div class="stat-val" id="statTotalItems">0</div>
-            <div class="stat-lbl">Total Line Items</div>
+        <div class="scorecard-tile sc-blue">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Total Line Items</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="statTotalItems">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
-          <div>
-            <div class="stat-val" id="statTotalAmount">$0.00</div>
-            <div class="stat-lbl">Calculated Total</div>
+        <div class="scorecard-tile sc-amber">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Calculated Total</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="statTotalAmount">$0.00</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger)"></i></div>
-          <div>
-            <div class="stat-val" id="statMissingCount">0</div>
-            <div class="stat-lbl">Missing Fields</div>
+        <div class="scorecard-tile sc-pink">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Missing Fields</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="statMissingCount">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
           </div>
         </div>
       </div>
@@ -1758,43 +1676,57 @@
     </div>
 
     <div class="db-main-content">
-      <!-- SAP Fiori Header Toolbar -->
-      <div class="sap-fiori-header">
-        <div class="sap-brand-row">
-          <div class="sap-logo-badge">
-            <i class="fa-solid fa-layer-group"></i>
-          </div>
-          <div>
-            <h2 class="sap-title">RKD Furnishings Pvt Ltd</h2>
-          </div>
-        </div>
-        <div class="sap-actions-row">
-          <button class="sap-btn sap-btn-primary" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Export
-            Excel/CSV</button>
-          <button class="btn btn-gradient" onclick="hideDataTable()"
-            style="padding: 0.65rem 1.25rem; font-size: 0.88rem; border-radius: 12px; height: auto;">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Upload New PO
-          </button>
-        </div>
+      <!-- Top Right Actions Row (Small Size Buttons, No Blue Container) -->
+      <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.6rem; margin-bottom:0.85rem;">
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()" style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:var(--input-bg); border-color:var(--input-border); cursor:pointer;">
+          <i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Export Excel/CSV
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="hideDataTable()" style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:linear-gradient(135deg, #4f46e5, #3b82f6); color:white; border:none; box-shadow:0 2px 5px rgba(59,130,246,0.25); cursor:pointer;">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Upload New PO
+        </button>
       </div>
 
-      <!-- SAP KPI Summary Tiles -->
+      <!-- SAP KPI Summary Tiles (Refined Scorecards) -->
       <div class="sap-kpi-bar">
-        <div class="sap-kpi-tile">
-          <div class="sap-kpi-val" id="sapKpiTotalRows">0</div>
-          <div class="sap-kpi-lbl">Extracted Line Items</div>
+        <div class="scorecard-tile sc-blue">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Extracted Line Items</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiTotalRows">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
         </div>
-        <div class="sap-kpi-tile">
-          <div class="sap-kpi-val" id="sapKpiUniquePOs">0</div>
-          <div class="sap-kpi-lbl">Total Purchase Orders</div>
+        <div class="scorecard-tile sc-purple">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Total Purchase Orders</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiUniquePOs">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
         </div>
-        <div class="sap-kpi-tile">
-          <div class="sap-kpi-val" id="sapKpiTotalValue">$0.00</div>
-          <div class="sap-kpi-lbl">Total Extracted Value</div>
+        <div class="scorecard-tile sc-amber">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Total Extracted Value</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiTotalValue">$0.00</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
         </div>
-        <div class="sap-kpi-tile">
-          <div class="sap-kpi-val" id="sapKpiVendors">0</div>
-          <div class="sap-kpi-lbl">Active Vendors</div>
+        <div class="scorecard-tile sc-green">
+          <div class="scorecard-top">
+            <span class="scorecard-dot"></span>
+            <span>Active Vendors</span>
+          </div>
+          <div class="scorecard-pill">
+            <span id="sapKpiVendors">0</span>
+            <i class="fa-solid fa-angles-right scorecard-arrow"></i>
+          </div>
         </div>
       </div>
 
