@@ -203,6 +203,27 @@
     </table>
 
     <!-- ADDRESSES -->
+    <?
+      function getVal(obj, keys) {
+        if (!obj) return null;
+        const objKeys = Object.keys(obj);
+        for (const targetKey of keys) {
+          const targetLower = String(targetKey).trim().toLowerCase();
+          for (const actualKey of objKeys) {
+            if (String(actualKey).trim().toLowerCase() === targetLower) {
+              const val = obj[actualKey];
+              if (val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-' && String(val).trim() !== 'N/A') {
+                return val;
+              }
+            }
+          }
+        }
+        return null;
+      }
+
+      const buyerNameDisplay = getVal(poData, ['Buyer / Company Name', 'Buyer', 'Company Name', 'Vendor Name', 'Vendor']) || 'N/A';
+      const customerAddrDisplay = getVal(poData, ['Customer Address', 'Delivery Address', 'Buyer Address', 'Address']) || getVal(poData, ['Port of Entry / Destination', 'Port of Entry', 'Destination']) || 'Address not specified in PO';
+    ?>
     <table class="box-container">
       <tr>
         <td class="section-title" style="width:50%;">SUPPLIER DETAILS</td>
@@ -226,10 +247,10 @@
         </td>
         <td class="box-content">
           <strong style="font-size: 13px; color: #0f172a;">
-            <?= poData['Buyer / Company Name'] || poData['Buyer'] || 'N/A' ?>
+            <?= buyerNameDisplay ?>
           </strong>
           <div style="margin-top:6px; line-height:1.6; color:#334155;">
-            <?= poData['Customer Address'] || poData['Delivery Address'] || poData['Port of Entry / Destination'] || 'Address not specified in PO' ?>
+            <?= customerAddrDisplay ?>
           </div>
         </td>
       </tr>
@@ -238,7 +259,7 @@
     <!-- DYNAMIC META SUMMARY FIELDS -->
     <?
       const metaFields = [];
-      const ignoreMetaInGrid = ['po number', 'order date', 'buyer / company name', 'buyer', 'company name', 'vendor name', 'vendor', 'customer address', 'delivery address', 'address', 'remarks', 'notes', '_id', '_action', 'timestamp', 'source file', 'pi pdf link', 'pi number', 'pi date', 'actions', 'currency', 'currency symbol', 'currency_symbol'];
+      const ignoreMetaInGrid = ['po number', 'order date', 'buyer / company name', 'buyer', 'company name', 'vendor name', 'vendor', 'customer address', 'delivery address', 'buyer address', 'address', 'remarks', 'notes', '_id', '_action', 'timestamp', 'source file', 'pi pdf link', 'pi number', 'pi date', 'actions', 'currency', 'currency symbol', 'currency_symbol'];
       
       const activeHeaders = (typeof selectedHeaderFields !== 'undefined' && selectedHeaderFields && selectedHeaderFields.length > 0)
         ? selectedHeaderFields
@@ -246,15 +267,17 @@
 
       activeHeaders.forEach(k => {
         const kLower = String(k).trim().toLowerCase();
-        if (!ignoreMetaInGrid.includes(kLower) && !kLower.startsWith('_') && !kLower.includes('link') && poData[k] !== undefined && poData[k] !== null && String(poData[k]).trim() !== '' && String(poData[k]).trim() !== '-' && String(poData[k]).trim() !== 'N/A') {
-          metaFields.push({ label: k, value: poData[k] });
+        const val = getVal(poData, [k]);
+        if (!ignoreMetaInGrid.includes(kLower) && !kLower.startsWith('_') && !kLower.includes('link') && val !== null) {
+          metaFields.push({ label: k, value: val });
         }
       });
 
       // If nothing left in metaFields, ensure default 4 are shown
       if (metaFields.length === 0) {
         ['Ex-Factory Date', 'Ship Via', 'Payment Terms', 'FOB / Port of Departure'].forEach(k => {
-          if (poData[k]) metaFields.push({ label: k, value: poData[k] });
+          const val = getVal(poData, [k]);
+          if (val !== null) metaFields.push({ label: k, value: val });
         });
       }
 

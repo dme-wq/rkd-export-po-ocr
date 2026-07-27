@@ -23,7 +23,7 @@ const CONFIG = {
   SHEET_ID  : '1uCyRLko_G9OEOBuim8RI8uZqm5kNQrOUiDSTYlyFLXU',
   SHEET_NAME: 'Data',
   DEFAULT_MAIN_FIELDS: [
-    'PO Number','Order Date','Buyer / Company Name','Vendor Name','Ex-Factory Date',
+    'PO Number','Order Date','Buyer / Company Name','Customer Address','Vendor Name','Ex-Factory Date',
     'Cancel Date','Total Order Amount','Total Cases','Ship Via','Payment Terms',
     'FOB / Port of Departure','Port of Entry / Destination','CBM','Material / Fabric','Remarks'
   ],
