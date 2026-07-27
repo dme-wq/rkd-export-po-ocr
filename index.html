@@ -3128,9 +3128,41 @@
       };
       sidebarList.appendChild(allItem);
 
+      // Add Search Box
+      const searchBox = document.createElement('div');
+      searchBox.innerHTML = `
+        <div style="position: relative; margin: 0.25rem 0 0.5rem 0;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+          <input type="text" id="poSidebarSearch" placeholder="Search POs..." style="width: 100%; padding: 0.45rem 1rem 0.45rem 2.2rem; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); font-size: 0.82rem; outline: none; transition: border-color 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+        </div>
+      `;
+      sidebarList.appendChild(searchBox);
+
+      const searchInput = searchBox.querySelector('input');
+      searchInput.oninput = (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('.sidebar-po-item[data-po]').forEach(el => {
+          const poName = String(el.getAttribute('data-po')).toLowerCase();
+          if (poName.includes(q)) {
+            el.style.display = 'block';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      };
+
+      // Sort POs Descending (Latest Top)
+      uniquePOs.sort((a, b) => {
+        const numA = parseInt(String(a).replace(/[^0-9]/g, '')) || 0;
+        const numB = parseInt(String(b).replace(/[^0-9]/g, '')) || 0;
+        if (numB !== numA) return numB - numA;
+        return String(b).localeCompare(String(a)); // fallback to string comparison
+      });
+
       uniquePOs.forEach(poNum => {
         const item = document.createElement('div');
         item.className = 'sidebar-po-item';
+        item.setAttribute('data-po', poNum);
 
         const piHtml = poGroups[poNum].piNumber
           ? `<span class="pi-status-badge"><i class="fa-solid fa-check"></i> PI: ${poGroups[poNum].piNumber}</span>`
