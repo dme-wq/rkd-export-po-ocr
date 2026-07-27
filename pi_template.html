@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <base target="_top">
   <meta charset="utf-8">
@@ -12,6 +13,7 @@
       font-size: 11px;
       background-color: #ffffff;
     }
+
     .invoice-box {
       max-width: 800px;
       margin: 0 auto;
@@ -20,28 +22,35 @@
       border-top: 8px solid #1e3a8a;
       background-color: #ffffff;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
     }
-    td, th {
+
+    td,
+    th {
       padding: 6px;
       vertical-align: top;
       word-wrap: break-word;
     }
+
     .header-section {
       margin-bottom: 25px;
       border-bottom: 2px solid #e2e8f0;
       padding-bottom: 20px;
     }
+
     .header-left {
       width: 55%;
     }
+
     .header-right {
       width: 45%;
       text-align: right;
     }
+
     .invoice-title {
       font-size: 24px;
       font-weight: 800;
@@ -49,14 +58,17 @@
       letter-spacing: 1px;
       margin-bottom: 8px;
     }
+
     .meta-tag {
       font-size: 11px;
       color: #475569;
       margin-bottom: 4px;
     }
+
     .meta-tag strong {
       color: #0f172a;
     }
+
     .section-title {
       background-color: #1e3a8a;
       color: #ffffff;
@@ -66,6 +78,7 @@
       font-size: 10px;
       letter-spacing: 0.8px;
     }
+
     .box-container {
       margin-bottom: 18px;
       background-color: #f8fafc;
@@ -73,15 +86,18 @@
       border-radius: 6px;
       overflow: hidden;
     }
+
     .box-content {
       padding: 12px;
       line-height: 1.5;
       color: #334155;
     }
+
     .items-table {
       margin-top: 25px;
       border: 1px solid #cbd5e1;
     }
+
     .items-table th {
       background-color: #1e3a8a;
       color: #ffffff;
@@ -92,26 +108,32 @@
       padding: 10px 8px;
       border: 1px solid #1e3a8a;
     }
+
     .items-table td {
       border: 1px solid #cbd5e1;
       padding: 10px 8px;
       font-size: 11px;
     }
+
     .items-table tr:nth-child(even) td {
       background-color: #f8fafc;
     }
+
     .items-table .text-right {
       text-align: right;
     }
+
     .items-table .text-center {
       text-align: center;
     }
+
     .total-row td {
       font-weight: bold;
       font-size: 12px;
       border: none;
       background-color: transparent !important;
     }
+
     .total-box {
       background-color: #1e3a8a;
       color: #ffffff;
@@ -123,6 +145,7 @@
       display: inline-block;
       letter-spacing: 0.5px;
     }
+
     .total-val {
       font-size: 17px;
       font-weight: 800;
@@ -131,6 +154,7 @@
       margin-left: 12px;
       vertical-align: middle;
     }
+
     .sign-box {
       border: 2px dashed #1e3a8a;
       background-color: #f4f7fe;
@@ -142,21 +166,32 @@
     }
   </style>
 </head>
+
 <body>
   <div class="invoice-box">
-    
+
     <!-- HEADER -->
     <table class="header-section">
       <tr>
         <td class="header-left">
-          <img src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png" alt="RKD Group Logo" style="height:65px; margin-bottom:12px;">
-          <div class="meta-tag"><strong>Buyer PO Number:</strong> <?= poData['PO Number'] || 'N/A' ?></div>
-          <div class="meta-tag"><strong>Order Date:</strong> <?= poData['Order Date'] || 'N/A' ?></div>
+          <img
+            src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png"
+            alt="RKD Group Logo" style="height:65px; margin-bottom:12px;">
+          <div class="meta-tag"><strong>Buyer PO Number:</strong>
+            <?= poData['PO Number'] || 'N/A' ?>
+          </div>
+          <div class="meta-tag"><strong>Order Date:</strong>
+            <?= poData['Order Date'] || 'N/A' ?>
+          </div>
         </td>
         <td class="header-right">
           <div class="invoice-title">PROFORMA INVOICE</div>
-          <div class="meta-tag" style="font-size: 13px; color: #1e3a8a; font-weight: 700; margin-bottom: 6px;">PI No.: <?= piNumber ?></div>
-          <div class="meta-tag"><strong>PI Date:</strong> <?= piDate ?></div>
+          <div class="meta-tag" style="font-size: 13px; color: #1e3a8a; font-weight: 700; margin-bottom: 6px;">PI No.:
+            <?= piNumber ?>
+          </div>
+          <div class="meta-tag"><strong>PI Date:</strong>
+            <?= piDate ?>
+          </div>
         </td>
       </tr>
     </table>
@@ -177,7 +212,9 @@
           </div>
         </td>
         <td class="box-content">
-          <strong style="font-size: 13px; color: #0f172a;"><?= poData['Buyer / Company Name'] || 'N/A' ?></strong>
+          <strong style="font-size: 13px; color: #0f172a;">
+            <?= poData['Buyer / Company Name'] || 'N/A' ?>
+          </strong>
           <div style="margin-top:6px; line-height:1.6; color:#334155;">
             <?= poData['Port of Entry / Destination'] || 'Address not specified in PO' ?>
           </div>
@@ -194,10 +231,18 @@
         <td class="section-title" style="width:25%;">PORT OF DEPARTURE</td>
       </tr>
       <tr>
-        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;"><?= poData['Ex-Factory Date'] || poData['Next Delivery Date'] || 'N/A' ?></td>
-        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;"><?= poData['Ship Via'] || 'N/A' ?></td>
-        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;"><?= poData['Payment Terms'] || 'N/A' ?></td>
-        <td class="box-content" style="text-align: center; font-weight: 600;"><?= poData['FOB / Port of Departure'] || 'N/A' ?></td>
+        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;">
+          <?= poData['Ex-Factory Date'] || poData['Next Delivery Date'] || 'N/A' ?>
+        </td>
+        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;">
+          <?= poData['Ship Via'] || 'N/A' ?>
+        </td>
+        <td class="box-content" style="border-right: 1px solid #cbd5e1; text-align: center; font-weight: 600;">
+          <?= poData['Payment Terms'] || 'N/A' ?>
+        </td>
+        <td class="box-content" style="text-align: center; font-weight: 600;">
+          <?= poData['FOB / Port of Departure'] || 'N/A' ?>
+        </td>
       </tr>
     </table>
 
@@ -208,21 +253,48 @@
         <td class="section-title">NOTES / REMARKS</td>
       </tr>
       <tr>
-        <td class="box-content"><?= poData['Remarks'] ?></td>
+        <td class="box-content">
+          <?= poData['Remarks'] ?>
+        </td>
       </tr>
     </table>
     <? } ?>
 
     <!-- ITEMS -->
+    <?
+      const ignoreKeys = [
+        '_id', 'Currency', 'Actions', 
+        'Item Name', 'Description', 'Product Description', 'Item Description',
+        'SKU / Item #', 'SKU', 'Item Code', 'Item #', 
+        'Quantity', 'Qty', 
+        'Unit Price', 'Price', 'Rate', 'Item Price',
+        'Line Amount', 'Amount', 'Total', 'Item Total', 'Total Amount'
+      ];
+      const dynamicCols = [];
+      if (items && items.length > 0) {
+        items.forEach(item => {
+          Object.keys(item).forEach(k => {
+            if (!ignoreKeys.includes(k) && item[k] !== null && item[k] !== undefined && String(item[k]).trim() !== '') {
+              if (!dynamicCols.includes(k)) {
+                dynamicCols.push(k);
+              }
+            }
+          });
+        });
+      }
+    ?>
     <table class="items-table">
       <tr>
-        <th style="width:38%;">ITEM NAME / DESCRIPTION</th>
-        <th style="width:22%;">SKU / ITEM CODE</th>
-        <th style="width:10%;" class="text-center">QTY</th>
-        <th style="width:14%;" class="text-right">UNIT PRICE</th>
-        <th style="width:16%;" class="text-right">TOTAL</th>
+        <th style="min-width: 22%; text-align: left;">ITEM NAME / DESCRIPTION</th>
+        <th style="min-width: 14%; text-align: left;">SKU / ITEM CODE</th>
+        <? dynamicCols.forEach(col => { ?>
+        <th style="text-align: left;"><?= col.toUpperCase() ?></th>
+        <? }); ?>
+        <th style="width: 8%;" class="text-center">QTY</th>
+        <th style="width: 13%;" class="text-right">UNIT PRICE</th>
+        <th style="width: 15%;" class="text-right">TOTAL</th>
       </tr>
-      
+
       <? 
         let grandTotal = 0;
         let currency = poData['Currency'] || poData['Currency Symbol'] || poData['currency'] || '';
@@ -248,25 +320,40 @@
       ?>
       <tr>
         <td>
-          <strong style="color:#0f172a; font-size: 12px;"><?= item['Description'] || 'N/A' ?></strong>
-          <? if(item['Color'] || item['Size']) { ?>
-            <div style="font-size:10px; color:#64748b; margin-top: 3px;">
-              Color: <strong><?= item['Color'] || '-' ?></strong> | Size: <strong><?= item['Size'] || '-' ?></strong>
-            </div>
-          <? } ?>
+          <strong style="color:#0f172a; font-size: 12px;">
+            <?= item['Description'] || item['Item Name'] || item['Product Description'] || item['Item Description'] || 'N/A' ?>
+          </strong>
         </td>
-        <td style="color:#334155; font-family: monospace; font-size: 11px;"><?= item['SKU / Item #'] || item['Item Code'] || '-' ?></td>
-        <td class="text-center" style="font-weight: 600; color:#0f172a;"><?= qty ?></td>
-        <td class="text-right" style="color:#334155;"><?= rowCurr ? rowCurr + ' ' : '' ?><?= price.toFixed(2) ?></td>
-        <td class="text-right" style="font-weight: 700; color:#0f172a;"><?= rowCurr ? rowCurr + ' ' : '' ?><?= itemTotal.toFixed(2) ?></td>
+        <td style="color:#334155; font-family: monospace; font-size: 11px;">
+          <?= item['SKU / Item #'] || item['SKU'] || item['Item Code'] || item['Item #'] || '-' ?>
+        </td>
+        <? dynamicCols.forEach(col => { ?>
+        <td style="color:#334155; font-size: 11px;">
+          <?= (item[col] !== null && item[col] !== undefined && String(item[col]).trim() !== '') ? item[col] : '-' ?>
+        </td>
+        <? }); ?>
+        <td class="text-center" style="font-weight: 600; color:#0f172a;">
+          <?= qty ?>
+        </td>
+        <td class="text-right" style="color:#334155;">
+          <?= rowCurr ? rowCurr + ' ' : '' ?>
+          <?= price.toFixed(2) ?>
+        </td>
+        <td class="text-right" style="font-weight: 700; color:#0f172a;">
+          <?= rowCurr ? rowCurr + ' ' : '' ?>
+          <?= itemTotal.toFixed(2) ?>
+        </td>
       </tr>
       <? } ?>
-      
+
       <tr class="total-row">
-        <td colspan="3"></td>
-        <td colspan="2" class="text-right" style="padding-top:20px;">
+        <td colspan="<?= 2 + dynamicCols.length ?>"></td>
+        <td colspan="3" class="text-right" style="padding-top:20px;">
           <span class="total-box">ORDER TOTAL</span>
-          <span class="total-val"><?= currency ?> <?= grandTotal.toFixed(2) ?></span>
+          <span class="total-val">
+            <?= currency ?>
+            <?= grandTotal.toFixed(2) ?>
+          </span>
         </td>
       </tr>
     </table>
@@ -275,7 +362,8 @@
     <table style="margin-top: 40px; width: 100%;">
       <tr>
         <td style="width: 55%; vertical-align: bottom;">
-          <div style="font-size: 10px; color: #64748b; line-height: 1.6; border-top: 1px solid #e2e8f0; padding-top: 12px; width: 90%;">
+          <div
+            style="font-size: 10px; color: #64748b; line-height: 1.6; border-top: 1px solid #e2e8f0; padding-top: 12px; width: 90%;">
             <strong style="color: #334155;">Terms & Conditions:</strong><br>
             1. All goods remain the property of RKD Furnishings Pvt. Ltd. until fully paid.<br>
             2. Please include PI Number on all correspondence and remittances.<br>
@@ -287,7 +375,8 @@
             <div style="font-weight: 800; color: #1e3a8a; font-size: 11px; margin-bottom: 45px; letter-spacing: 0.3px;">
               For RKD Furnishings Pvt. Ltd.
             </div>
-            <div style="border-top: 1px solid #94a3b8; padding-top: 6px; font-weight: 700; font-size: 10px; color: #334155;">
+            <div
+              style="border-top: 1px solid #94a3b8; padding-top: 6px; font-weight: 700; font-size: 10px; color: #334155;">
               Authorized Signatory
             </div>
           </div>
@@ -297,4 +386,5 @@
 
   </div>
 </body>
+
 </html>
