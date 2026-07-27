@@ -42,62 +42,65 @@
       --font-main: 'Inter', system-ui, -apple-system, sans-serif;
       --font-display: 'Outfit', sans-serif;
 
-      /* DCode Light SaaS Theme Palette */
-      --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 50%, #fdf4ff 100%);
-      /* Clean colorful light background */
-      --card-bg: #ffffff;
-      --card-border: #e2e8f0;
-      --shadow-color: rgba(37, 99, 235, 0.08);
+      /* GLASSMORPHISM THEME PALETTE */
+      --bg-gradient: radial-gradient(circle at 15% 50%, rgba(144, 153, 252, 0.5), transparent 50%),
+                     radial-gradient(circle at 85% 30%, rgba(255, 186, 161, 0.5), transparent 50%),
+                     radial-gradient(circle at 90% 80%, rgba(245, 151, 199, 0.5), transparent 50%),
+                     radial-gradient(circle at 20% 90%, rgba(121, 107, 218, 0.5), transparent 50%);
+      --bg-color: #e6dff2;
 
-      --text-main: #0f172a;
-      --text-muted: #64748b;
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+      --glass-blur: blur(20px);
+
+      --card-bg: var(--glass-bg);
+      --card-border: var(--glass-border);
+      --shadow-color: rgba(31, 38, 135, 0.05);
+
+      --text-main: #1e293b;
+      --text-muted: #475569;
       --text-light: #94a3b8;
 
       --primary: #1e3a8a;
-      /* Deep vibrant blue from DCode */
-      --primary-hover: #2563eb;
-      --primary-light: rgba(37, 99, 235, 0.08);
-      --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      --primary-hover: #0f172a;
+      --primary-light: rgba(255, 255, 255, 0.4);
+      --primary-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 
       --accent: #3b82f6;
       --success: #10b981;
       --danger: #ef4444;
       --warning: #f59e0b;
 
-      --input-bg: #ffffff;
-      --input-border: #e2e8f0;
+      --input-bg: rgba(255, 255, 255, 0.5);
+      --input-border: rgba(255, 255, 255, 0.6);
       --input-focus: #3b82f6;
 
-      --dropzone-bg: rgba(37, 99, 235, 0.03);
-      --dropzone-border: #cbd5e1;
+      --dropzone-bg: rgba(255, 255, 255, 0.15);
+      --dropzone-border: rgba(255, 255, 255, 0.5);
 
       --header-sub: #475569;
     }
 
     [data-theme="dark"] {
-      /* DCode adapted for dark mode */
-      --bg-gradient: linear-gradient(135deg, #0b1121 0%, #111827 50%, #1e1b4b 100%);
-      --card-bg: #1e293b;
-      --card-border: #334155;
-      --shadow-color: rgba(0, 0, 0, 0.4);
+      /* Adjusted for glassmorphism */
+      --bg-gradient: radial-gradient(circle at 15% 50%, rgba(55, 59, 122, 0.5), transparent 50%),
+                     radial-gradient(circle at 85% 30%, rgba(135, 84, 69, 0.5), transparent 50%),
+                     radial-gradient(circle at 90% 80%, rgba(138, 71, 107, 0.5), transparent 50%),
+                     radial-gradient(circle at 20% 90%, rgba(61, 52, 117, 0.5), transparent 50%);
+      --bg-color: #120d1c;
 
+      --glass-bg: rgba(20, 20, 20, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --text-light: #64748b;
-
-      --primary: #3b82f6;
-      --primary-hover: #60a5fa;
-      --primary-light: rgba(59, 130, 246, 0.15);
-      --primary-gradient: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
-
-      --input-bg: #0f172a;
-      --input-border: #334155;
-      --input-focus: #3b82f6;
-
-      --dropzone-bg: rgba(15, 23, 42, 0.8);
-      --dropzone-border: #334155;
-
-      --header-sub: #cbd5e1;
+      
+      --input-bg: rgba(30, 30, 30, 0.5);
+      --input-border: rgba(255, 255, 255, 0.15);
+      
+      --dropzone-bg: rgba(20, 20, 20, 0.35);
+      --dropzone-border: rgba(255, 255, 255, 0.2);
     }
 
     * {
@@ -109,7 +112,8 @@
     }
 
     body {
-      background: var(--bg-gradient);
+      background-color: var(--bg-color);
+      background-image: var(--bg-gradient);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -119,31 +123,31 @@
       background-attachment: fixed;
       position: relative;
       overflow-x: hidden;
+      z-index: 1;
     }
 
-    /* Ambient background glow elements */
-    .bg-glow-1 {
+    /* Grain Overlay */
+    body::before {
+      content: "";
       position: fixed;
-      top: -20%;
-      right: -10%;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, rgba(255, 255, 255, 0) 65%);
-      border-radius: 50%;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.25;
       pointer-events: none;
       z-index: -1;
     }
 
-    .bg-glow-2 {
+    /* Grid Overlay */
+    body::after {
+      content: "";
       position: fixed;
-      bottom: -20%;
-      left: -10%;
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(30, 58, 138, 0.08) 0%, rgba(255, 255, 255, 0) 65%);
-      border-radius: 50%;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+      background-size: 120px 120px;
       pointer-events: none;
-      z-index: -1;
+      z-index: -2;
     }
 
     /* TOP NAVBAR */
@@ -1162,13 +1166,67 @@
       transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    .table-fullscreen-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 99999;
+      background-color: var(--bg-color);
+      background-image: var(--bg-gradient);
+      padding: 1.5rem;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    
+    .table-fullscreen-mode::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3e%3cfilter id='noiseFilter'%3e%3cfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3e%3c/filter%3e%3crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3e%3c/svg%3e");
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .table-fullscreen-mode .top-actions-row,
+    .table-fullscreen-mode .sap-kpi-bar {
+      display: none !important;
+    }
+
     #poDataTable {
       flex: 1;
       min-height: 0;
     }
-
-
-
+    /* Tabulator Glassmorphism Styles */
+    .tabulator {
+      background: var(--glass-bg) !important;
+      border: 1px solid var(--glass-border) !important;
+      border-radius: 16px;
+      backdrop-filter: var(--glass-blur);
+    }
+    .tabulator-header, .tabulator-col, .tabulator-col-content {
+      background: rgba(255, 255, 255, 0.3) !important;
+      color: var(--text-main) !important;
+      border-bottom: 1px solid var(--glass-border) !important;
+      border-right: none !important;
+      font-weight: 700 !important;
+    }
+    .tabulator-row {
+      background: transparent !important;
+      border-bottom: 1px solid rgba(255,255,255, 0.2) !important;
+    }
+    .tabulator-row.tabulator-row-even {
+      background: rgba(255, 255, 255, 0.1) !important;
+    }
+    .tabulator-row:hover {
+      background: rgba(255, 255, 255, 0.4) !important;
+    }
+    .tabulator-footer {
+      background: rgba(255, 255, 255, 0.3) !important;
+      border-top: 1px solid var(--glass-border) !important;
+    }
 
     .sap-grid-toolbar {
       display: flex;
@@ -1763,7 +1821,7 @@
 
     <div class="db-main-content">
       <!-- Top Actions Row (Left: Unhide Sidebar Button | Right: Export & Upload Buttons) -->
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.6rem; margin-bottom:0.85rem; min-height:36px;">
+      <div class="top-actions-row" style="display:flex; justify-content:space-between; align-items:center; gap:0.6rem; margin-bottom:0.85rem; min-height:36px;">
         <div style="display:flex; align-items:center; gap:0.5rem;">
           <button id="showSidebarBtn" class="btn btn-outline btn-sm" onclick="toggleDbSidebar()" title="Show PO Sidebar" style="display:none; font-weight:700; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:10px; align-items:center; gap:0.45rem; background:var(--card-bg); color:var(--primary, #3b82f6); border:1.5px solid var(--primary, #3b82f6); box-shadow:0 2px 6px rgba(59,130,246,0.15); cursor:pointer;">
             <i class="fa-solid fa-angles-right"></i> Purchase Orders
@@ -1842,8 +1900,8 @@
       <div class="sap-grid-toolbar">
         <div style="display:flex; gap:0.6rem; align-items:center;">
           <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem;"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
-          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
-              class="fa-solid fa-rotate-right"></i></button>
+          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="sap-btn-icon" title="Full Screen Mode" onclick="toggleFullScreenTable()"><i class="fa-solid fa-expand"></i></button>
         </div>
       </div>
 
@@ -3812,6 +3870,19 @@
     function filterSapGrid() {
       if (tableInstance) {
         tableInstance.setFilter(combinedSapGridFilter);
+      }
+    }
+
+    function toggleFullScreenTable() {
+      const dbMain = document.querySelector('.db-main-content');
+      if (dbMain) {
+        dbMain.classList.toggle('table-fullscreen-mode');
+        const icon = document.querySelector('button[onclick="toggleFullScreenTable()"] i');
+        if (dbMain.classList.contains('table-fullscreen-mode')) {
+          if (icon) icon.className = 'fa-solid fa-compress';
+        } else {
+          if (icon) icon.className = 'fa-solid fa-expand';
+        }
       }
     }
 
