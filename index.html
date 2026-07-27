@@ -1942,8 +1942,17 @@
 
       <h3 style="font-size:1.05rem; margin-bottom:0.75rem; color:var(--text-main);">Select Items to Include</h3>
       <div id="piItemsChecklist"
-        style="display:flex; flex-direction:column; gap:0.5rem; max-height:250px; overflow-y:auto; margin-bottom:1.5rem; padding-right:0.5rem;">
+        style="display:flex; flex-direction:column; gap:0.5rem; max-height:200px; overflow-y:auto; margin-bottom:1.25rem; padding-right:0.5rem;">
         <!-- Checklist injected here -->
+      </div>
+
+      <h3 style="font-size:1.05rem; margin-bottom:0.5rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+        <span><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Customize PDF Table Columns</span>
+        <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">Tick columns to print in PDF</span>
+      </h3>
+      <div id="piColumnsChecklist"
+        style="display:grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap:0.5rem; max-height:160px; overflow-y:auto; margin-bottom:1.5rem; padding:0.75rem; background:var(--bg-main); border:1px solid var(--input-border); border-radius:12px;">
+        <!-- Columns checklist injected here -->
       </div>
 
       <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
@@ -3420,6 +3429,65 @@
         listContainer.appendChild(div);
       });
 
+      const colsContainer = document.getElementById('piColumnsChecklist');
+      if (colsContainer) {
+        colsContainer.innerHTML = '';
+        const ignoreMeta = ['_id', '_action', 'timestamp', 'source file', 'pi pdf link', 'pi number', 'pi date', 'actions', 'currency', 'currency symbol', 'currency_symbol'];
+        const allAvailableCols = ['S.No'];
+        
+        if (currentPiData && currentPiData.length > 0) {
+          Object.keys(currentPiData[0]).forEach(k => {
+            const kLower = String(k).trim().toLowerCase();
+            if (!ignoreMeta.includes(kLower) && !kLower.startsWith('_') && !kLower.includes('link') && !allAvailableCols.includes(k)) {
+              allAvailableCols.push(k);
+            }
+          });
+        }
+
+        const defaultCheckedNames = ['s.no', 'sku / item #', 'sku', 'item code', 'item #', 'sku / item code', 'description', 'product description', 'item name / description', 'item name', 'item description', 'color', 'colour', 'size', 'unit price', 'price', 'rate', 'item price', 'quantity', 'qty', 'line amount', 'total amount', 'total', 'amount'];
+
+        allAvailableCols.forEach((col, cIdx) => {
+          const div = document.createElement('div');
+          div.style.display = 'flex';
+          div.style.alignItems = 'center';
+          div.style.gap = '0.4rem';
+          div.style.padding = '0.35rem 0.5rem';
+          div.style.background = 'var(--input-bg)';
+          div.style.border = '1px solid var(--input-border)';
+          div.style.borderRadius = '8px';
+          div.style.fontSize = '0.82rem';
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = col;
+          cb.id = `pi_col_${cIdx}`;
+          cb.style.width = '15px';
+          cb.style.height = '15px';
+
+          const colLower = String(col).trim().toLowerCase();
+          if (defaultCheckedNames.includes(colLower)) {
+            cb.checked = true;
+          } else {
+            cb.checked = false;
+          }
+
+          const label = document.createElement('label');
+          label.htmlFor = `pi_col_${cIdx}`;
+          label.style.cursor = 'pointer';
+          label.style.userSelect = 'none';
+          label.style.flex = '1';
+          label.style.whiteSpace = 'nowrap';
+          label.style.overflow = 'hidden';
+          label.style.textOverflow = 'ellipsis';
+          label.textContent = col;
+          label.title = col;
+
+          div.appendChild(cb);
+          div.appendChild(label);
+          colsContainer.appendChild(div);
+        });
+      }
+
       document.getElementById('piModal').style.display = 'flex';
       initAllDatePickers();
     }
@@ -3435,6 +3503,9 @@
       const selectedIndices = Array.from(document.querySelectorAll('#piItemsChecklist input[type="checkbox"]:checked')).map(cb => parseInt(cb.dataset.index));
       if (selectedIndices.length === 0) return Swal.fire('Missing', 'Select at least one item', 'warning');
 
+      const selectedColumns = Array.from(document.querySelectorAll('#piColumnsChecklist input[type="checkbox"]:checked')).map(cb => cb.value);
+      if (selectedColumns.length === 0) return Swal.fire('Missing', 'Select at least one table column to include in the PDF', 'warning');
+
       const selectedItems = selectedIndices.map(i => currentPiData[i]);
 
       closePiModal();
@@ -3443,6 +3514,7 @@
       const payload = {
         poData: currentPiData[0], // First item has all the header fields
         selectedItems: selectedItems,
+        selectedColumns: selectedColumns,
         piNumber: piNum,
         piDate: piDate
       };

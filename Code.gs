@@ -797,6 +797,7 @@ function generatePI(payload) {
     const template = HtmlService.createTemplateFromFile('pi_template');
     template.poData = payload.poData || {};
     template.items = payload.selectedItems || [];
+    template.selectedColumns = payload.selectedColumns || null;
     template.piNumber = finalPiNum;
     template.piDate = payload.piDate || '';
     
