@@ -1692,14 +1692,21 @@
     </div>
 
     <div class="db-main-content">
-      <!-- Top Right Actions Row (Small Size Buttons, No Blue Container) -->
-      <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.6rem; margin-bottom:0.85rem;">
-        <button class="btn btn-outline btn-sm" onclick="exportCSV()" style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:var(--input-bg); border-color:var(--input-border); cursor:pointer;">
-          <i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Export Excel/CSV
-        </button>
-        <button class="btn btn-primary btn-sm" onclick="hideDataTable()" style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:linear-gradient(135deg, #4f46e5, #3b82f6); color:white; border:none; box-shadow:0 2px 5px rgba(59,130,246,0.25); cursor:pointer;">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Upload New PO
-        </button>
+      <!-- Top Actions Row (Left: Unhide Sidebar Button | Right: Export & Upload Buttons) -->
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.6rem; margin-bottom:0.85rem; min-height:36px;">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <button id="showSidebarBtn" class="btn btn-outline btn-sm" onclick="toggleDbSidebar()" title="Show PO Sidebar" style="display:none; font-weight:700; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:10px; align-items:center; gap:0.45rem; background:var(--card-bg); color:var(--primary, #3b82f6); border:1.5px solid var(--primary, #3b82f6); box-shadow:0 2px 6px rgba(59,130,246,0.15); cursor:pointer;">
+            <i class="fa-solid fa-angles-right"></i> Purchase Orders
+          </button>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()" style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:var(--input-bg); border-color:var(--input-border); cursor:pointer;">
+            <i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Export Excel/CSV
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="hideDataTable()" style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:linear-gradient(135deg, #4f46e5, #3b82f6); color:white; border:none; box-shadow:0 2px 5px rgba(59,130,246,0.25); cursor:pointer;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload New PO
+          </button>
+        </div>
       </div>
 
       <!-- SAP KPI Summary Tiles (Refined Scorecards) -->
@@ -1767,7 +1774,6 @@
           <input type="text" id="sapGridSearchInput" placeholder="Filter Active Grid..." oninput="filterSapGrid()">
         </div>
         <div style="display:flex; gap:0.6rem; align-items:center;">
-          <button id="showSidebarBtn" class="sap-btn-icon" title="Show PO Sidebar" onclick="toggleDbSidebar()" style="display:none; width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem; background:rgba(79,70,229,0.1); color:#4f46e5; border-color:rgba(79,70,229,0.25);"><i class="fa-solid fa-list-ul"></i> PO List</button>
           <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem;"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
           <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
               class="fa-solid fa-rotate-right"></i></button>
