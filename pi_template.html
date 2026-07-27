@@ -297,7 +297,11 @@
         <? rowChunk.forEach((item, cIdx) => { 
              const isLast = (cIdx === rowChunk.length - 1);
              let displayLabel = item.label.toUpperCase();
-             if (displayLabel === 'EX-FACTORY DATE' || displayLabel === 'NEXT DELIVERY DATE') displayLabel = 'DELIVERY DATE';
+             if (displayLabel.includes('EX-FACTORY')) {
+               displayLabel = 'EX-FACTORY DATE';
+             } else if (displayLabel.includes('DELIVERY') || displayLabel === 'NEXT DELIVERY DATE') {
+               displayLabel = 'NEXT DELIVERY DATE';
+             }
              if (displayLabel === 'FOB / PORT OF DEPARTURE') displayLabel = 'PORT OF DEPARTURE';
              if (displayLabel === 'PORT OF ENTRY / DESTINATION') displayLabel = 'DESTINATION';
         ?>
