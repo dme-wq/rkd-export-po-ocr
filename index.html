@@ -1643,10 +1643,14 @@
       <div class="page-header">
         <h1 class="page-title">Extract Purchase Order Data</h1>
         <p class="page-desc">Upload PO Documents (PDF, Excel, Images) for AI-powered multi-file item extraction.</p>
-        <div style="margin-top: 1.25rem;">
+        <div style="margin-top: 1.25rem; display: flex; gap: 0.75rem;">
           <button class="btn btn-outline" onclick="showDataTable()"
             style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
             <i class="fa-solid fa-database"></i> Open Database
+          </button>
+          <button class="btn btn-outline" onclick="startManualEntry()"
+            style="border-color: #10b981; color: #10b981; background:var(--card-bg);">
+            <i class="fa-solid fa-pen-to-square"></i> Manual PO Entry
           </button>
         </div>
       </div>
@@ -1968,28 +1972,7 @@
     </div>
   </div>
 
-  <!-- DATABASE ROW EDIT MODAL -->
-  <div class="custom-modal" id="dbEditModal">
-    <div class="modal-content" style="max-width: 780px;">
-      <i class="fa-solid fa-xmark modal-close" onclick="closeDbEditModal()"></i>
-      <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">
-        <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Edit Database Record
-      </h2>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Update saved Purchase Order details
-        in Google Sheets database.</p>
 
-      <input type="hidden" id="editRowId">
-      <div class="form-grid" id="dbEditFieldsContainer" style="margin-bottom: 1.5rem;">
-        <!-- Dynamic Row Input Fields -->
-      </div>
-
-      <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-        <button class="btn btn-gradient" style="width:auto;" onclick="saveDbRowEdit()"><i class="fa-solid fa-check"></i>
-          Save Changes</button>
-        <button class="btn btn-outline" onclick="closeDbEditModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
 
   <!-- PI GENERATION MODAL -->
   <div class="overlay" id="piModal">
@@ -2383,6 +2366,7 @@
     let uploadedFiles = [];
     let extractedPayload = null;
     let appConfig = { mainFields: [], itemFields: [] };
+    let formMode = 'upload';
     let appPasscode = "";
 
     window.onload = async function () {
@@ -2526,6 +2510,52 @@
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
+    }
+
+    function startManualEntry() {
+      formMode = 'manual';
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('dataPreview').style.display = 'block';
+      
+      populateForm({ items: [] });
+      
+      document.querySelector('.section-title span').innerHTML = '<i class="fa-solid fa-file-pen" style="color:var(--primary);"></i> Manual PO Entry';
+      document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Submit Manual Entry`;
+    }
+
+    function openBulkEdit(poNumber, buyerName) {
+      const cached = localStorage.getItem('dbCache');
+      if (!cached) {
+         Swal.fire('Error', 'Database cache not found. Refresh data table first.', 'error');
+         return;
+      }
+      const allRows = JSON.parse(cached);
+      const items = allRows.filter(r => 
+        String(r['PO Number']||'').trim().toLowerCase() === String(poNumber).trim().toLowerCase() && 
+        String(r['Buyer / Company Name']||'').trim().toLowerCase() === String(buyerName).trim().toLowerCase()
+      );
+      
+      if (items.length === 0) {
+         Swal.fire('Error', 'No line items found for this PO.', 'error');
+         return;
+      }
+      
+      const mainDetails = { ...items[0] };
+      mainDetails.items = items;
+      
+      window.bulkEditContext = { oldPoNumber: poNumber, oldBuyerName: buyerName };
+      formMode = 'edit';
+      
+      document.getElementById('dataTableSection').classList.remove('active-flex');
+      const dbNavExt = document.getElementById('dbNavbarExtensions');
+      if (dbNavExt) dbNavExt.style.display = 'none';
+      
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('dataPreview').style.display = 'block';
+      
+      populateForm(mainDetails);
+      document.querySelector('.section-title span').innerHTML = `<i class="fa-solid fa-file-pen" style="color:var(--primary);"></i> Bulk Edit: PO #${poNumber}`;
+      document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Submit Bulk Edit`;
     }
 
     async function processFiles() {
@@ -2909,7 +2939,30 @@
       }
 
       try {
-        const response = await callBackend('saveToSheet', rowsData);
+        let response;
+        if (formMode === 'edit') {
+          document.getElementById('overlay').style.display = 'none';
+          const { value: passcode } = await Swal.fire({
+            title: 'Enter Passcode',
+            input: 'password',
+            inputLabel: 'Passcode required for Bulk Edit',
+            inputPlaceholder: 'Enter your passcode',
+            showCancelButton: true,
+            inputValidator: (value) => {
+              if (!value) return 'You need to enter a passcode!'
+            }
+          });
+          
+          if (!passcode) {
+             document.getElementById('submitBtn').disabled = false;
+             return;
+          }
+          document.getElementById('overlay').style.display = 'flex';
+          response = await callBackend('bulkUpdatePO', window.bulkEditContext.oldPoNumber, window.bulkEditContext.oldBuyerName, rowsData, passcode);
+        } else {
+          response = await callBackend('saveToSheet', rowsData);
+        }
+
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('submitBtn').disabled = false;
 
@@ -3171,7 +3224,8 @@
 
           poGroups[poNum] = {
             date: rawDate ? formatShortDate(rawDate) : '',
-            piNumber: row['PI Number'] || null
+            piNumber: row['PI Number'] || null,
+            buyerName: row['Buyer / Company Name'] || ''
           };
         }
       });
@@ -3233,8 +3287,12 @@
           ? `<span class="pi-status-badge"><i class="fa-solid fa-check"></i> PI: ${poGroups[poNum].piNumber}</span>`
           : `<span class="pi-status-badge none">No PI</span>`;
 
+        const safeBuyerName = poGroups[poNum].buyerName.replace(/'/g, "\\'");
         item.innerHTML = `
-          <div class="po-title">PO #${poNum}</div>
+          <div class="po-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>PO #${poNum}</span>
+            <button class="sap-btn-icon" title="Edit this PO" onclick="event.stopPropagation(); openBulkEdit('${poNum}', '${safeBuyerName}')" style="width: 26px; height: 26px; font-size: 0.75rem; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--primary);"><i class="fa-solid fa-pen-to-square"></i></button>
+          </div>
           <div class="po-meta" style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
             <span><i class="fa-solid fa-calendar-day"></i> ${poGroups[poNum].date}</span>
             ${piHtml}
@@ -3267,7 +3325,7 @@
       const columns = [];
 
       columns.push({
-        title: "Action",
+        title: "Generate PI",
         field: "_action",
         width: 90,
         minWidth: 90,
@@ -3275,9 +3333,7 @@
         vertAlign: "middle",
         headerSort: false,
         formatter: function (cell) {
-          const rowId = cell.getRow().getData()._id;
-          return `<button class="sap-btn-edit-row" onclick="openDbEditModalWithPasscode(event, ${rowId})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="sap-btn-edit-row" style="margin-left:4px; background:rgba(16,185,129,0.1); color:#10b981; border-color:rgba(16,185,129,0.2);" onclick="openPiModal('${String(cell.getRow().getData()['PO Number']).replace(/'/g, "\\'")}', event, true)" title="Generate PI"><i class="fa-solid fa-file-invoice"></i></button>`;
+          return `<button class="sap-btn-edit-row" style="background:rgba(16,185,129,0.1); color:#10b981; border-color:rgba(16,185,129,0.2);" onclick="openPiModal('${String(cell.getRow().getData()['PO Number']).replace(/'/g, "\\'")}', event, true)" title="Generate PI"><i class="fa-solid fa-file-invoice"></i></button>`;
         }
       });
 
@@ -3358,121 +3414,7 @@
       });
     }
 
-    function openDbEditModalWithPasscode(event, rowId) {
-      if (event && event.stopPropagation) event.stopPropagation();
 
-      if (!appPasscode) {
-        showDbEditModal(rowId);
-        return;
-      }
-
-      Swal.fire({
-        title: 'Security Access',
-        text: 'Enter passcode to edit database record',
-        input: 'password',
-        inputPlaceholder: 'Enter Passcode...',
-        showCancelButton: true,
-        showConfirmButton: false,
-        didOpen: () => {
-          const input = Swal.getInput();
-          input.addEventListener('input', () => {
-            if (input.value === appPasscode) {
-              Swal.close();
-              showDbEditModal(rowId);
-            }
-          });
-        }
-      });
-    }
-
-    function showDbEditModal(rowId) {
-      const rowData = currentDbData.find(r => r._id === rowId);
-      if (!rowData) return;
-
-      document.getElementById('editRowId').value = rowId;
-      const container = document.getElementById('dbEditFieldsContainer');
-      container.innerHTML = '';
-
-      const excludeKeys = ['_id', '_action', 'Timestamp', 'Source File', 'PI PDF Link', 'PI Number', 'PI Date'];
-
-      Object.keys(rowData).filter(key => {
-        if (excludeKeys.includes(key) || key.startsWith('_') || key.toLowerCase().includes('link') || key.toLowerCase().includes('url')) return false;
-        const valStr = String(rowData[key] || '');
-        if (valStr.includes('<') && valStr.includes('>')) return false; // Ignore HTML tags/links
-        return true;
-      }).forEach(key => {
-        const group = document.createElement('div');
-        group.className = 'form-group';
-        const isDate = isDateKey(key, appConfig) || key.toLowerCase().includes('date');
-        const isNum = key.toLowerCase().includes('amount') || key.toLowerCase().includes('price') || key.toLowerCase().includes('qty') || key.toLowerCase().includes('quantity') || key.toLowerCase().includes('cases') || key.toLowerCase().includes('cbm');
-
-        const formattedVal = isDate ? formatShortDate(rowData[key]) : toTitleCase(String(rowData[key] || ''));
-        const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
-        const styleAttr = isNum ? 'style="text-align: right; font-weight: 600; color: var(--primary);"' : 'style="text-align: left;"';
-
-        let icon = 'fa-tag';
-        if (isDate) icon = 'fa-calendar-day';
-        else if (isNum) icon = 'fa-coins';
-        else if (key.toLowerCase().includes('vendor') || key.toLowerCase().includes('buyer') || key.toLowerCase().includes('company')) icon = 'fa-building';
-        else if (key.toLowerCase().includes('po number') || key.toLowerCase().includes('sku') || key.toLowerCase().includes('item no')) icon = 'fa-hashtag';
-        else if (key.toLowerCase().includes('ship') || key.toLowerCase().includes('port') || key.toLowerCase().includes('destination')) icon = 'fa-ship';
-
-        const isMultiLine = key.toLowerCase().includes('description') || key.toLowerCase().includes('name') || key.toLowerCase().includes('remark') || key.toLowerCase().includes('address') || key.toLowerCase().includes('terms') || key.toLowerCase().includes('sku') || key.toLowerCase().includes('color') || key.toLowerCase().includes('colour') || key.toLowerCase().includes('size') || key.toLowerCase().includes('material');
-
-        group.innerHTML = `
-          <label style="display:flex; align-items:center; gap:0.4rem; color:var(--text-main); font-weight:600;"><i class="fa-solid ${icon}" style="color:var(--primary); font-size:0.85rem;"></i> ${key}</label>
-          ${isMultiLine
-            ? `<textarea rows="2" ${extraAttr} style="min-width:100%; resize:vertical; text-align:left; line-height:1.35; font-family:inherit; font-size:0.84rem; padding:0.5rem; background:#f8fafc; border:1px solid #e2e8f0; border-left:2px solid var(--primary); border-radius:8px;" data-dbfield="${key}">${formattedVal}</textarea>`
-            : `<input type="text" ${extraAttr} ${styleAttr} data-dbfield="${key}" value="${formattedVal}">`}
-        `;
-        container.appendChild(group);
-      });
-
-      document.getElementById('dbEditModal').style.display = 'flex';
-      initAllDatePickers();
-    }
-
-    function closeDbEditModal() {
-      document.getElementById('dbEditModal').style.display = 'none';
-    }
-
-    async function saveDbRowEdit() {
-      const rowId = parseInt(document.getElementById('editRowId').value);
-      const container = document.getElementById('dbEditFieldsContainer');
-      const inputs = container.querySelectorAll('[data-dbfield]');
-
-      const updatedObj = {};
-      inputs.forEach(inp => {
-        const field = inp.getAttribute('data-dbfield');
-        let val = inp.value;
-        if (isDateKey(field, appConfig)) {
-          val = formatShortDate(val);
-        }
-        updatedObj[field] = val;
-      });
-
-      document.getElementById('overlay').style.display = 'flex';
-      document.getElementById('loadingText').textContent = 'Saving Database Changes...';
-
-      try {
-        const res = await callBackend('updateEntireRow', rowId, updatedObj);
-        document.getElementById('overlay').style.display = 'none';
-
-        if (res.success) {
-          closeDbEditModal();
-          Swal.fire({
-            icon: 'success', title: 'Updated!', text: 'Database entry updated successfully.',
-            toast: true, position: 'top-end', timer: 2000, showConfirmButton: false
-          });
-          showDataTable();
-        } else {
-          Swal.fire('Error', res.error, 'error');
-        }
-      } catch (err) {
-        document.getElementById('overlay').style.display = 'none';
-        Swal.fire('Error', err.message || err.toString(), 'error');
-      }
-    }
 
     // ─────────────────────────────────────────────
     //  CUSTOMIZE DATABASE COLUMNS FEATURE

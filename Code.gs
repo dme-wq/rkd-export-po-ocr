@@ -727,57 +727,83 @@ function getSavedData() {
 }
 
 // ─────────────────────────────────────────────
-//  UPDATE SINGLE CELL FROM DATA TABLE
 // ─────────────────────────────────────────────
-function updateSingleCell(rowNumber, headerName, newValue) {
+//  BULK UPDATE PO (Replaces old PO lines)
+// ─────────────────────────────────────────────
+function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
   try {
-    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
-    if (!sheet) return { success: false, error: "Sheet not found" };
-
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const colIndex = headers.indexOf(headerName);
-    
-    if (colIndex === -1) return { success: false, error: "Column not found: " + headerName };
-    
-    const config = getAppConfig();
-    if (headerName === 'Timestamp' && newValue) {
-      newValue = formatLongDateTime(newValue);
-    } else if (isDateKey(headerName, config) && newValue) {
-      newValue = formatShortDate(newValue);
+    // 1. Authenticate Passcode
+    if (providedPasscode !== getPasscode()) {
+      return { success: false, error: "Invalid Passcode!" };
     }
 
-    sheet.getRange(rowNumber, colIndex + 1).setValue(newValue);
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.toString() };
-  }
-}
-
-// ─────────────────────────────────────────────
-//  UPDATE ENTIRE ROW FROM EDIT MODAL
-// ─────────────────────────────────────────────
-function updateEntireRow(rowNumber, updatedObj) {
-  try {
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
     if (!sheet) return { success: false, error: "Sheet not found" };
 
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const existingData = sheet.getDataRange().getValues();
+    const headers = existingData[0];
+    const poIndex = headers.indexOf('PO Number');
+    const buyerIndex = headers.indexOf('Buyer / Company Name');
     const config = getAppConfig();
-    
-    headers.forEach((header, colIdx) => {
-      if (header && updatedObj.hasOwnProperty(header)) {
-        let val = updatedObj[header];
-        if (header === 'Timestamp' && val) {
-          val = formatLongDateTime(val);
-        } else if (isDateKey(header, config) && val) {
-          val = formatShortDate(val);
-        }
-        sheet.getRange(rowNumber, colIdx + 1).setValue(val);
+
+    if (poIndex === -1 || buyerIndex === -1) {
+      return { success: false, error: "Required columns missing in database" };
+    }
+
+    // 2. Find matching rows (1-indexed for Sheet APIs)
+    let matchIndices = [];
+    const targetPO = String(oldPoNumber).trim().toLowerCase();
+    const targetBuyer = String(oldBuyerName).trim().toLowerCase();
+
+    for (let i = 1; i < existingData.length; i++) {
+      const rowPO = String(existingData[i][poIndex] || '').trim().toLowerCase();
+      const rowBuyer = String(existingData[i][buyerIndex] || '').trim().toLowerCase();
+      
+      if (rowPO === targetPO && rowBuyer === targetBuyer) {
+        matchIndices.push(i + 1); // +1 because sheet rows are 1-indexed
       }
+    }
+
+    // 3. Prepare new row data array matching the headers
+    const timestampFormatted = formatLongDateTime(new Date());
+    const preparedRows = rowsData.map(data => {
+      const row = [];
+      headers.forEach(header => {
+        if (header === 'Timestamp') {
+          row.push(timestampFormatted); // Update timestamp
+        } else if (header === 'Source File') {
+          row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || ''}")` : (data.sourceFile || ''));
+        } else {
+          let val = data[header] || '';
+          if (val && isDateKey(header, config)) {
+            val = formatShortDate(val);
+          }
+          row.push(val);
+        }
+      });
+      return row;
     });
-    
+
+    // 4. Overwrite existing matching rows
+    const overwriteCount = Math.min(matchIndices.length, preparedRows.length);
+    for (let i = 0; i < overwriteCount; i++) {
+      const rowIndex = matchIndices[i];
+      sheet.getRange(rowIndex, 1, 1, headers.length).setValues([preparedRows[i]]);
+    }
+
+    // 5. Append surplus new rows if any
+    for (let i = overwriteCount; i < preparedRows.length; i++) {
+      sheet.appendRow(preparedRows[i]);
+    }
+
+    // 6. Delete surplus old rows if any (bottom-up to avoid shifting indices)
+    if (preparedRows.length < matchIndices.length) {
+      for (let i = matchIndices.length - 1; i >= preparedRows.length; i--) {
+        sheet.deleteRow(matchIndices[i]);
+      }
+    }
+
     return { success: true };
   } catch (err) {
     return { success: false, error: err.toString() };
