@@ -947,7 +947,110 @@
     #dataTableSection {
       display: none;
       width: 100%;
-      max-width: 1280px;
+      max-width: 100%; /* Go full width for data view */
+      height: calc(100vh - 100px); /* Full height minus top padding */
+      gap: 1.5rem;
+    }
+    
+    #dataTableSection.active-flex {
+      display: flex;
+    }
+
+    .db-sidebar {
+      width: 320px;
+      min-width: 320px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px var(--shadow-color);
+    }
+
+    .db-sidebar-header {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      padding-bottom: 1rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid var(--input-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-po-item {
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .sidebar-po-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
+    .sidebar-po-item.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    .sidebar-po-item .po-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-po-item.active .po-title {
+      color: var(--primary);
+    }
+
+    .sidebar-po-item .po-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .pi-status-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .pi-status-badge.none {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .db-main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100%;
+    }
+
+    #poDataTable {
+      flex: 1;
+      min-height: 0;
     }
 
     .sap-fiori-header {
@@ -1564,64 +1667,74 @@
 
   <!-- SAP FIORI ERP DATABASE WORKBENCH CONTAINER -->
   <div id="dataTableSection">
-    <!-- SAP Fiori Header Toolbar -->
-    <div class="sap-fiori-header">
-      <div class="sap-brand-row">
-        <div class="sap-logo-badge">
-          <i class="fa-solid fa-layer-group"></i>
+    
+    <div class="db-sidebar" id="dbSidebar">
+      <div class="db-sidebar-header">
+        <span>Purchase Orders</span>
+        <span class="sap-grid-counter" id="sapGridCounterText" style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">0 POs</span>
+      </div>
+      <div id="poSidebarList" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+    <div class="db-main-content">
+      <!-- SAP Fiori Header Toolbar -->
+      <div class="sap-fiori-header">
+        <div class="sap-brand-row">
+          <div class="sap-logo-badge">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <h2 class="sap-title">RKD Furnishings Pvt Ltd</h2>
+          </div>
         </div>
-        <div>
-          <h2 class="sap-title">RKD Furnishings Pvt Ltd</h2>
+        <div class="sap-actions-row">
+          <button class="sap-btn sap-btn-primary" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Export
+            Excel/CSV</button>
+          <button class="btn btn-gradient" onclick="hideDataTable()"
+            style="padding: 0.65rem 1.25rem; font-size: 0.88rem; border-radius: 12px; height: auto;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload New PO
+          </button>
         </div>
       </div>
-      <div class="sap-actions-row">
-        <button class="sap-btn sap-btn-primary" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Export
-          Excel/CSV</button>
-        <button class="btn btn-gradient" onclick="hideDataTable()"
-          style="padding: 0.65rem 1.25rem; font-size: 0.88rem; border-radius: 12px; height: auto;">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Upload New PO
-        </button>
-      </div>
-    </div>
 
-    <!-- SAP KPI Summary Tiles -->
-    <div class="sap-kpi-bar">
-      <div class="sap-kpi-tile">
-        <div class="sap-kpi-val" id="sapKpiTotalRows">0</div>
-        <div class="sap-kpi-lbl">Extracted Line Items</div>
+      <!-- SAP KPI Summary Tiles -->
+      <div class="sap-kpi-bar">
+        <div class="sap-kpi-tile">
+          <div class="sap-kpi-val" id="sapKpiTotalRows">0</div>
+          <div class="sap-kpi-lbl">Extracted Line Items</div>
+        </div>
+        <div class="sap-kpi-tile">
+          <div class="sap-kpi-val" id="sapKpiUniquePOs">0</div>
+          <div class="sap-kpi-lbl">Total Purchase Orders</div>
+        </div>
+        <div class="sap-kpi-tile">
+          <div class="sap-kpi-val" id="sapKpiTotalValue">$0.00</div>
+          <div class="sap-kpi-lbl">Total Extracted Value</div>
+        </div>
+        <div class="sap-kpi-tile">
+          <div class="sap-kpi-val" id="sapKpiVendors">0</div>
+          <div class="sap-kpi-lbl">Active Vendors</div>
+        </div>
       </div>
-      <div class="sap-kpi-tile">
-        <div class="sap-kpi-val" id="sapKpiUniquePOs">0</div>
-        <div class="sap-kpi-lbl">Total Purchase Orders</div>
-      </div>
-      <div class="sap-kpi-tile">
-        <div class="sap-kpi-val" id="sapKpiTotalValue">$0.00</div>
-        <div class="sap-kpi-lbl">Total Extracted Value</div>
-      </div>
-      <div class="sap-kpi-tile">
-        <div class="sap-kpi-val" id="sapKpiVendors">0</div>
-        <div class="sap-kpi-lbl">Active Vendors</div>
-      </div>
-    </div>
 
-    <!-- SAP Grid Search & Filter Toolbar -->
-    <div class="sap-grid-toolbar">
-      <div class="sap-search-box">
-        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
-        <input type="text" id="sapGridSearchInput" placeholder="Filter SAP PO Grid (PO #, SKU, Vendor, Buyer...)"
-          oninput="filterSapGrid()">
+      <!-- SAP Grid Search & Filter Toolbar -->
+      <div class="sap-grid-toolbar">
+        <div class="sap-search-box">
+          <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
+          <input type="text" id="sapGridSearchInput" placeholder="Filter Active Grid..."
+            oninput="filterSapGrid()">
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center;">
+          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
+              class="fa-solid fa-rotate-right"></i></button>
+        </div>
       </div>
-      <div style="display:flex; gap:0.75rem; align-items:center;">
-        <button class="sap-btn sap-btn-secondary" style="padding:0.4rem 0.85rem; font-size:0.82rem;"
-          onclick="toggleGroupsExpandCollapse()"><i class="fa-solid fa-folder-open"></i> Expand / Collapse POs</button>
-        <span class="sap-grid-counter" id="sapGridCounterText">Showing 0 entries</span>
-        <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
-            class="fa-solid fa-rotate-right"></i></button>
-      </div>
-    </div>
 
-    <!-- Tabulator SAP Grid Container -->
-    <div id="poDataTable"></div>
+      <!-- Tabulator SAP Grid Container -->
+      <div id="poDataTable"></div>
+    </div>
   </div>
 
   <!-- LOADING OVERLAY -->
@@ -2775,7 +2888,7 @@
 
     async function showDataTable() {
       document.querySelector('.container').style.display = 'none';
-      document.getElementById('dataTableSection').style.display = 'block';
+      document.getElementById('dataTableSection').classList.add('active-flex');
 
       document.getElementById('overlay').style.display = 'flex';
       document.getElementById('loadingText').textContent = 'Loading Database...';
@@ -2793,7 +2906,7 @@
     }
 
     function hideDataTable() {
-      document.getElementById('dataTableSection').style.display = 'none';
+      document.getElementById('dataTableSection').classList.remove('active-flex');
       document.querySelector('.container').style.display = 'block';
     }
 
@@ -2811,8 +2924,68 @@
 
       currentDbData = data;
 
+      // Extract unique POs for the sidebar
+      const poGroups = {};
+      data.forEach(row => {
+        const poNum = row['PO Number'] || 'Unassigned';
+        if (!poGroups[poNum]) {
+          let rawDate = '';
+          for (let k in row) {
+            if (k.toLowerCase().includes('date') && row[k]) { rawDate = row[k]; break; }
+          }
+          if (!rawDate) rawDate = row['Timestamp'] || '';
+          
+          poGroups[poNum] = {
+            date: rawDate ? formatShortDate(rawDate) : '',
+            piNumber: row['PI Number'] || null
+          };
+        }
+      });
+
+      const uniquePOs = Object.keys(poGroups);
+      document.getElementById('sapGridCounterText').textContent = `${uniquePOs.length} POs`;
+      
+      const sidebarList = document.getElementById('poSidebarList');
+      sidebarList.innerHTML = '';
+      
+      // Add "All POs"
+      const allItem = document.createElement('div');
+      allItem.className = 'sidebar-po-item active';
+      allItem.innerHTML = `<div class="po-title">All Purchase Orders</div><div class="po-meta">View all records</div>`;
+      allItem.onclick = () => {
+        document.querySelectorAll('.sidebar-po-item').forEach(el => el.classList.remove('active'));
+        allItem.classList.add('active');
+        if (tableInstance) tableInstance.clearFilter();
+      };
+      sidebarList.appendChild(allItem);
+
+      uniquePOs.forEach(poNum => {
+        const item = document.createElement('div');
+        item.className = 'sidebar-po-item';
+        
+        const piHtml = poGroups[poNum].piNumber 
+          ? `<span class="pi-status-badge"><i class="fa-solid fa-check"></i> PI: ${poGroups[poNum].piNumber}</span>`
+          : `<span class="pi-status-badge none">No PI</span>`;
+          
+        item.innerHTML = `
+          <div class="po-title">PO #${poNum}</div>
+          <div class="po-meta" style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span><i class="fa-solid fa-calendar-day"></i> ${poGroups[poNum].date}</span>
+            ${piHtml}
+          </div>
+        `;
+        
+        item.onclick = () => {
+          document.querySelectorAll('.sidebar-po-item').forEach(el => el.classList.remove('active'));
+          item.classList.add('active');
+          if (tableInstance) {
+            tableInstance.setFilter("PO Number", "=", poNum === 'Unassigned' ? '' : poNum);
+          }
+        };
+        sidebarList.appendChild(item);
+      });
+
       // Calculate SAP ERP KPI Stats
-      const uniquePOs = new Set(data.map(d => d['PO Number']).filter(Boolean)).size;
       const uniqueVendors = new Set(data.map(d => d['Vendor Name']).filter(Boolean)).size;
       let totalVal = 0;
       data.forEach(d => {
@@ -2821,25 +2994,24 @@
       });
 
       document.getElementById('sapKpiTotalRows').textContent = data.length;
-      document.getElementById('sapKpiUniquePOs').textContent = uniquePOs;
+      document.getElementById('sapKpiUniquePOs').textContent = uniquePOs.length;
       document.getElementById('sapKpiTotalValue').textContent = currentCurrencySymbol + totalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       document.getElementById('sapKpiVendors').textContent = uniqueVendors;
-      document.getElementById('sapGridCounterText').textContent = `Showing ${data.length} entries`;
 
       const columns = [];
 
-      // 1. Secured Action Edit Column
       columns.push({
         title: "Action",
         field: "_action",
-        width: 110,
-        minWidth: 110,
+        width: 90,
+        minWidth: 90,
         hozAlign: "center",
         vertAlign: "middle",
         headerSort: false,
         formatter: function (cell) {
           const rowId = cell.getRow().getData()._id;
-          return `<button class="sap-btn-edit-row" onclick="openDbEditModalWithPasscode(event, ${rowId})"><i class="fa-solid fa-pen-to-square"></i> Edit</button>`;
+          return `<button class="sap-btn-edit-row" onclick="openDbEditModalWithPasscode(event, ${rowId})"><i class="fa-solid fa-pen"></i></button>
+                  <button class="sap-btn-edit-row" style="margin-left:4px; background:rgba(16,185,129,0.1); color:#10b981; border-color:rgba(16,185,129,0.2);" onclick="openPiModal('${String(cell.getRow().getData()['PO Number']).replace(/'/g, "\\'")}', event)" title="Generate PI"><i class="fa-solid fa-file-invoice"></i></button>`;
         }
       });
 
@@ -2847,11 +3019,18 @@
         let colDef = {
           title: key,
           field: key,
-          minWidth: 160,
+          minWidth: 120,
           formatter: "textarea",
-          editor: false, // Direct cell editing disabled per user request
-          headerFilter: false
+          editor: false,
+          headerFilter: "input",
+          headerFilterPlaceholder: "Search..."
         };
+
+        if (key.toLowerCase().includes('vendor') || key.toLowerCase().includes('buyer') || key.toLowerCase().includes('status')) {
+            colDef.headerFilter = "select";
+            colDef.headerFilterParams = { values: true };
+            colDef.headerFilterPlaceholder = "All";
+        }
 
         if (key === 'Timestamp') {
           colDef.formatter = function (cell) {
@@ -2879,7 +3058,6 @@
           };
           colDef.hozAlign = "right";
         } else {
-          // Capitalize Each Word
           colDef.formatter = function (cell) {
             const val = cell.getValue();
             if (!val) return '';
@@ -2897,47 +3075,9 @@
           data: data,
           layout: "fitDataFill",
           columns: columns,
-          groupBy: "PO Number",
-          groupStartOpen: false,
-          groupHeader: function (value, count, data, group) {
-            let totalPOAmt = 0;
-            data.forEach(d => {
-              const val = parseFloat(String(d['Line Amount'] || d['Unit Price'] || d['Total Order Amount'] || '0').replace(/[^0-9.-]+/g, "")) || 0;
-              totalPOAmt += val;
-            });
-
-            const vendor = toTitleCase(data[0]['Vendor Name'] || data[0]['Buyer / Company Name'] || 'PO Record');
-
-            let rawDate = '';
-            if (data[0]) {
-              for (let k in data[0]) {
-                if (k.toLowerCase().includes('date') && data[0][k]) {
-                  rawDate = data[0][k];
-                  break;
-                }
-              }
-              if (!rawDate) rawDate = data[0]['Timestamp'] || '';
-            }
-            const orderDate = rawDate ? formatShortDate(rawDate) : '';
-
-            return `
-              <div class="sap-group-header-content">
-                <div class="sap-group-left">
-                  <span class="sap-group-po-num"><i class="fa-solid fa-folder-closed"></i> PO #${value || 'Unassigned'}</span>
-                  <span class="sap-group-vendor"><i class="fa-solid fa-building"></i> ${vendor}</span>
-                  ${orderDate ? `<span class="sap-group-date"><i class="fa-solid fa-calendar-day"></i> ${orderDate}</span>` : ''}
-                </div>
-                <div class="sap-group-right">
-                  <button class="btn btn-outline btn-sm" style="margin-right:0.75rem; background:var(--card-bg);" onclick="openPiModal('${String(value).replace(/'/g, "\\'")}', event)"><i class="fa-solid fa-file-invoice"></i> Generate PI</button>
-                  <span class="sap-group-count-badge">${count} Line Item(s)</span>
-                  <span class="sap-group-total-badge">Total: ${currentCurrencySymbol}${totalPOAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                </div>
-              </div>
-            `;
-          },
           pagination: "local",
-          paginationSize: 20,
-          paginationSizeSelector: [10, 20, 50, 100],
+          paginationSize: 50,
+          paginationSizeSelector: [20, 50, 100, 500],
           initialSort: [{ column: "Timestamp", dir: "desc" }]
         });
       }
