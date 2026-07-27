@@ -274,19 +274,23 @@
 
     <!-- ITEMS -->
     <?
-      const ignoreKeys = [
-        '_id', 'Currency', 'Actions', 
-        'Item Name', 'Description', 'Product Description', 'Item Description',
-        'SKU / Item #', 'SKU', 'Item Code', 'Item #', 
-        'Quantity', 'Qty', 
-        'Unit Price', 'Price', 'Rate', 'Item Price',
-        'Line Amount', 'Amount', 'Total', 'Item Total', 'Total Amount'
-      ];
+      const ignoreKeysLowerCase = [
+        '_id', '_action', 'timestamp', 'source file', 'pi pdf link', 'pi number', 'pi date', 'actions', 'currency', 'currency symbol',
+        'po number', 'order date', 'buyer / company name', 'buyer', 'company name', 'vendor name', 'vendor', 'ex-factory date', 'ex factory date',
+        'cancel date', 'total order amount', 'total cases', 'ship via', 'payment terms', 'fob / port of departure', 'port of entry / destination',
+        'port of departure', 'destination', 'cbm', 'material / fabric', 'remarks', 'notes', 'delivery address', 'delivery date', 'next delivery date',
+        'item name', 'description', 'product description', 'item description', 'item name / description',
+        'sku / item #', 'sku', 'item code', 'item #', 'sku / item code',
+        'quantity', 'qty',
+        'unit price', 'price', 'rate', 'item price',
+        'line amount', 'amount', 'total', 'item total', 'total amount'
+      ].map(k => k.toLowerCase());
       const dynamicCols = [];
       if (items && items.length > 0) {
         items.forEach(item => {
           Object.keys(item).forEach(k => {
-            if (!ignoreKeys.includes(k) && item[k] !== null && item[k] !== undefined && String(item[k]).trim() !== '') {
+            const cleanKey = String(k).trim().toLowerCase();
+            if (!ignoreKeysLowerCase.includes(cleanKey) && !cleanKey.startsWith('_') && !cleanKey.includes('link') && !cleanKey.includes('url') && item[k] !== null && item[k] !== undefined && String(item[k]).trim() !== '' && String(item[k]).trim() !== 'N/A' && String(item[k]).trim() !== '-') {
               if (!dynamicCols.includes(k)) {
                 dynamicCols.push(k);
               }
@@ -297,13 +301,13 @@
     ?>
     <table class="items-table">
       <tr>
-        <th style="min-width: 22%; text-align: left;">ITEM NAME / DESCRIPTION</th>
-        <th style="min-width: 14%; text-align: left;">SKU / ITEM CODE</th>
+        <th style="width: 26%; text-align: left;">ITEM NAME / DESCRIPTION</th>
+        <th style="width: 16%; text-align: left;">SKU / ITEM CODE</th>
         <? dynamicCols.forEach(col => { ?>
         <th style="text-align: left;"><?= col.toUpperCase() ?></th>
         <? }); ?>
         <th style="width: 8%;" class="text-center">QTY</th>
-        <th style="width: 13%;" class="text-right">UNIT PRICE</th>
+        <th style="width: 12%;" class="text-right">UNIT PRICE</th>
         <th style="width: 15%;" class="text-right">TOTAL</th>
       </tr>
 

@@ -2796,7 +2796,7 @@
         if (response.success) {
           if (autoOpenPi) {
             await showDataTable();
-            openPiModal(payload['PO Number']);
+            setTimeout(() => { openPiModal(payload['PO Number']); }, 400);
             resetUI();
           } else {
             Swal.fire({
@@ -2810,7 +2810,7 @@
             }).then(async (result) => {
               if (result.isConfirmed) {
                 await showDataTable();
-                openPiModal(payload['PO Number']);
+                setTimeout(() => { openPiModal(payload['PO Number']); }, 400);
                 resetUI();
               } else {
                 resetUI();

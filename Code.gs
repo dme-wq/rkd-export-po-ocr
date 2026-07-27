@@ -520,6 +520,7 @@ function saveToSheet(rowsData) {
 
     // ── Auto-resize columns ────────────────────
     try { sheet.autoResizeColumns(1, sheet.getLastColumn()); } catch(e) {}
+    SpreadsheetApp.flush();
 
     return {
       success  : true,
