@@ -508,10 +508,10 @@
       display: none;
     }
 
-    /* UNIFIED COMPACT & LITE SCORECARDS */
+    /* UNIFIED COMPACT SCORECARDS */
     .scorecard-bar, .stats-bar, .sap-kpi-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 240px));
+      display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 0.85rem;
       margin-bottom: 1.25rem;
@@ -520,38 +520,34 @@
     .scorecard-tile {
       position: relative;
       overflow: hidden;
-      border-radius: 14px;
-      padding: 0.55rem 0.7rem;
-      height: 60px;
+      border-radius: 12px;
+      padding: 0.5rem;
+      height: 54px;
+      width: 130px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
       border: 1px solid rgba(0, 0, 0, 0.06);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
     }
     .scorecard-tile:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
     }
     .scorecard-tile::after {
-      content: "";
-      position: absolute;
-      top: -15px;
-      right: -15px;
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      z-index: 0;
-      pointer-events: none;
+      display: none;
     }
     .scorecard-top {
-      position: relative;
-      z-index: 1;
       display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.78rem;
+      width: 100%;
+      font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.2px;
       white-space: nowrap;
@@ -559,30 +555,19 @@
       text-overflow: ellipsis;
     }
     .scorecard-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
+      display: none;
     }
     .scorecard-pill {
-      position: relative;
-      z-index: 1;
-      margin-top: 0.35rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 8px;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       font-family: var(--font-display);
       font-weight: 800;
       font-size: 0.9rem;
-      background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      margin-top: 0.15rem;
     }
     .scorecard-arrow {
-      font-size: 0.7rem;
-      opacity: 0.6;
-      margin-left: 0.5rem;
+      display: none;
     }
 
     /* LITE PASTEL THEMES */
@@ -1893,7 +1878,7 @@
             Reset
           </button>
           <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
-          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable(true)" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-rotate-right"></i></button>
           <button class="sap-btn-icon" title="Full Screen Mode" onclick="toggleFullScreenTable()" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-expand"></i></button>
         </div>
       </div>
@@ -2417,7 +2402,11 @@
         if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
           loadDraft();
         } else {
-          // Keep upload screen active by default
+          // Restore active view on refresh
+          const activeView = localStorage.getItem('activeView');
+          if (activeView === 'database') {
+            showDataTable();
+          }
         }
       } catch (err) {
         console.log("Config load notice:", err);
@@ -3115,28 +3104,44 @@
     // ─────────────────────────────────────────────
     let tableInstance = null;
 
-    async function showDataTable() {
+    async function showDataTable(forceRefresh = false) {
       document.querySelector('.container').style.display = 'none';
       document.getElementById('dataTableSection').classList.add('active-flex');
+      localStorage.setItem('activeView', 'database');
 
-      document.getElementById('overlay').style.display = 'flex';
-      document.getElementById('loadingText').textContent = 'Loading Database...';
-      document.getElementById('loadingSubText').textContent = 'Fetching entries from Google Sheets...';
+      const cached = localStorage.getItem('dbCache');
+      if (cached && !forceRefresh) {
+        try {
+          renderTabulator(JSON.parse(cached));
+        } catch (e) {}
+      } else {
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('loadingText').textContent = 'Loading Database...';
+        document.getElementById('loadingSubText').textContent = 'Fetching entries from Google Sheets...';
+      }
 
       try {
         const res = await callBackend('getSavedData');
         document.getElementById('overlay').style.display = 'none';
         const data = res.data || res;
-        renderTabulator(data);
+        
+        const newCacheStr = JSON.stringify(data);
+        if (newCacheStr !== cached || forceRefresh) {
+          localStorage.setItem('dbCache', newCacheStr);
+          renderTabulator(data);
+        }
       } catch (err) {
         document.getElementById('overlay').style.display = 'none';
-        Swal.fire('Error', err.message || err.toString(), 'error');
+        if (!cached || forceRefresh) {
+          Swal.fire('Error', err.message || err.toString(), 'error');
+        }
       }
     }
 
     function hideDataTable() {
       document.getElementById('dataTableSection').classList.remove('active-flex');
       document.querySelector('.container').style.display = 'block';
+      localStorage.setItem('activeView', 'upload');
     }
 
     function exportCSV() {
