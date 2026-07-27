@@ -1739,7 +1739,8 @@
           <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
           <input type="text" id="sapGridSearchInput" placeholder="Filter Active Grid..." oninput="filterSapGrid()">
         </div>
-        <div style="display:flex; gap:0.75rem; align-items:center;">
+        <div style="display:flex; gap:0.6rem; align-items:center;">
+          <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem;"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
           <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
               class="fa-solid fa-rotate-right"></i></button>
         </div>
@@ -1903,6 +1904,31 @@
         <button class="btn btn-gradient" style="width:auto;" onclick="submitPiGeneration()"><i
             class="fa-solid fa-file-pdf"></i> Generate PI</button>
         <button class="btn btn-outline" onclick="closePiModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATABASE COLUMNS CUSTOMIZATION MODAL -->
+  <div class="custom-modal" id="dbColumnsModal">
+    <div class="modal-content" style="max-width: 650px;">
+      <i class="fa-solid fa-xmark modal-close" onclick="closeDbColumnsModal()"></i>
+      <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">
+        <i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Customize Active Grid Columns
+      </h2>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">Select the columns you want to see in the database view. Unchecked columns will be hidden.</p>
+
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-bottom:0.75rem;">
+        <button class="btn btn-outline btn-sm" onclick="toggleAllDbColumns(true)" style="padding:0.25rem 0.6rem; font-size:0.75rem;"><i class="fa-solid fa-check-double"></i> Select All</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleAllDbColumns(false)" style="padding:0.25rem 0.6rem; font-size:0.75rem;"><i class="fa-solid fa-xmark"></i> Deselect All</button>
+      </div>
+
+      <div id="dbColumnsChecklist" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:0.6rem; max-height:280px; overflow-y:auto; margin-bottom:1.5rem; padding:0.75rem; background:var(--bg-main); border:1px solid var(--input-border); border-radius:12px;">
+        <!-- Checkboxes injected dynamically -->
+      </div>
+
+      <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+        <button class="btn btn-gradient" style="width:auto;" onclick="saveDbColumnsSelection()"><i class="fa-solid fa-check"></i> Save & Apply</button>
+        <button class="btn btn-outline" onclick="closeDbColumnsModal()">Cancel</button>
       </div>
     </div>
   </div>
@@ -3066,6 +3092,12 @@
         }
       });
 
+      let savedDbCols = null;
+      try {
+        const rawSaved = localStorage.getItem('rkd_db_visible_columns');
+        if (rawSaved) savedDbCols = JSON.parse(rawSaved);
+      } catch (e) { }
+
       Object.keys(data[0]).filter(k => !k.startsWith('_')).forEach(key => {
         let colDef = {
           title: key,
@@ -3074,7 +3106,8 @@
           formatter: "textarea",
           editor: false,
           headerFilter: "input",
-          headerFilterPlaceholder: "Search..."
+          headerFilterPlaceholder: "Search...",
+          visible: savedDbCols && Array.isArray(savedDbCols) ? savedDbCols.includes(key) : true
         };
 
         if (key.toLowerCase().includes('vendor') || key.toLowerCase().includes('buyer') || key.toLowerCase().includes('status')) {
@@ -3255,6 +3288,108 @@
         document.getElementById('overlay').style.display = 'none';
         Swal.fire('Error', err.message || err.toString(), 'error');
       }
+    }
+
+    // ─────────────────────────────────────────────
+    //  CUSTOMIZE DATABASE COLUMNS FEATURE
+    // ─────────────────────────────────────────────
+    function openDbColumnsModal() {
+      if (!currentDbData || currentDbData.length === 0) {
+        Swal.fire('No Data', 'Please wait for database records to load first.', 'info');
+        return;
+      }
+
+      let savedDbCols = null;
+      try {
+        const rawSaved = localStorage.getItem('rkd_db_visible_columns');
+        if (rawSaved) savedDbCols = JSON.parse(rawSaved);
+      } catch (e) { }
+
+      const container = document.getElementById('dbColumnsChecklist');
+      container.innerHTML = '';
+
+      const allKeys = Object.keys(currentDbData[0]).filter(k => !k.startsWith('_'));
+      allKeys.forEach(key => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '0.45rem';
+        div.style.padding = '0.4rem 0.6rem';
+        div.style.background = 'var(--input-bg)';
+        div.style.border = '1px solid var(--input-border)';
+        div.style.borderRadius = '8px';
+        div.style.cursor = 'pointer';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = key;
+        cb.style.cursor = 'pointer';
+        if (!savedDbCols || (Array.isArray(savedDbCols) && savedDbCols.includes(key))) {
+          cb.checked = true;
+        }
+
+        const label = document.createElement('span');
+        label.style.fontSize = '0.82rem';
+        label.style.fontWeight = '600';
+        label.style.color = 'var(--text-main)';
+        label.style.whiteSpace = 'nowrap';
+        label.style.overflow = 'hidden';
+        label.style.textOverflow = 'ellipsis';
+        label.textContent = key;
+        label.title = key;
+
+        div.onclick = (e) => {
+          if (e.target !== cb) cb.checked = !cb.checked;
+        };
+        div.appendChild(cb);
+        div.appendChild(label);
+        container.appendChild(div);
+      });
+
+      document.getElementById('dbColumnsModal').style.display = 'flex';
+    }
+
+    function closeDbColumnsModal() {
+      document.getElementById('dbColumnsModal').style.display = 'none';
+    }
+
+    function toggleAllDbColumns(select) {
+      const checkboxes = document.querySelectorAll('#dbColumnsChecklist input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = select);
+    }
+
+    function saveDbColumnsSelection() {
+      const checkboxes = document.querySelectorAll('#dbColumnsChecklist input[type="checkbox"]:checked');
+      const selectedCols = Array.from(checkboxes).map(cb => cb.value);
+
+      if (selectedCols.length === 0) {
+        Swal.fire('Warning', 'Please select at least one column to display.', 'warning');
+        return;
+      }
+
+      localStorage.setItem('rkd_db_visible_columns', JSON.stringify(selectedCols));
+
+      if (tableInstance) {
+        const allCols = tableInstance.getColumns();
+        allCols.forEach(col => {
+          const field = col.getField();
+          if (field && !field.startsWith('_')) {
+            if (selectedCols.includes(field)) {
+              col.show();
+            } else {
+              col.hide();
+            }
+          }
+        });
+      }
+
+      closeDbColumnsModal();
+      Swal.fire({
+        icon: 'success',
+        title: 'Columns Applied',
+        text: 'Your customized column view has been saved and applied.',
+        toast: true, position: 'top-end', timer: 2500, showConfirmButton: false
+      });
     }
 
     let groupsExpanded = false;
