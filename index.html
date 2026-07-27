@@ -1197,7 +1197,8 @@
 
     #poDataTable {
       flex: 1;
-      min-height: 0;
+      min-height: 60vh;
+      margin: 0.5rem;
     }
     /* Tabulator Glassmorphism Styles */
     .tabulator {
@@ -1624,10 +1625,6 @@
       <img
         src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png"
         alt="RKD Logo" class="brand-logo-img">
-      <div class="brand-text">
-        <span class="brand-title">RKD Group</span>
-        <span class="brand-subtitle">Purchase Order Data Extractor</span>
-      </div>
     </div>
 
     <div class="nav-actions">
@@ -1891,17 +1888,13 @@
         <!-- Dynamically injected dropdowns will go here -->
         <div id="lookerDropdownsContainer" style="display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center;"></div>
 
-        <button class="btn btn-primary btn-sm" onclick="resetLookerFilters()" title="Reset All Filters" style="padding: 0.5rem 1.25rem; font-size: 0.82rem; font-weight:600; border-radius: 50px; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; border: none; background: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.3);">
-          Reset
-        </button>
-      </div>
-
-      <!-- SAP Grid Search & Filter Toolbar -->
-      <div class="sap-grid-toolbar">
         <div style="display:flex; gap:0.6rem; align-items:center;">
-          <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem;"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
-          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i class="fa-solid fa-rotate-right"></i></button>
-          <button class="sap-btn-icon" title="Full Screen Mode" onclick="toggleFullScreenTable()"><i class="fa-solid fa-expand"></i></button>
+          <button class="btn btn-primary btn-sm" onclick="resetLookerFilters()" title="Reset All Filters" style="padding: 0.5rem 1.25rem; font-size: 0.82rem; font-weight:600; border-radius: 50px; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; border: none; background: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.3);">
+            Reset
+          </button>
+          <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
+          <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="sap-btn-icon" title="Full Screen Mode" onclick="toggleFullScreenTable()" style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);"><i class="fa-solid fa-expand"></i></button>
         </div>
       </div>
 
