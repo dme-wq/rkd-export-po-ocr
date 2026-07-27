@@ -1951,7 +1951,7 @@
         <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">Tick fields to display in header boxes</span>
       </h3>
       <div id="piHeadersChecklist"
-        style="display:grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap:0.5rem; max-height:140px; overflow-y:auto; margin-bottom:1.25rem; padding:0.75rem; background:var(--bg-main); border:1px solid var(--input-border); border-radius:12px;">
+        style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:0.6rem; max-height:190px; overflow-y:auto; margin-bottom:1.25rem; padding:0.75rem; background:var(--bg-main); border:1px solid var(--input-border); border-radius:12px;">
         <!-- Header fields checklist injected here -->
       </div>
 
@@ -3508,13 +3508,18 @@
         availableHeaders.forEach((hdr, hIdx) => {
           const div = document.createElement('div');
           div.style.display = 'flex';
-          div.style.alignItems = 'center';
-          div.style.gap = '0.4rem';
-          div.style.padding = '0.35rem 0.5rem';
+          div.style.flexDirection = 'column';
+          div.style.gap = '0.35rem';
+          div.style.padding = '0.45rem 0.55rem';
           div.style.background = 'var(--input-bg)';
           div.style.border = '1px solid var(--input-border)';
           div.style.borderRadius = '8px';
-          div.style.fontSize = '0.82rem';
+          div.style.justifyContent = 'space-between';
+
+          const topDiv = document.createElement('div');
+          topDiv.style.display = 'flex';
+          topDiv.style.alignItems = 'center';
+          topDiv.style.gap = '0.4rem';
 
           const cb = document.createElement('input');
           cb.type = 'checkbox';
@@ -3538,11 +3543,40 @@
           label.style.whiteSpace = 'nowrap';
           label.style.overflow = 'hidden';
           label.style.textOverflow = 'ellipsis';
+          label.style.fontWeight = '600';
+          label.style.fontSize = '0.82rem';
           label.textContent = hdr;
           label.title = hdr;
 
-          div.appendChild(cb);
-          div.appendChild(label);
+          topDiv.appendChild(cb);
+          topDiv.appendChild(label);
+
+          const valDiv = document.createElement('div');
+          valDiv.style.fontSize = '0.75rem';
+          valDiv.style.color = 'var(--text-muted)';
+          valDiv.style.background = 'var(--bg-main)';
+          valDiv.style.padding = '0.2rem 0.4rem';
+          valDiv.style.borderRadius = '4px';
+          valDiv.style.border = '1px solid var(--border-color, #e2e8f0)';
+          valDiv.style.overflow = 'hidden';
+          valDiv.style.textOverflow = 'ellipsis';
+          valDiv.style.whiteSpace = 'nowrap';
+
+          const rawVal = currentPiData[0][hdr];
+          if (rawVal !== undefined && rawVal !== null && String(rawVal).trim() !== '' && String(rawVal).trim() !== '-' && String(rawVal).trim() !== 'N/A') {
+            valDiv.textContent = String(rawVal).trim();
+            valDiv.title = `Saved Value: ${String(rawVal).trim()}`;
+            valDiv.style.color = 'var(--text-main)';
+            valDiv.style.fontWeight = '500';
+          } else {
+            valDiv.textContent = 'Empty / Not Set';
+            valDiv.title = 'No value saved in database for this field';
+            valDiv.style.fontStyle = 'italic';
+            valDiv.style.opacity = '0.7';
+          }
+
+          div.appendChild(topDiv);
+          div.appendChild(valDiv);
           headersContainer.appendChild(div);
         });
       }
