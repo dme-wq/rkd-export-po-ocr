@@ -43,11 +43,11 @@
       --font-display: 'Outfit', sans-serif;
 
       /* DCode Light SaaS Theme Palette */
-      --bg-gradient: #f4f7fe;
-      /* Clean light gray-blue background */
+      --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 50%, #fdf4ff 100%);
+      /* Clean colorful light background */
       --card-bg: #ffffff;
       --card-border: #e2e8f0;
-      --shadow-color: rgba(37, 99, 235, 0.06);
+      --shadow-color: rgba(37, 99, 235, 0.08);
 
       --text-main: #0f172a;
       --text-muted: #64748b;
@@ -76,7 +76,7 @@
 
     [data-theme="dark"] {
       /* DCode adapted for dark mode */
-      --bg-gradient: #0b1121;
+      --bg-gradient: linear-gradient(135deg, #0b1121 0%, #111827 50%, #1e1b4b 100%);
       --card-bg: #1e293b;
       --card-border: #334155;
       --shadow-color: rgba(0, 0, 0, 0.4);
@@ -247,6 +247,12 @@
       padding: 3rem 2.5rem;
       box-shadow: 0 20px 60px var(--shadow-color);
       animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s ease;
+    }
+
+    .container.container-fullscreen {
+      max-width: 98.5% !important;
+      padding: 2.25rem 1.5rem !important;
     }
 
     @keyframes fadeIn {
@@ -514,6 +520,35 @@
       align-items: center;
       gap: 1.1rem;
       box-shadow: 0 4px 14px var(--shadow-color);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px var(--shadow-color);
+    }
+
+    .stat-card:nth-child(1) {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.07) 0%, rgba(99, 102, 241, 0.07) 100%);
+      border-color: rgba(59, 130, 246, 0.25);
+    }
+
+    .stat-card:nth-child(2) {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.07) 0%, rgba(5, 150, 105, 0.07) 100%);
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    .stat-card:nth-child(2) .stat-val {
+      color: #059669;
+    }
+
+    [data-theme="dark"] .stat-card:nth-child(2) .stat-val {
+      color: #34d399;
+    }
+
+    .stat-card:nth-child(3) {
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.07) 0%, rgba(245, 158, 11, 0.07) 100%);
+      border-color: rgba(244, 63, 94, 0.25);
     }
 
     .stat-icon {
@@ -697,25 +732,38 @@
     }
 
     th {
-      background: var(--dropzone-bg);
-      color: var(--text-muted);
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+      color: var(--primary);
       font-weight: 700;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      padding: 0.8rem 1rem;
-      border-bottom: 1px solid var(--input-border);
+      font-size: 0.82rem;
+      text-transform: capitalize !important;
+      letter-spacing: 0.4px;
+      padding: 0.95rem 1rem;
+      border-bottom: 2px solid rgba(99, 102, 241, 0.2);
       text-align: center;
-      white-space: normal !important;
-      word-break: break-word !important;
+      white-space: nowrap !important;
+      word-break: normal !important;
+    }
+
+    [data-theme="dark"] th {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+      color: #93c5fd;
+      border-bottom: 2px solid rgba(147, 197, 253, 0.3);
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: rgba(59, 130, 246, 0.025);
+    }
+
+    [data-theme="dark"] tbody tr:nth-child(even) {
+      background-color: rgba(59, 130, 246, 0.06);
     }
 
     td {
-      padding: 0.55rem 0.75rem;
+      padding: 0.6rem 0.75rem;
       border-bottom: 1px solid var(--input-border);
       text-align: center;
-      white-space: normal !important;
-      word-break: break-word !important;
+      white-space: nowrap;
     }
 
     td input,
@@ -730,17 +778,18 @@
       font-size: 0.84rem;
       text-align: center;
       outline: none;
-      white-space: normal !important;
-      word-break: break-word !important;
+      white-space: nowrap !important;
       transition: all 0.2s ease;
     }
 
     td textarea {
-      min-width: 220px;
+      min-width: 140px;
       resize: vertical;
       text-align: left;
       line-height: 1.35;
       font-family: inherit;
+      white-space: normal !important;
+      word-break: break-word !important;
     }
 
     [data-theme="dark"] td input,
@@ -2242,6 +2291,7 @@
           extractedPayload = { extractedData: response.payload };
           populateForm(response.payload);
           document.getElementById('dataPreview').style.display = 'block';
+          document.querySelector('.container').classList.add('container-fullscreen');
           document.getElementById('waBtn').style.display = 'none';
         } else {
           Swal.fire('Notice', response.error || 'Draft not found', 'info');
@@ -2363,6 +2413,7 @@
 
           document.getElementById('uploadSection').style.display = 'none';
           document.getElementById('dataPreview').style.display = 'block';
+          document.querySelector('.container').classList.add('container-fullscreen');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           Swal.fire('Extraction Error', response.error, 'error');
@@ -2471,14 +2522,24 @@
         if (isDate && val) {
           val = formatShortDate(val);
         }
-        const isMultiLine = f.name.toLowerCase().includes('description') || f.name.toLowerCase().includes('detail') || f.name.toLowerCase().includes('name') || f.name.toLowerCase().includes('remark') || f.name.toLowerCase().includes('sku');
+        const isMultiLine = f.name.toLowerCase().includes('description') || f.name.toLowerCase().includes('detail') || f.name.toLowerCase().includes('name') || f.name.toLowerCase().includes('remark') || f.name.toLowerCase().includes('sku') || f.name.toLowerCase().includes('color') || f.name.toLowerCase().includes('colour') || f.name.toLowerCase().includes('size') || f.name.toLowerCase().includes('material') || f.name.toLowerCase().includes('code');
         const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
         
         if (isMultiLine) {
-          td.innerHTML = `<textarea rows="2" style="min-width: 220px; resize: vertical; text-align: left; line-height: 1.35;" data-itemfieldname="${f.name}" oninput="recalcRowAmounts(this)">${val}</textarea>`;
+          let minW = '150px';
+          if (f.name.toLowerCase().includes('description')) minW = '300px';
+          else if (f.name.toLowerCase().includes('color') || f.name.toLowerCase().includes('colour') || f.name.toLowerCase().includes('size')) minW = '140px';
+          else if (f.name.toLowerCase().includes('sku')) minW = '160px';
+
+          td.innerHTML = `<textarea rows="2" style="min-width: ${minW}; width: 100%; resize: vertical; text-align: left; line-height: 1.35;" data-itemfieldname="${f.name}" oninput="recalcRowAmounts(this)">${val}</textarea>`;
         } else {
           const inputType = isDate ? 'text' : (f.type || 'text');
-          const alignStyle = (f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity') || f.name.toLowerCase().includes('cases')) ? 'style="text-align: right; font-weight: 600;"' : 'style="text-align: left;"';
+          let minW = '110px';
+          if (f.name.toLowerCase().includes('unit') || f.name.toLowerCase().includes('currency')) minW = '85px';
+          else if (f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity')) minW = '100px';
+          else if (f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('amount')) minW = '125px';
+
+          const alignStyle = (f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity') || f.name.toLowerCase().includes('cases')) ? `style="text-align: right; font-weight: 600; min-width: ${minW}; width: 100%;"` : `style="text-align: left; min-width: ${minW}; width: 100%;"`;
           td.innerHTML = `<input type="${inputType}" ${extraAttr} ${alignStyle} data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
         }
         tr.appendChild(td);
@@ -2759,6 +2820,7 @@
       renderFileList();
       document.getElementById('uploadSection').style.display = 'block';
       document.getElementById('dataPreview').style.display = 'none';
+      document.querySelector('.container').classList.remove('container-fullscreen');
       document.getElementById('poForm').reset();
     }
 
@@ -3171,7 +3233,7 @@
         else if (key.toLowerCase().includes('po number') || key.toLowerCase().includes('sku') || key.toLowerCase().includes('item no')) icon = 'fa-hashtag';
         else if (key.toLowerCase().includes('ship') || key.toLowerCase().includes('port') || key.toLowerCase().includes('destination')) icon = 'fa-ship';
 
-        const isMultiLine = key.toLowerCase().includes('description') || key.toLowerCase().includes('name') || key.toLowerCase().includes('remark') || key.toLowerCase().includes('address') || key.toLowerCase().includes('terms') || key.toLowerCase().includes('sku');
+        const isMultiLine = key.toLowerCase().includes('description') || key.toLowerCase().includes('name') || key.toLowerCase().includes('remark') || key.toLowerCase().includes('address') || key.toLowerCase().includes('terms') || key.toLowerCase().includes('sku') || key.toLowerCase().includes('color') || key.toLowerCase().includes('colour') || key.toLowerCase().includes('size') || key.toLowerCase().includes('material');
 
         group.innerHTML = `
           <label style="display:flex; align-items:center; gap:0.4rem; color:var(--text-main); font-weight:600;"><i class="fa-solid ${icon}" style="color:var(--primary); font-size:0.85rem;"></i> ${key}</label>
