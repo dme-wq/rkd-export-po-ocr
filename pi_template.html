@@ -5,6 +5,11 @@
   <base target="_top">
   <meta charset="utf-8">
   <style>
+    @page {
+      size: A4 portrait;
+      margin: 0.5in;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
       margin: 0;
@@ -15,12 +20,12 @@
     }
 
     .invoice-box {
-      max-width: 800px;
+      width: 100%;
       margin: 0 auto;
-      padding: 35px;
-      border: 1px solid #cbd5e1;
+      padding: 10px 5px;
       border-top: 8px solid #1e3a8a;
       background-color: #ffffff;
+      box-sizing: border-box;
     }
 
     table {
@@ -203,12 +208,19 @@
         <td class="section-title" style="width:50%;">BUYER / DELIVERY ADDRESS</td>
       </tr>
       <tr>
-        <td class="box-content" style="border-right: 1px solid #cbd5e1;">
-          <strong style="font-size: 13px; color: #0f172a;">RKD Furnishings Pvt. Ltd.</strong>
-          <div style="margin-top:6px; line-height:1.6; color:#334155;">
-            Plot No. 262,263,238,239, Sector-29, Part-II, HUDA, Panipat-132103, Haryana<br>
-            <strong>Supplier State Code:</strong> 06<br>
-            <strong>GSTIN/UIN:</strong> 06AAKCR0233R1Z1
+        <td class="box-content" style="border-right: 1px solid #cbd5e1; padding: 10px 12px;">
+          <div style="font-size: 13px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #3b82f6; padding-bottom: 5px; margin-bottom: 6px;">
+            M/S RKD Furnishings Pvt. Ltd.
+          </div>
+          <div style="line-height: 1.5; color: #1e293b; border-bottom: 1px solid #3b82f6; padding-bottom: 6px; margin-bottom: 6px;">
+            Plot No. 262,263,238,239, Sector-29, Part-2<br>
+            HUDA, Panipat-132103, Haryana<br>
+            Supplier State Code -06
+          </div>
+          <div style="line-height: 1.5; color: #1e293b;">
+            <strong style="color: #0f172a; font-size: 12px;">GSTIN/UIN: 06AAKCR0233R1Z1</strong><br>
+            Bhupinder Singh Pal | +91 8295761856<br>
+            <a href="mailto:bhupinder.singh@rkd.in" style="color: #0284c7; text-decoration: none;">bhupinder.singh@rkd.in</a>
           </div>
         </td>
         <td class="box-content">
