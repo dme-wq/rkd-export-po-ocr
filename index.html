@@ -504,36 +504,39 @@
       display: none;
     }
 
-    /* UNIFIED COMPACT SCORECARDS (Inspired by User's Reference Screenshot) */
+    /* UNIFIED COMPACT & LITE SCORECARDS */
     .scorecard-bar, .stats-bar, .sap-kpi-bar {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 240px));
+      justify-content: center;
+      gap: 0.85rem;
       margin-bottom: 1.25rem;
+      width: 100%;
     }
     .scorecard-tile {
       position: relative;
       overflow: hidden;
       border-radius: 14px;
-      padding: 0.65rem 0.75rem;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+      padding: 0.55rem 0.7rem;
+      height: 60px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.06);
     }
     .scorecard-tile:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
     }
     .scorecard-tile::after {
       content: "";
       position: absolute;
-      top: -16px;
-      right: -16px;
-      width: 62px;
-      height: 62px;
+      top: -15px;
+      right: -15px;
+      width: 55px;
+      height: 55px;
       border-radius: 50%;
       z-index: 0;
       pointer-events: none;
@@ -544,7 +547,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       letter-spacing: 0.2px;
       white-space: nowrap;
@@ -552,65 +555,62 @@
       text-overflow: ellipsis;
     }
     .scorecard-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       flex-shrink: 0;
     }
     .scorecard-pill {
       position: relative;
       z-index: 1;
-      margin-top: 0.45rem;
-      padding: 0.35rem 0.6rem;
-      border-radius: 10px;
+      margin-top: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-family: var(--font-display);
       font-weight: 800;
-      font-size: 0.92rem;
-      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.04);
+      font-size: 0.9rem;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
     .scorecard-arrow {
-      font-size: 0.75rem;
-      opacity: 0.8;
+      font-size: 0.7rem;
+      opacity: 0.6;
       margin-left: 0.5rem;
     }
 
-    /* THEME 1: Blue / Yellow (Like All Tasks) */
-    .sc-blue { background: #6366f1; }
-    .sc-blue::after { background: #fde047; }
-    .sc-blue .scorecard-top { color: #ffffff; }
-    .sc-blue .scorecard-dot { background: #fde047; }
-    .sc-blue .scorecard-pill { background: #fef08a; color: #1e40af; }
+    /* LITE PASTEL THEMES */
+    .sc-blue { background: #e0e7ff; border-color: #c7d2fe; }
+    .sc-blue::after { background: #c7d2fe; }
+    .sc-blue .scorecard-top { color: #1e40af; }
+    .sc-blue .scorecard-dot { background: #3b82f6; }
+    .sc-blue .scorecard-pill { color: #1d4ed8; }
 
-    /* THEME 2: Rose Pink / Yellow (Like Overdue) */
-    .sc-pink { background: #f43f5e; }
-    .sc-pink::after { background: #fde047; }
-    .sc-pink .scorecard-top { color: #ffffff; }
-    .sc-pink .scorecard-dot { background: #fde047; }
-    .sc-pink .scorecard-pill { background: #fef08a; color: #be123c; }
+    .sc-pink { background: #ffe4e6; border-color: #fecdd3; }
+    .sc-pink::after { background: #fecdd3; }
+    .sc-pink .scorecard-top { color: #881337; }
+    .sc-pink .scorecard-dot { background: #f43f5e; }
+    .sc-pink .scorecard-pill { color: #be123c; }
 
-    /* THEME 3: Warm Amber / Blue (Like Due Today) */
-    .sc-amber { background: #fde047; }
-    .sc-amber::after { background: #6366f1; }
-    .sc-amber .scorecard-top { color: #1e3a8a; }
-    .sc-amber .scorecard-dot { background: #6366f1; }
-    .sc-amber .scorecard-pill { background: #818cf8; color: #ffffff; }
+    .sc-amber { background: #fef3c7; border-color: #fde68a; }
+    .sc-amber::after { background: #fde68a; }
+    .sc-amber .scorecard-top { color: #78350f; }
+    .sc-amber .scorecard-dot { background: #f59e0b; }
+    .sc-amber .scorecard-pill { color: #b45309; }
 
-    /* THEME 4: Mint Green / Cream (Like Upcoming) */
-    .sc-green { background: #10b981; }
-    .sc-green::after { background: #d1fae5; }
-    .sc-green .scorecard-top { color: #ffffff; }
-    .sc-green .scorecard-dot { background: #d1fae5; }
-    .sc-green .scorecard-pill { background: #d1fae5; color: #065f46; }
+    .sc-green { background: #d1fae5; border-color: #a7f3d0; }
+    .sc-green::after { background: #a7f3d0; }
+    .sc-green .scorecard-top { color: #064e3b; }
+    .sc-green .scorecard-dot { background: #10b981; }
+    .sc-green .scorecard-pill { color: #047857; }
 
-    /* THEME 5: Lilac Purple / Lavender (Like Done) */
-    .sc-purple { background: #a855f7; }
-    .sc-purple::after { background: #f3e8ff; }
-    .sc-purple .scorecard-top { color: #ffffff; }
-    .sc-purple .scorecard-dot { background: #f3e8ff; }
-    .sc-purple .scorecard-pill { background: #f3e8ff; color: #581c87; }
+    .sc-purple { background: #f3e8ff; border-color: #e9d5ff; }
+    .sc-purple::after { background: #e9d5ff; }
+    .sc-purple .scorecard-top { color: #581c87; }
+    .sc-purple .scorecard-dot { background: #a855f7; }
+    .sc-purple .scorecard-pill { color: #6b21a8; }
 
     .toolbar-row {
       display: flex;
@@ -1147,6 +1147,9 @@
       flex-direction: column;
       min-width: 0;
       height: 100%;
+      max-width: 1250px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     #poDataTable {
