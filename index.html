@@ -1431,6 +1431,11 @@
       <div class="page-header">
         <h1 class="page-title">Extract Purchase Order Data</h1>
         <p class="page-desc">Upload PO Documents (PDF, Excel, Images) for AI-powered multi-file item extraction.</p>
+        <div style="margin-top: 1.25rem;">
+          <button class="btn btn-outline" onclick="showDataTable()" style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
+            <i class="fa-solid fa-database"></i> Open Database
+          </button>
+        </div>
       </div>
 
       <div class="upload-label">
@@ -2090,7 +2095,7 @@
         if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
           loadDraft();
         } else {
-          showDataTable();
+          // Keep upload screen active by default
         }
       } catch (err) {
         console.log("Config load notice:", err);
