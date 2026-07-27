@@ -43,7 +43,8 @@
       --font-display: 'Outfit', sans-serif;
 
       /* DCode Light SaaS Theme Palette */
-      --bg-gradient: #f4f7fe; /* Clean light gray-blue background */
+      --bg-gradient: #f4f7fe;
+      /* Clean light gray-blue background */
       --card-bg: #ffffff;
       --card-border: #e2e8f0;
       --shadow-color: rgba(37, 99, 235, 0.06);
@@ -52,7 +53,8 @@
       --text-muted: #64748b;
       --text-light: #94a3b8;
 
-      --primary: #1e3a8a; /* Deep vibrant blue from DCode */
+      --primary: #1e3a8a;
+      /* Deep vibrant blue from DCode */
       --primary-hover: #2563eb;
       --primary-light: rgba(37, 99, 235, 0.08);
       --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
@@ -437,7 +439,8 @@
     .btn {
       padding: 0.85rem 1.75rem;
       border: none;
-      border-radius: 30px; /* SaaS Pill Shape */
+      border-radius: 30px;
+      /* SaaS Pill Shape */
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
@@ -1542,7 +1545,8 @@
           <button type="button" class="btn btn-gradient" onclick="submitToSheet(false)" id="submitBtn">
             <i class="fa-solid fa-cloud-arrow-up"></i> Save to Google Sheet
           </button>
-          <button type="button" class="btn btn-outline" onclick="generatePiFromPreview()" id="piPreviewBtn" style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
+          <button type="button" class="btn btn-outline" onclick="generatePiFromPreview()" id="piPreviewBtn"
+            style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
             <i class="fa-solid fa-file-invoice"></i> Generate PI
           </button>
           <button type="button" class="btn btn-whatsapp" onclick="requestMissingInfoViaWhatsApp()" id="waBtn">
@@ -1568,8 +1572,10 @@
       <div class="sap-actions-row">
         <button class="sap-btn sap-btn-primary" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Export
           Excel/CSV</button>
-        <button class="sap-btn sap-btn-secondary" onclick="hideDataTable()"><i class="fa-solid fa-arrow-left"></i> Back
-          to Extractor</button>
+        <button class="btn btn-gradient" onclick="hideDataTable()"
+          style="padding: 0.65rem 1.25rem; font-size: 0.88rem; border-radius: 12px; height: auto;">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Upload New PO
+        </button>
       </div>
     </div>
 
@@ -1723,9 +1729,11 @@
       <h2 style="color: var(--text-main); margin-bottom: 0.5rem; font-family: var(--font-display);">
         <i class="fa-solid fa-file-invoice" style="color:var(--primary);"></i> Generate Proforma Invoice
       </h2>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Select items and provide PI details to generate PDF.</p>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Select items and provide PI details
+        to generate PDF.</p>
 
-      <div class="form-grid" style="margin-bottom:1.5rem; border-bottom:1px solid var(--input-border); padding-bottom:1.5rem;">
+      <div class="form-grid"
+        style="margin-bottom:1.5rem; border-bottom:1px solid var(--input-border); padding-bottom:1.5rem;">
         <div class="form-group">
           <label>PI Number</label>
           <input type="text" id="piNumberInput" placeholder="Enter PI Number">
@@ -1737,12 +1745,14 @@
       </div>
 
       <h3 style="font-size:1.05rem; margin-bottom:0.75rem; color:var(--text-main);">Select Items to Include</h3>
-      <div id="piItemsChecklist" style="display:flex; flex-direction:column; gap:0.5rem; max-height:250px; overflow-y:auto; margin-bottom:1.5rem; padding-right:0.5rem;">
+      <div id="piItemsChecklist"
+        style="display:flex; flex-direction:column; gap:0.5rem; max-height:250px; overflow-y:auto; margin-bottom:1.5rem; padding-right:0.5rem;">
         <!-- Checklist injected here -->
       </div>
 
       <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-        <button class="btn btn-gradient" style="width:auto;" onclick="submitPiGeneration()"><i class="fa-solid fa-file-pdf"></i> Generate PI</button>
+        <button class="btn btn-gradient" style="width:auto;" onclick="submitPiGeneration()"><i
+            class="fa-solid fa-file-pdf"></i> Generate PI</button>
         <button class="btn btn-outline" onclick="closePiModal()">Cancel</button>
       </div>
     </div>
@@ -1764,11 +1774,11 @@
     }
     const SERVER_DRAFT_ID = rawDraftId;
 
-    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxU3AWPe_ycvNJCwt6Krz_8KQ0sYOh0kNh7gFp9dV9NNS0kCTYmHKu-0Kff2k9yb2ZucQ/exec";
-    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbxU3AWPe_ycvNJCwt6Krz_8KQ0sYOh0kNh7gFp9dV9NNS0kCTYmHKu-0Kff2k9yb2ZucQ/exec' ?>";
+    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxnExRWyC1EsrgEx-DYKa0aZAlQcj8usEUzCVAXt8e3_Nh-zWofor-2baN55Y4Qsfb3jQ/exec";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbxnExRWyC1EsrgEx-DYKa0aZAlQcj8usEUzCVAXt8e3_Nh-zWofor-2baN55Y4Qsfb3jQ/exec' ?>";
 
     let savedUrl = localStorage.getItem('rkd_api_url');
-    if (!savedUrl || savedUrl.includes('AKfycbwUL818gwGY') || savedUrl.includes('AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI') || savedUrl.includes('AKfycbzqJ8ANhQVpkJRXsBmd24koKYoBYQKAu-OB7LZnE8yvqfTZKLgOQ6r9YifYv861blJ2Jg')) {
+    if (!savedUrl || savedUrl.includes('AKfycbwUL818gwGY') || savedUrl.includes('AKfycbxz1X0YmyyNVveKYkOG1yA5byfomIeVBCYI') || savedUrl.includes('AKfycbzqJ8ANhQVpkJRXsBmd24koKYoBYQKAu-OB7LZnE8yvqfTZKLgOQ6r9YifYv861blJ2Jg') || savedUrl.includes('AKfycbxU3AWPe_ycvNJCwt6Krz_8KQ0sYOh0kNh7gFp9dV9NNS0kCTYmHKu-0Kff2k9yb2ZucQ')) {
       savedUrl = DEFAULT_DEPLOY_URL;
       localStorage.setItem('rkd_api_url', DEFAULT_DEPLOY_URL);
     }
@@ -2079,6 +2089,8 @@
         renderDynamicForm();
         if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
           loadDraft();
+        } else {
+          showDataTable();
         }
       } catch (err) {
         console.log("Config load notice:", err);
@@ -2851,7 +2863,7 @@
             const val = cell.getValue();
             return val ? `<span class="sap-po-badge"><i class="fa-solid fa-hashtag"></i> ${val}</span>` : '';
           };
-        } else if (key === 'Source File') {
+        } else if (key === 'Source File' || key === 'PI PDF Link') {
           colDef.formatter = 'html';
         } else if (key === 'Line Amount' || key === 'Unit Price' || key === 'Total Order Amount') {
           colDef.formatter = function (cell) {
@@ -3051,13 +3063,13 @@
     let currentPiData = [];
 
     function openPiModal(poNumber, event) {
-      if(event) event.stopPropagation();
-      if(!tableInstance) return;
-      
+      if (event) event.stopPropagation();
+      if (!tableInstance) return;
+
       const allData = tableInstance.getData();
       currentPiData = allData.filter(d => String(d['PO Number']) === String(poNumber));
-      if(currentPiData.length === 0) return Swal.fire('Error', 'No data found for this PO.', 'error');
-      
+      if (currentPiData.length === 0) return Swal.fire('Error', 'No data found for this PO.', 'error');
+
       let existingPiNum = '';
       let existingPiDate = '';
       for (const item of currentPiData) {
@@ -3067,11 +3079,11 @@
           break;
         }
       }
-      
+
       const d = new Date();
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const defaultDate = `${String(d.getDate()).padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
-      
+
       if (existingPiNum) {
         document.getElementById('piNumberInput').value = existingPiNum;
         document.getElementById('piDateInput').value = existingPiDate || defaultDate;
@@ -3080,10 +3092,10 @@
         document.getElementById('piNumberInput').placeholder = 'Leave blank to auto-generate (e.g. RKD-EX-PI-2026/1)';
         document.getElementById('piDateInput').value = defaultDate;
       }
-      
+
       const listContainer = document.getElementById('piItemsChecklist');
       listContainer.innerHTML = '';
-      
+
       currentPiData.forEach((item, index) => {
         const div = document.createElement('div');
         div.style.display = 'flex';
@@ -3093,7 +3105,7 @@
         div.style.background = 'var(--input-bg)';
         div.style.border = '1px solid var(--input-border)';
         div.style.borderRadius = '12px';
-        
+
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = true;
@@ -3101,19 +3113,19 @@
         cb.dataset.index = index;
         cb.style.width = '18px';
         cb.style.height = '18px';
-        
+
         const label = document.createElement('label');
         label.htmlFor = `pi_item_${index}`;
         label.style.flex = '1';
         label.style.cursor = 'pointer';
         label.style.fontSize = '0.9rem';
         label.textContent = `${item['SKU / Item #'] || 'N/A'} - ${item['Description'] || 'No Description'} (Qty: ${item['Quantity'] || 0})`;
-        
+
         div.appendChild(cb);
         div.appendChild(label);
         listContainer.appendChild(div);
       });
-      
+
       document.getElementById('piModal').style.display = 'flex';
       initAllDatePickers();
     }
@@ -3125,26 +3137,26 @@
     async function submitPiGeneration() {
       const piNum = document.getElementById('piNumberInput').value.trim();
       const piDate = document.getElementById('piDateInput').value.trim();
-      
+
       const selectedIndices = Array.from(document.querySelectorAll('#piItemsChecklist input[type="checkbox"]:checked')).map(cb => parseInt(cb.dataset.index));
-      if(selectedIndices.length === 0) return Swal.fire('Missing', 'Select at least one item', 'warning');
-      
+      if (selectedIndices.length === 0) return Swal.fire('Missing', 'Select at least one item', 'warning');
+
       const selectedItems = selectedIndices.map(i => currentPiData[i]);
-      
+
       closePiModal();
       document.getElementById('overlay').style.display = 'flex';
-      
+
       const payload = {
         poData: currentPiData[0], // First item has all the header fields
         selectedItems: selectedItems,
         piNumber: piNum,
         piDate: piDate
       };
-      
+
       try {
         const res = await callBackend('generatePI', payload);
         document.getElementById('overlay').style.display = 'none';
-        if(res.success) {
+        if (res.success) {
           Swal.fire({
             title: 'PI Generated!',
             html: `The Proforma Invoice has been saved.<br><br><a href="${res.url}" target="_blank" class="btn btn-gradient" style="text-decoration:none; margin-top:10px;">View PDF</a>`,
@@ -3155,7 +3167,7 @@
         } else {
           Swal.fire('Error', res.error, 'error');
         }
-      } catch(err) {
+      } catch (err) {
         document.getElementById('overlay').style.display = 'none';
         Swal.fire('Error', err.toString(), 'error');
       }

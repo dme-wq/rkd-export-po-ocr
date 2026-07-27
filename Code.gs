@@ -634,7 +634,9 @@ function getSavedData() {
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
     if (!sheet) return [];
     
-    const data = sheet.getDataRange().getValues();
+    const dataRange = sheet.getDataRange();
+    const data = dataRange.getValues();
+    const formulas = dataRange.getFormulas();
     if (data.length <= 1) return []; // Only headers or empty
     
     const headers = data[0];
@@ -646,12 +648,21 @@ function getSavedData() {
       for (let j = 0; j < headers.length; j++) {
         let val = data[i][j];
         const headerName = headers[j];
-        if (headerName === 'Timestamp') {
+        const formula = formulas[i][j];
+
+        if (formula && formula.toUpperCase().startsWith('=HYPERLINK(')) {
+          const match = formula.match(/=HYPERLINK\(\s*"([^"]+)"\s*(?:,\s*"([^"]*)")?\)/i);
+          if (match && match[1]) {
+            const url = match[1];
+            const text = match[2] || val || 'View Link';
+            val = `<a href="${url}" target="_blank" style="color:#2563eb; font-weight:600; text-decoration:none;"><i class="fa-solid fa-link"></i> ${text}</a>`;
+          }
+        } else if (headerName === 'Timestamp') {
           if (val) val = formatLongDateTime(val);
         } else if (isDateKey(headerName, config) || (headerName && String(headerName).toLowerCase().includes('date'))) {
           if (val) val = formatShortDate(val);
         } else if (val instanceof Date) {
-          val = formatShortDate(val);
+          if (val) val = formatShortDate(val);
         } else if (val && typeof val === 'string' && val.trim() !== '') {
           const parsed = parseAnyDate(val);
           if (parsed && (String(headerName).toLowerCase().includes('date') || String(headerName).toLowerCase().includes('time'))) {
