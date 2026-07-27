@@ -1069,6 +1069,17 @@
       gap: 0.75rem;
       overflow-y: auto;
       box-shadow: 0 10px 30px var(--shadow-color);
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s ease, opacity 0.25s ease;
+    }
+
+    .db-sidebar.collapsed {
+      width: 0 !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+      overflow: hidden !important;
+      opacity: 0 !important;
     }
 
     .db-sidebar-header {
@@ -1147,9 +1158,8 @@
       flex-direction: column;
       min-width: 0;
       height: 100%;
-      max-width: 1250px;
-      margin: 0 auto;
       width: 100%;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #poDataTable {
@@ -1670,8 +1680,11 @@
     <div class="db-sidebar" id="dbSidebar">
       <div class="db-sidebar-header">
         <span>Purchase Orders</span>
-        <span class="sap-grid-counter" id="sapGridCounterText"
-          style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">0 POs</span>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span class="sap-grid-counter" id="sapGridCounterText"
+            style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">0 POs</span>
+          <button class="sap-btn-icon" onclick="toggleDbSidebar()" title="Hide Sidebar" style="width:28px; height:28px; border-radius:8px; font-size:0.75rem;"><i class="fa-solid fa-angles-left"></i></button>
+        </div>
       </div>
       <div id="poSidebarList" style="display: flex; flex-direction: column; gap: 0.5rem;">
         <!-- Injected via JS -->
@@ -1740,6 +1753,7 @@
           <input type="text" id="sapGridSearchInput" placeholder="Filter Active Grid..." oninput="filterSapGrid()">
         </div>
         <div style="display:flex; gap:0.6rem; align-items:center;">
+          <button id="showSidebarBtn" class="sap-btn-icon" title="Show PO Sidebar" onclick="toggleDbSidebar()" style="display:none; width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem; background:rgba(79,70,229,0.1); color:#4f46e5; border-color:rgba(79,70,229,0.25);"><i class="fa-solid fa-list-ul"></i> PO List</button>
           <button class="sap-btn-icon" title="Customize Columns" onclick="openDbColumnsModal()" style="width:auto; padding:0 0.85rem; font-size:0.82rem; font-weight:600; gap:0.45rem;"><i class="fa-solid fa-table-columns" style="color:var(--primary);"></i> Columns</button>
           <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
               class="fa-solid fa-rotate-right"></i></button>
@@ -3390,6 +3404,29 @@
         text: 'Your customized column view has been saved and applied.',
         toast: true, position: 'top-end', timer: 2500, showConfirmButton: false
       });
+    }
+
+    // ─────────────────────────────────────────────
+    //  AUTO-HIDE / COLLAPSE SIDEBAR FEATURE
+    // ─────────────────────────────────────────────
+    function toggleDbSidebar() {
+      const sidebar = document.getElementById('dbSidebar');
+      const showBtn = document.getElementById('showSidebarBtn');
+      if (!sidebar || !showBtn) return;
+
+      const isCollapsed = sidebar.classList.toggle('collapsed');
+      if (isCollapsed) {
+        showBtn.style.display = 'flex';
+      } else {
+        showBtn.style.display = 'none';
+      }
+
+      // Smoothly redraw Tabulator columns after CSS transition finishes
+      setTimeout(() => {
+        if (tableInstance) {
+          tableInstance.redraw(true);
+        }
+      }, 360);
     }
 
     let groupsExpanded = false;
