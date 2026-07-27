@@ -531,7 +531,7 @@
       box-shadow: 0 4px 12px var(--shadow-color);
     }
 
-    .stat-card > div:nth-child(2) {
+    .stat-card>div:nth-child(2) {
       display: flex;
       align-items: baseline;
       gap: 0.35rem;
@@ -2538,7 +2538,7 @@
         }
         const isMultiLine = f.name.toLowerCase().includes('description') || f.name.toLowerCase().includes('detail') || f.name.toLowerCase().includes('name') || f.name.toLowerCase().includes('remark') || f.name.toLowerCase().includes('sku') || f.name.toLowerCase().includes('color') || f.name.toLowerCase().includes('colour') || f.name.toLowerCase().includes('size') || f.name.toLowerCase().includes('material') || f.name.toLowerCase().includes('code');
         const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
-        
+
         if (isMultiLine) {
           let minW = '150px';
           if (f.name.toLowerCase().includes('description')) minW = '300px';
@@ -3235,7 +3235,7 @@
         group.className = 'form-group';
         const isDate = isDateKey(key, appConfig) || key.toLowerCase().includes('date');
         const isNum = key.toLowerCase().includes('amount') || key.toLowerCase().includes('price') || key.toLowerCase().includes('qty') || key.toLowerCase().includes('quantity') || key.toLowerCase().includes('cases') || key.toLowerCase().includes('cbm');
-        
+
         const formattedVal = isDate ? formatShortDate(rowData[key]) : toTitleCase(String(rowData[key] || ''));
         const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
         const styleAttr = isNum ? 'style="text-align: right; font-weight: 600; color: var(--primary);"' : 'style="text-align: left;"';
