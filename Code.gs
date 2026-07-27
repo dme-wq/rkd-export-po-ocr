@@ -290,20 +290,29 @@ function callGeminiAPI(documentParts) {
   const config = getAppConfig();
   
   // Construct dynamic JSON schema with Data Type instructions
-  const getTypeInstruction = (type) => {
+  const getTypeInstruction = (type, fieldName) => {
     if (type === 'number') return 'string (Extract ONLY the numerical value/digits. Remove any currency symbols like $ or commas)';
     if (type === 'date') return 'string (Extract and format as Short Date: dd-MMM-yyyy, e.g., 23-Jul-2026)';
-    return 'string (Extract as text)';
+    if (fieldName && (fieldName.toLowerCase().includes('description') || fieldName.toLowerCase().includes('item name') || fieldName.toLowerCase().includes('product'))) {
+      return 'string (CRITICAL: Extract the EXACT, FULL, ORIGINAL product description text as-it-is from the PO document without removing, cutting, or truncating any words, color, or size information! e.g., keep "Nudie Rudie Bath Mat Mini - Dahlia" exactly as written)';
+    }
+    if (fieldName && (fieldName.toLowerCase().includes('color') || fieldName.toLowerCase().includes('colour'))) {
+      return 'string (CRITICAL: Extract color name. If Color is not in a separate table column, you MUST INTELLIGENTLY ANALYZE and extract the color from Item Description or SKU! e.g., in "Nudie Rudie Bath Mat Mini - Dahlia", extract "Dahlia"; in "Tula Nudie Bath Mat - Cornflower", extract "Cornflower"; in "Hayfolk Bath Mat - Terra", extract "Terra")';
+    }
+    if (fieldName && fieldName.toLowerCase().includes('size')) {
+      return 'string (CRITICAL: Extract size/dimensions. If Size is not in a separate table column, you MUST INTELLIGENTLY ANALYZE and extract the size from Item Description or SKU! e.g., in "Nudie Rudie Bath Mat Mini - Dahlia", extract "Mini"; in "Bath Mat - XL", extract "XL")';
+    }
+    return 'string (Extract clean text. If embedded in combined fields, parse and extract accurately without altering original source text)';
   };
 
   let mainSchema = {};
   config.mainFields.filter(f => f.visible).forEach(f => {
-    mainSchema[f.name] = getTypeInstruction(f.type);
+    mainSchema[f.name] = getTypeInstruction(f.type, f.name);
   });
   
   let itemSchema = {};
   config.itemFields.filter(f => f.visible).forEach(f => {
-    itemSchema[f.name] = getTypeInstruction(f.type);
+    itemSchema[f.name] = getTypeInstruction(f.type, f.name);
   });
   
   const expectedJsonStructure = {
@@ -326,6 +335,10 @@ CRITICAL RULES FOR UNIVERSAL PO EXTRACTION:
 5. IF A FIELD IS MISSING OR YOU CANNOT FIND IT, return an empty string "". Do not make up data.
 6. DATE FORMATTING: Convert and format ALL extracted dates into Short Date format dd-MMM-yyyy (e.g., 23-Jul-2026).
 7. Return ONLY valid JSON, exactly matching the structure below. Do not add markdown code blocks like \`\`\`json.
+8. INTELLIGENT ATTRIBUTE EXTRACTION & DECOMPOSITION (Color, Size, Material, etc.):
+   - Vendors often combine attributes into a single "Product Description", "Item Description", or "SKU" column (e.g., "Nudie Rudie Bath Mat Mini - Dahlia", "Tula Nudie Bath Mat - Cornflower", "Tula Nudie Bath Mat - Terra").
+   - CRITICAL PRESERVATION RULE: For the main "Description" / "Product Description" field, you MUST extract and return the EXACT, FULL, ORIGINAL string as it appears on the vendor PO (e.g., keep "Nudie Rudie Bath Mat Mini - Dahlia" or "Tula Nudie Bath Mat - Cornflower" completely untouched as-it-is without removing any words from it!).
+   - CRITICAL ATTRIBUTE MINING RULE: At the same time, you MUST act as an intelligent analyst to populate separate attribute fields (like Color, Size, Material, or any newly configured fields). Deeply examine the full description and SKU text. If a color (e.g., Dahlia, Cornflower, Terra, Blue, Red, Natural, etc.) or size (e.g., Mini, Small, XL, 50x70cm, etc.) is mentioned—whether separated by hyphens (-), slashes (/), commas, parentheses, or embedded directly—you MUST automatically extract and copy those specific values into their respective Color/Size/attribute fields without altering or deleting anything from the main description!
 
 Required JSON Structure:
 ${JSON.stringify(expectedJsonStructure, null, 2)}`;
@@ -357,10 +370,41 @@ ${JSON.stringify(expectedJsonStructure, null, 2)}`;
     // Strip markdown JSON wrapping if present
     contentText = contentText.replace(/^```json/mi, '').replace(/```$/m, '').trim();
     let parsedData = JSON.parse(contentText);
+    parsedData = enrichExtractedItems(parsedData);
     return formatExtractedObjectDates(parsedData, config);
   } catch (e) {
     throw new Error("Failed to parse Gemini response: " + e.message);
   }
+}
+
+function enrichExtractedItems(data) {
+  if (!data || !Array.isArray(data.items)) return data;
+  data.items.forEach(item => {
+    if (!item || typeof item !== 'object') return;
+    const descKey = Object.keys(item).find(k => k.toLowerCase().includes('description') || k.toLowerCase().includes('item name') || k.toLowerCase().includes('product'));
+    const colorKey = Object.keys(item).find(k => k.toLowerCase().includes('color') || k.toLowerCase().includes('colour'));
+    const sizeKey = Object.keys(item).find(k => k.toLowerCase().includes('size') || k.toLowerCase().includes('dimen'));
+
+    if (descKey && item[descKey]) {
+      const descVal = String(item[descKey]).trim();
+      if (colorKey && (!item[colorKey] || String(item[colorKey]).trim() === '')) {
+        const parts = descVal.split(/\s*[-/]\s*/);
+        if (parts.length > 1) {
+          const possibleColor = parts[parts.length - 1].trim();
+          if (possibleColor && possibleColor.length <= 30 && !/^\d+$/.test(possibleColor)) {
+            item[colorKey] = possibleColor;
+          }
+        }
+      }
+      if (sizeKey && (!item[sizeKey] || String(item[sizeKey]).trim() === '')) {
+        const sizeMatch = descVal.match(/\b(Mini|Small|Medium|Large|XL|XXL|XS|S|M|L|\d+\s*x\s*\d+\s*(?:cm|in|mm)?)\b/i);
+        if (sizeMatch && sizeMatch[1]) {
+          item[sizeKey] = sizeMatch[1];
+        }
+      }
+    }
+  });
+  return data;
 }
 
 // ─────────────────────────────────────────────

@@ -718,7 +718,8 @@
       word-break: break-word !important;
     }
 
-    td input {
+    td input,
+    td textarea {
       background-color: #f8fafc !important;
       border: 1px solid #e2e8f0 !important;
       border-left: 2px solid var(--primary) !important;
@@ -734,19 +735,30 @@
       transition: all 0.2s ease;
     }
 
-    [data-theme="dark"] td input {
+    td textarea {
+      min-width: 220px;
+      resize: vertical;
+      text-align: left;
+      line-height: 1.35;
+      font-family: inherit;
+    }
+
+    [data-theme="dark"] td input,
+    [data-theme="dark"] td textarea {
       background-color: rgba(30, 41, 59, 0.4) !important;
       border: 1px solid rgba(148, 163, 184, 0.2) !important;
       border-left: 2px solid var(--primary-hover) !important;
     }
 
-    td input:focus {
+    td input:focus,
+    td textarea:focus {
       background-color: #ffffff !important;
       border-color: var(--primary) !important;
       box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
     }
 
-    [data-theme="dark"] td input:focus {
+    [data-theme="dark"] td input:focus,
+    [data-theme="dark"] td textarea:focus {
       background-color: rgba(30, 41, 59, 0.8) !important;
       border-color: var(--primary-hover) !important;
       box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
@@ -2408,7 +2420,7 @@
           if (el) el.value = data[f.name] || '';
           return;
         }
-        const el = document.querySelector(`input[data-fieldname="${f.name}"]`);
+        const el = document.querySelector(`[data-fieldname="${f.name}"]`);
         if (el) {
           let val = data[f.name] || '';
           if (isDateKey(f.name, appConfig) || f.type === 'date') {
@@ -2459,9 +2471,16 @@
         if (isDate && val) {
           val = formatShortDate(val);
         }
-        const inputType = isDate ? 'text' : (f.type || 'text');
+        const isMultiLine = f.name.toLowerCase().includes('description') || f.name.toLowerCase().includes('detail') || f.name.toLowerCase().includes('name') || f.name.toLowerCase().includes('remark') || f.name.toLowerCase().includes('sku');
         const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
-        td.innerHTML = `<input type="${inputType}" ${extraAttr} data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
+        
+        if (isMultiLine) {
+          td.innerHTML = `<textarea rows="2" style="min-width: 220px; resize: vertical; text-align: left; line-height: 1.35;" data-itemfieldname="${f.name}" oninput="recalcRowAmounts(this)">${val}</textarea>`;
+        } else {
+          const inputType = isDate ? 'text' : (f.type || 'text');
+          const alignStyle = (f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity') || f.name.toLowerCase().includes('cases')) ? 'style="text-align: right; font-weight: 600;"' : 'style="text-align: left;"';
+          td.innerHTML = `<input type="${inputType}" ${extraAttr} ${alignStyle} data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
+        }
         tr.appendChild(td);
       });
 
@@ -2484,7 +2503,7 @@
       const itemData = {};
       appConfig.itemFields.forEach(f => {
         if (!f.visible) return;
-        const inp = originalTr.querySelector(`input[data-itemfieldname="${f.name}"]`);
+        const inp = originalTr.querySelector(`[data-itemfieldname="${f.name}"]`);
         if (inp) itemData[f.name] = inp.value;
       });
       addTableRow(itemData);
@@ -2498,9 +2517,9 @@
 
     function recalcRowAmounts(input) {
       const tr = input.closest('tr');
-      const qtyEl = tr.querySelector('input[data-itemfieldname="Quantity"]');
-      const priceEl = tr.querySelector('input[data-itemfieldname="Unit Price"]');
-      const lineAmtEl = tr.querySelector('input[data-itemfieldname="Line Amount"]');
+      const qtyEl = tr.querySelector('[data-itemfieldname="Quantity"]');
+      const priceEl = tr.querySelector('[data-itemfieldname="Unit Price"]');
+      const lineAmtEl = tr.querySelector('[data-itemfieldname="Line Amount"]');
 
       if (qtyEl && priceEl && lineAmtEl) {
         const q = parseFloat(qtyEl.value.replace(/[^0-9.-]+/g, "")) || 0;
@@ -2518,7 +2537,7 @@
 
       trs.forEach(tr => {
         let text = tr.innerText.toLowerCase();
-        tr.querySelectorAll('input').forEach(inp => text += ' ' + inp.value.toLowerCase());
+        tr.querySelectorAll('input, textarea, select').forEach(inp => text += ' ' + inp.value.toLowerCase());
         if (text.includes(query)) {
           tr.style.display = '';
         } else {
@@ -2533,7 +2552,7 @@
 
       let totalAmt = 0;
       trs.forEach(tr => {
-        const lineAmtEl = tr.querySelector('input[data-itemfieldname="Line Amount"]') || tr.querySelector('input[data-itemfieldname="Unit Price"]');
+        const lineAmtEl = tr.querySelector('[data-itemfieldname="Line Amount"]') || tr.querySelector('[data-itemfieldname="Unit Price"]');
         if (lineAmtEl && lineAmtEl.value) {
           totalAmt += parseFloat(lineAmtEl.value.replace(/[^0-9.-]+/g, "")) || 0;
         }
@@ -2636,7 +2655,7 @@
 
       appConfig.mainFields.forEach(f => {
         if (!f.visible || f.name === 'Remarks') return;
-        const el = document.querySelector(`input[data-fieldname="${f.name}"]`);
+        const el = document.querySelector(`[data-fieldname="${f.name}"]`);
         formData[f.name] = el ? el.value : '';
       });
 
@@ -2645,7 +2664,7 @@
         const itemObj = {};
         appConfig.itemFields.forEach(f => {
           if (!f.visible) return;
-          const el = tr.querySelector(`input[data-itemfieldname="${f.name}"]`);
+          const el = tr.querySelector(`[data-itemfieldname="${f.name}"]`);
           itemObj[f.name] = el ? el.value : '';
         });
         formData.items.push(itemObj);
@@ -3018,7 +3037,7 @@
         }
       });
 
-      Object.keys(data[0]).filter(k => k !== '_id').forEach(key => {
+      Object.keys(data[0]).filter(k => !k.startsWith('_')).forEach(key => {
         let colDef = {
           title: key,
           field: key,
@@ -3128,15 +3147,37 @@
       const container = document.getElementById('dbEditFieldsContainer');
       container.innerHTML = '';
 
-      Object.keys(rowData).filter(k => k !== '_id' && k !== 'Timestamp' && k !== 'Source File').forEach(key => {
+      const excludeKeys = ['_id', '_action', 'Timestamp', 'Source File', 'PI PDF Link', 'PI Number', 'PI Date'];
+
+      Object.keys(rowData).filter(key => {
+        if (excludeKeys.includes(key) || key.startsWith('_') || key.toLowerCase().includes('link') || key.toLowerCase().includes('url')) return false;
+        const valStr = String(rowData[key] || '');
+        if (valStr.includes('<') && valStr.includes('>')) return false; // Ignore HTML tags/links
+        return true;
+      }).forEach(key => {
         const group = document.createElement('div');
         group.className = 'form-group';
-        const isDate = isDateKey(key, appConfig);
+        const isDate = isDateKey(key, appConfig) || key.toLowerCase().includes('date');
+        const isNum = key.toLowerCase().includes('amount') || key.toLowerCase().includes('price') || key.toLowerCase().includes('qty') || key.toLowerCase().includes('quantity') || key.toLowerCase().includes('cases') || key.toLowerCase().includes('cbm');
+        
         const formattedVal = isDate ? formatShortDate(rowData[key]) : toTitleCase(String(rowData[key] || ''));
         const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
+        const styleAttr = isNum ? 'style="text-align: right; font-weight: 600; color: var(--primary);"' : 'style="text-align: left;"';
+
+        let icon = 'fa-tag';
+        if (isDate) icon = 'fa-calendar-day';
+        else if (isNum) icon = 'fa-coins';
+        else if (key.toLowerCase().includes('vendor') || key.toLowerCase().includes('buyer') || key.toLowerCase().includes('company')) icon = 'fa-building';
+        else if (key.toLowerCase().includes('po number') || key.toLowerCase().includes('sku') || key.toLowerCase().includes('item no')) icon = 'fa-hashtag';
+        else if (key.toLowerCase().includes('ship') || key.toLowerCase().includes('port') || key.toLowerCase().includes('destination')) icon = 'fa-ship';
+
+        const isMultiLine = key.toLowerCase().includes('description') || key.toLowerCase().includes('name') || key.toLowerCase().includes('remark') || key.toLowerCase().includes('address') || key.toLowerCase().includes('terms') || key.toLowerCase().includes('sku');
+
         group.innerHTML = `
-          <label>${key}</label>
-          <input type="text" ${extraAttr} data-dbfield="${key}" value="${formattedVal}">
+          <label style="display:flex; align-items:center; gap:0.4rem; color:var(--text-main); font-weight:600;"><i class="fa-solid ${icon}" style="color:var(--primary); font-size:0.85rem;"></i> ${key}</label>
+          ${isMultiLine
+            ? `<textarea rows="2" ${extraAttr} style="min-width:100%; resize:vertical; text-align:left; line-height:1.35; font-family:inherit; font-size:0.84rem; padding:0.5rem; background:#f8fafc; border:1px solid #e2e8f0; border-left:2px solid var(--primary); border-radius:8px;" data-dbfield="${key}">${formattedVal}</textarea>`
+            : `<input type="text" ${extraAttr} ${styleAttr} data-dbfield="${key}" value="${formattedVal}">`}
         `;
         container.appendChild(group);
       });
@@ -3152,7 +3193,7 @@
     async function saveDbRowEdit() {
       const rowId = parseInt(document.getElementById('editRowId').value);
       const container = document.getElementById('dbEditFieldsContainer');
-      const inputs = container.querySelectorAll('input[data-dbfield]');
+      const inputs = container.querySelectorAll('[data-dbfield]');
 
       const updatedObj = {};
       inputs.forEach(inp => {
