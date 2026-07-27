@@ -947,11 +947,13 @@
     #dataTableSection {
       display: none;
       width: 100%;
-      max-width: 100%; /* Go full width for data view */
-      height: calc(100vh - 100px); /* Full height minus top padding */
+      max-width: 100%;
+      /* Go full width for data view */
+      height: calc(100vh - 100px);
+      /* Full height minus top padding */
       gap: 1.5rem;
     }
-    
+
     #dataTableSection.active-flex {
       display: flex;
     }
@@ -1535,7 +1537,8 @@
         <h1 class="page-title">Extract Purchase Order Data</h1>
         <p class="page-desc">Upload PO Documents (PDF, Excel, Images) for AI-powered multi-file item extraction.</p>
         <div style="margin-top: 1.25rem;">
-          <button class="btn btn-outline" onclick="showDataTable()" style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
+          <button class="btn btn-outline" onclick="showDataTable()"
+            style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
             <i class="fa-solid fa-database"></i> Open Database
           </button>
         </div>
@@ -1667,11 +1670,12 @@
 
   <!-- SAP FIORI ERP DATABASE WORKBENCH CONTAINER -->
   <div id="dataTableSection">
-    
+
     <div class="db-sidebar" id="dbSidebar">
       <div class="db-sidebar-header">
         <span>Purchase Orders</span>
-        <span class="sap-grid-counter" id="sapGridCounterText" style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">0 POs</span>
+        <span class="sap-grid-counter" id="sapGridCounterText"
+          style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">0 POs</span>
       </div>
       <div id="poSidebarList" style="display: flex; flex-direction: column; gap: 0.5rem;">
         <!-- Injected via JS -->
@@ -1723,8 +1727,7 @@
       <div class="sap-grid-toolbar">
         <div class="sap-search-box">
           <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);"></i>
-          <input type="text" id="sapGridSearchInput" placeholder="Filter Active Grid..."
-            oninput="filterSapGrid()">
+          <input type="text" id="sapGridSearchInput" placeholder="Filter Active Grid..." oninput="filterSapGrid()">
         </div>
         <div style="display:flex; gap:0.75rem; align-items:center;">
           <button class="sap-btn-icon" title="Refresh SAP Data" onclick="showDataTable()"><i
@@ -2934,7 +2937,7 @@
             if (k.toLowerCase().includes('date') && row[k]) { rawDate = row[k]; break; }
           }
           if (!rawDate) rawDate = row['Timestamp'] || '';
-          
+
           poGroups[poNum] = {
             date: rawDate ? formatShortDate(rawDate) : '',
             piNumber: row['PI Number'] || null
@@ -2944,10 +2947,10 @@
 
       const uniquePOs = Object.keys(poGroups);
       document.getElementById('sapGridCounterText').textContent = `${uniquePOs.length} POs`;
-      
+
       const sidebarList = document.getElementById('poSidebarList');
       sidebarList.innerHTML = '';
-      
+
       // Add "All POs"
       const allItem = document.createElement('div');
       allItem.className = 'sidebar-po-item active';
@@ -2962,11 +2965,11 @@
       uniquePOs.forEach(poNum => {
         const item = document.createElement('div');
         item.className = 'sidebar-po-item';
-        
-        const piHtml = poGroups[poNum].piNumber 
+
+        const piHtml = poGroups[poNum].piNumber
           ? `<span class="pi-status-badge"><i class="fa-solid fa-check"></i> PI: ${poGroups[poNum].piNumber}</span>`
           : `<span class="pi-status-badge none">No PI</span>`;
-          
+
         item.innerHTML = `
           <div class="po-title">PO #${poNum}</div>
           <div class="po-meta" style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
@@ -2974,7 +2977,7 @@
             ${piHtml}
           </div>
         `;
-        
+
         item.onclick = () => {
           document.querySelectorAll('.sidebar-po-item').forEach(el => el.classList.remove('active'));
           item.classList.add('active');
@@ -3027,9 +3030,9 @@
         };
 
         if (key.toLowerCase().includes('vendor') || key.toLowerCase().includes('buyer') || key.toLowerCase().includes('status')) {
-            colDef.headerFilter = "select";
-            colDef.headerFilterParams = { values: true };
-            colDef.headerFilterPlaceholder = "All";
+          colDef.headerFilter = "select";
+          colDef.headerFilterParams = { values: true };
+          colDef.headerFilterPlaceholder = "All";
         }
 
         if (key === 'Timestamp') {
