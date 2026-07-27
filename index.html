@@ -1746,6 +1746,20 @@
         </div>
       </div>
 
+      <!-- LOOKER STUDIO STYLE DEPENDENT FILTERS BAR -->
+      <div class="looker-filter-bar" id="lookerFilterBar" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; background: var(--card-bg); padding: 0.85rem 1.25rem; border-radius: 16px; border: 1px solid var(--card-border); margin-bottom: 1rem; box-shadow: 0 4px 12px var(--shadow-color);">
+        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.82rem; font-weight:700; color:var(--text-main); margin-right:0.25rem;">
+          <i class="fa-solid fa-filter" style="color:var(--primary);"></i> Filters:
+        </div>
+        
+        <!-- Dynamically injected dropdowns will go here -->
+        <div id="lookerDropdownsContainer" style="display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center; flex: 1;"></div>
+
+        <button class="btn btn-outline btn-sm" onclick="resetLookerFilters()" title="Reset All Filters" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 8px; display: flex; align-items: center; gap: 0.35rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); cursor: pointer; height: 32px;">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+      </div>
+
       <!-- SAP Grid Search & Filter Toolbar -->
       <div class="sap-grid-toolbar">
         <div class="sap-search-box">
@@ -3119,16 +3133,8 @@
           minWidth: 120,
           formatter: "textarea",
           editor: false,
-          headerFilter: "input",
-          headerFilterPlaceholder: "Search...",
           visible: savedDbCols && Array.isArray(savedDbCols) ? savedDbCols.includes(key) : true
         };
-
-        if (key.toLowerCase().includes('vendor') || key.toLowerCase().includes('buyer') || key.toLowerCase().includes('status')) {
-          colDef.headerFilter = "select";
-          colDef.headerFilterParams = { values: true };
-          colDef.headerFilterPlaceholder = "All";
-        }
 
         if (key === 'Timestamp') {
           colDef.formatter = function (cell) {
@@ -3179,6 +3185,9 @@
           initialSort: [{ column: "Timestamp", dir: "desc" }]
         });
       }
+
+      // Initialize Looker Studio style dependent filters
+      setTimeout(() => initLookerFilters(), 100);
     }
 
     function toTitleCase(str) {
@@ -3440,12 +3449,264 @@
       });
     }
 
-    function filterSapGrid() {
-      const query = document.getElementById('sapGridSearchInput').value.toLowerCase();
+    // ─────────────────────────────────────────────
+    //  LOOKER STUDIO / POWERBI STYLE DEPENDENT FILTERS
+    // ─────────────────────────────────────────────
+    const LOOKER_FIELDS = [
+      { id: 'po', label: 'PO Number', matchKeys: ['po number', 'po no'] },
+      { id: 'buyer', label: 'Buyer Name', matchKeys: ['buyer', 'company', 'customer name', 'client'] },
+      { id: 'color', label: 'Color', matchKeys: ['color', 'colour'] },
+      { id: 'size', label: 'Size', matchKeys: ['size', 'dimensions'] },
+      { id: 'pi', label: 'PI Number', matchKeys: ['pi number', 'pi no', 'proforma'] },
+      { id: 'ship', label: 'Ship Via', matchKeys: ['ship via', 'shipping', 'carrier', 'mode'] },
+      { id: 'port', label: 'Ports of Entry/Designation', matchKeys: ['port', 'destination', 'entry', 'delivery'] }
+    ];
+
+    let activeLookerFilters = {};
+
+    function findMatchingDbKey(row, matchKeys) {
+      if (!row) return null;
+      const keys = Object.keys(row);
+      for (let mKey of matchKeys) {
+        for (let k of keys) {
+          if (k.toLowerCase() === mKey.toLowerCase()) return k;
+        }
+      }
+      for (let mKey of matchKeys) {
+        for (let k of keys) {
+          if (k.toLowerCase().includes(mKey.toLowerCase())) return k;
+        }
+      }
+      return null;
+    }
+
+    function initLookerFilters() {
+      if (!currentDbData || currentDbData.length === 0) return;
+      const sampleRow = currentDbData[0];
+
+      const container = document.getElementById('lookerDropdownsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      LOOKER_FIELDS.forEach(f => {
+        const matchedKey = findMatchingDbKey(sampleRow, f.matchKeys);
+        f.actualKey = matchedKey;
+
+        const item = document.createElement('div');
+        item.className = 'looker-filter-item';
+        item.style.display = 'flex';
+        item.style.flexDirection = 'column';
+        item.style.gap = '0.15rem';
+
+        const label = document.createElement('label');
+        label.style.fontSize = '0.7rem';
+        label.style.fontWeight = '700';
+        label.style.color = 'var(--text-muted)';
+        label.style.textTransform = 'uppercase';
+        label.style.letterSpacing = '0.5px';
+        label.textContent = f.label;
+
+        const select = document.createElement('select');
+        select.id = `looker_${f.id}`;
+        select.style.padding = '0.35rem 0.65rem';
+        select.style.borderRadius = '8px';
+        select.style.border = '1px solid var(--input-border)';
+        select.style.background = 'var(--input-bg)';
+        select.style.color = 'var(--text-main)';
+        select.style.fontSize = '0.8rem';
+        select.style.fontWeight = '600';
+        select.style.outline = 'none';
+        select.style.minWidth = '125px';
+        select.style.maxWidth = '180px';
+        select.style.cursor = 'pointer';
+
+        select.onchange = () => {
+          activeLookerFilters[f.id] = select.value;
+          applyAndDependLookerFilters(f.id);
+        };
+
+        item.appendChild(label);
+        item.appendChild(select);
+        container.appendChild(item);
+      });
+
+      // Add Date Range Filter
+      const dateItem = document.createElement('div');
+      dateItem.className = 'looker-filter-item';
+      dateItem.style.display = 'flex';
+      dateItem.style.flexDirection = 'column';
+      dateItem.style.gap = '0.15rem';
+
+      dateItem.innerHTML = `
+        <label style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;"><i class="fa-regular fa-calendar"></i> Date Range</label>
+        <div style="display:flex; align-items:center; gap:0.25rem;">
+          <input type="text" id="lookerDateFrom" placeholder="From (dd-MMM-yyyy)" style="padding:0.35rem 0.5rem; border-radius:8px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:0.78rem; font-weight:600; width:115px; outline:none; text-align:center;">
+          <span style="color:var(--text-muted); font-size:0.75rem;">to</span>
+          <input type="text" id="lookerDateTo" placeholder="To (dd-MMM-yyyy)" style="padding:0.35rem 0.5rem; border-radius:8px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-main); font-size:0.78rem; font-weight:600; width:115px; outline:none; text-align:center;">
+        </div>
+      `;
+      container.appendChild(dateItem);
+
+      const fromInp = document.getElementById('lookerDateFrom');
+      const toInp = document.getElementById('lookerDateTo');
+      if (fromInp) {
+        fromInp.onchange = () => { fromInp.value = formatShortDate(fromInp.value); applyAndDependLookerFilters(null); };
+        fromInp.onblur = () => { fromInp.value = formatShortDate(fromInp.value); applyAndDependLookerFilters(null); };
+      }
+      if (toInp) {
+        toInp.onchange = () => { toInp.value = formatShortDate(toInp.value); applyAndDependLookerFilters(null); };
+        toInp.onblur = () => { toInp.value = formatShortDate(toInp.value); applyAndDependLookerFilters(null); };
+      }
+
+      if (typeof initAllDatePickers === 'function') {
+        initAllDatePickers();
+      }
+
+      updateAllLookerDropdowns(null);
+    }
+
+    function combinedSapGridFilter(row) {
+      // 1. Text Search Box Filter
+      const queryInp = document.getElementById('sapGridSearchInput');
+      if (queryInp && queryInp.value) {
+        const query = queryInp.value.toLowerCase().trim();
+        const matchesQuery = Object.values(row).some(val => String(val || '').toLowerCase().includes(query));
+        if (!matchesQuery) return false;
+      }
+
+      // 2. Looker Date Range Filter
+      const fromStr = document.getElementById('lookerDateFrom')?.value || '';
+      const toStr = document.getElementById('lookerDateTo')?.value || '';
+      if (fromStr || toStr) {
+        let rowDateStr = row['Timestamp'] || '';
+        if (!rowDateStr) {
+          for (let k in row) {
+            if (k.toLowerCase().includes('date') && row[k]) { rowDateStr = row[k]; break; }
+          }
+        }
+        const rowDate = parseAnyDate(rowDateStr);
+        if (rowDate) {
+          if (fromStr) {
+            const fromDate = parseAnyDate(fromStr);
+            if (fromDate && rowDate.getTime() < new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate(), 0, 0, 0).getTime()) return false;
+          }
+          if (toStr) {
+            const toDate = parseAnyDate(toStr);
+            if (toDate && rowDate.getTime() > new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate(), 23, 59, 59).getTime()) return false;
+          }
+        }
+      }
+
+      // 3. Looker Dropdown Filters
+      for (let f of LOOKER_FIELDS) {
+        const selectedVal = activeLookerFilters[f.id];
+        if (!selectedVal) continue;
+        const actualKey = f.actualKey;
+        if (!actualKey) continue;
+        const rowVal = String(row[actualKey] || '').trim().toLowerCase();
+        if (rowVal !== selectedVal.toLowerCase()) return false;
+      }
+
+      return true;
+    }
+
+    function applyAndDependLookerFilters(changedFieldId) {
       if (tableInstance) {
-        tableInstance.setFilter(function (data) {
-          return Object.values(data).some(val => String(val).toLowerCase().includes(query));
+        tableInstance.setFilter(combinedSapGridFilter);
+      }
+      updateAllLookerDropdowns(changedFieldId);
+    }
+
+    function updateAllLookerDropdowns(changedFieldId) {
+      if (!currentDbData) return;
+
+      LOOKER_FIELDS.forEach(f => {
+        if (f.id === changedFieldId && changedFieldId !== null) return;
+
+        const select = document.getElementById(`looker_${f.id}`);
+        if (!select || !f.actualKey) return;
+
+        const currentVal = activeLookerFilters[f.id] || '';
+
+        const validRows = currentDbData.filter(row => {
+          const fromStr = document.getElementById('lookerDateFrom')?.value || '';
+          const toStr = document.getElementById('lookerDateTo')?.value || '';
+          if (fromStr || toStr) {
+            let rowDateStr = row['Timestamp'] || '';
+            if (!rowDateStr) {
+              for (let k in row) {
+                if (k.toLowerCase().includes('date') && row[k]) { rowDateStr = row[k]; break; }
+              }
+            }
+            const rowDate = parseAnyDate(rowDateStr);
+            if (rowDate) {
+              if (fromStr) {
+                const fromDate = parseAnyDate(fromStr);
+                if (fromDate && rowDate.getTime() < new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate(), 0, 0, 0).getTime()) return false;
+              }
+              if (toStr) {
+                const toDate = parseAnyDate(toStr);
+                if (toDate && rowDate.getTime() > new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate(), 23, 59, 59).getTime()) return false;
+              }
+            }
+          }
+
+          for (let otherF of LOOKER_FIELDS) {
+            if (otherF.id === f.id) continue;
+            const selVal = activeLookerFilters[otherF.id];
+            if (!selVal) continue;
+            const aKey = otherF.actualKey;
+            if (!aKey) continue;
+            const rVal = String(row[aKey] || '').trim().toLowerCase();
+            if (rVal !== selVal.toLowerCase()) return false;
+          }
+          return true;
         });
+
+        const uniqueVals = Array.from(new Set(validRows.map(r => String(r[f.actualKey] || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+
+        select.innerHTML = '<option value="">All</option>';
+        uniqueVals.forEach(val => {
+          const opt = document.createElement('option');
+          opt.value = val;
+          opt.textContent = val.length > 28 ? val.substring(0, 26) + '...' : val;
+          opt.title = val;
+          if (val.toLowerCase() === currentVal.toLowerCase()) {
+            opt.selected = true;
+          }
+          select.appendChild(opt);
+        });
+
+        if (currentVal && !uniqueVals.some(v => v.toLowerCase() === currentVal.toLowerCase())) {
+          activeLookerFilters[f.id] = '';
+          select.value = '';
+        }
+      });
+    }
+
+    function resetLookerFilters() {
+      activeLookerFilters = {};
+      LOOKER_FIELDS.forEach(f => {
+        const sel = document.getElementById(`looker_${f.id}`);
+        if (sel) sel.value = '';
+      });
+      const fromInp = document.getElementById('lookerDateFrom');
+      const toInp = document.getElementById('lookerDateTo');
+      if (fromInp) fromInp.value = '';
+      if (toInp) toInp.value = '';
+
+      const queryInp = document.getElementById('sapGridSearchInput');
+      if (queryInp) queryInp.value = '';
+
+      if (tableInstance) {
+        tableInstance.clearFilter();
+      }
+      updateAllLookerDropdowns(null);
+    }
+
+    function filterSapGrid() {
+      if (tableInstance) {
+        tableInstance.setFilter(combinedSapGridFilter);
       }
     }
 
