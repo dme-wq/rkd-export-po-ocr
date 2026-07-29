@@ -109,14 +109,17 @@
     }
 
     .items-table th {
-      background-color: #1e3a8a;
-      color: #ffffff;
-      text-align: center;
-      font-size: 10px;
-      font-weight: 700;
+      background-color: #f8fafc !important;
+      color: #1e3a8a !important;
+      text-align: center !important;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      padding: 6px 4px;
+      padding: 8px 4px;
       border: 1px solid #1e3a8a;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .items-table td {
@@ -352,19 +355,18 @@
           activeCols.forEach(col => { 
             const cLower = String(col).trim().toLowerCase();
             let thWidth = '';
-            let thAlign = 'left';
             let thTitle = col.toUpperCase();
             
-            if (cLower === 's.no' || cLower === 's.no.' || cLower === 's.no ' || cLower === 'serial number') { thWidth = '5%'; thAlign = 'center'; thTitle = 'S.NO.'; }
+            if (cLower === 's.no' || cLower === 's.no.' || cLower === 's.no ' || cLower === 'serial number') { thWidth = '5%'; thTitle = 'S.NO.'; }
             else if (cLower.includes('sku') || cLower.includes('code') || cLower === 'item #') { thWidth = '14%'; thTitle = 'SKU / ITEM #'; }
             else if (cLower.includes('desc') || cLower.includes('name')) { thWidth = '26%'; thTitle = 'PRODUCT DESCRIPTION'; }
             else if (cLower === 'color' || cLower === 'colour') { thWidth = '10%'; thTitle = 'COLOR'; }
             else if (cLower === 'size') { thWidth = '10%'; thTitle = 'SIZE'; }
-            else if (cLower.includes('price') || cLower === 'rate') { thWidth = '11%'; thAlign = 'right'; thTitle = 'UNIT PRICE'; }
-            else if (cLower.includes('qty') || cLower.includes('quantity')) { thWidth = '8%'; thAlign = 'center'; thTitle = 'QUANTITY'; }
-            else if (cLower.includes('total') || cLower.includes('amount')) { thWidth = '16%'; thAlign = 'right'; thTitle = 'TOTAL AMOUNT'; }
+            else if (cLower.includes('price') || cLower === 'rate') { thWidth = '11%'; thTitle = 'UNIT PRICE'; }
+            else if (cLower.includes('qty') || cLower.includes('quantity')) { thWidth = '8%'; thTitle = 'QUANTITY'; }
+            else if (cLower.includes('total') || cLower.includes('amount')) { thWidth = '16%'; thTitle = 'TOTAL AMOUNT'; }
         ?>
-        <th style="width: <?= thWidth ?>; text-align: <?= thAlign ?>;">
+        <th style="width: <?= thWidth ?>;">
           <?= thTitle ?>
         </th>
         <? }); ?>
