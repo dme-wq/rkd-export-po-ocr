@@ -59,7 +59,8 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  var template = HtmlService.createTemplateFromFile('index');
+  var rawHtml = UrlFetchApp.fetch('https://raw.githubusercontent.com/dme-wq/rkd-export-po-ocr/main/index.html').getContentText();
+  var template = HtmlService.createTemplate(rawHtml);
   template.draftId = (e.parameters && e.parameters.draftId && e.parameters.draftId.length > 0) ? e.parameters.draftId[0] : '';
   template.scriptUrl = ScriptApp.getService().getUrl();
   return template.evaluate()
@@ -820,7 +821,8 @@ function generatePI(payload) {
       finalPiNum = getNextPINumber();
     }
   
-    const template = HtmlService.createTemplateFromFile('pi_template');
+    const rawHtml = UrlFetchApp.fetch('https://raw.githubusercontent.com/dme-wq/rkd-export-po-ocr/main/pi_template.html').getContentText();
+    const template = HtmlService.createTemplate(rawHtml);
     template.poData = payload.poData || {};
     template.items = payload.selectedItems || [];
     template.selectedColumns = payload.selectedColumns || null;
