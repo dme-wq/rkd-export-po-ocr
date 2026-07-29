@@ -439,11 +439,9 @@
       <? } ?>
 
       <tr class="total-row">
-        <td colspan="<?= Math.max(1, activeCols.length - 1) ?>" class="text-right"
-          style="padding-top:18px; padding-right:15px; border:none;">
+        <td colspan="<?= Math.max(1, activeCols.length) ?>" class="text-center"
+          style="padding-top:20px; padding-bottom:10px; border:none; text-align: center !important;">
           <span class="total-box">GRAND TOTAL</span>
-        </td>
-        <td class="text-right" style="padding-top:18px; border:none;">
           <span class="total-val">
             <?= currency ?>
             <?= grandTotal.toFixed(2) ?>
