@@ -43,9 +43,9 @@
     }
 
     .header-section {
-      margin-bottom: 25px;
+      margin-bottom: 15px;
       border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 20px;
+      padding-bottom: 12px;
     }
 
     .header-left {
@@ -86,7 +86,7 @@
     }
 
     .box-container {
-      margin-bottom: 18px;
+      margin-bottom: 12px;
       background-color: #f8fafc;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
@@ -100,7 +100,7 @@
     }
 
     .items-table {
-      margin-top: 25px;
+      margin-top: 15px;
       border: 1px solid #cbd5e1;
     }
 
@@ -111,13 +111,13 @@
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      padding: 10px 8px;
+      padding: 8px 6px;
       border: 1px solid #1e3a8a;
     }
 
     .items-table td {
       border: 1px solid #cbd5e1;
-      padding: 10px 8px;
+      padding: 8px 6px;
       font-size: 11px;
     }
 
@@ -239,14 +239,12 @@
           <div
             style="line-height: 1.5; color: #1e293b; border-bottom: 1px solid #3b82f6; padding-bottom: 6px; margin-bottom: 6px;">
             Plot No. 262,263,238,239, Sector-29, Part-2<br>
-            HUDA, Panipat-132103, Haryana<br>
-            Supplier State Code -06
+            HUDA, Panipat-132103, Haryana
           </div>
           <div style="line-height: 1.5; color: #1e293b;">
-            <strong style="color: #0f172a; font-size: 12px;">GSTIN/UIN: 06AAKCR0233R1Z1</strong><br>
+            <strong style="color: #0f172a; font-size: 12px;">IEC: AAKCR0233R</strong><br>
             Kunal Jain | +91 98120 20069<br>
-            <a href="mailto:kunal.jain@rkd.in"
-              style="color: #0284c7; text-decoration: none;">kunal.jain@rkd.in</a>
+            <a href="mailto:kunal.jain@rkd.in" style="color: #0284c7; text-decoration: none;">kunal.jain@rkd.in</a>
           </div>
         </td>
         <td class="box-content">
@@ -293,35 +291,30 @@
       }
     ?>
     <? if (metaRows.length > 0) { ?>
-    <table class="box-container" style="margin-bottom: 12px;">
-      <? metaRows.forEach((rowChunk, rIdx) => { 
-           const colWidth = Math.floor(100 / rowChunk.length) + '%';
-      ?>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; table-layout: fixed;">
+      <? metaRows.forEach((rowChunk, rIdx) => { ?>
       <tr>
         <? rowChunk.forEach((item, cIdx) => { 
-             const isLast = (cIdx === rowChunk.length - 1);
              let displayLabel = item.label.toUpperCase();
-             if (displayLabel.includes('EX-FACTORY')) {
-               displayLabel = 'EX-FACTORY DATE';
-             } else if (displayLabel.includes('DELIVERY') || displayLabel === 'NEXT DELIVERY DATE') {
-               displayLabel = 'NEXT DELIVERY DATE';
-             }
+             if (displayLabel.includes('EX-FACTORY')) displayLabel = 'EX-FACTORY DATE';
+             else if (displayLabel.includes('DELIVERY') || displayLabel === 'NEXT DELIVERY DATE') displayLabel = 'NEXT DELIVERY DATE';
              if (displayLabel === 'FOB / PORT OF DEPARTURE') displayLabel = 'PORT OF DEPARTURE';
              if (displayLabel === 'PORT OF ENTRY / DESTINATION') displayLabel = 'DESTINATION';
         ?>
-        <td class="section-title"
-          style="width:<?= colWidth ?>; <?= !isLast ? 'border-right: 1px solid #3b82f6;' : '' ?>">
-          <?= displayLabel ?>
-        </td>
-        <? }); ?>
-      </tr>
-      <tr>
-        <? rowChunk.forEach((item, cIdx) => { 
-             const isLast = (cIdx === rowChunk.length - 1);
-        ?>
-        <td class="box-content"
-          style="text-align: center; font-weight: 600; <?= !isLast ? 'border-right: 1px solid #cbd5e1;' : '' ?>; <?= rIdx < metaRows.length - 1 ? 'border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;' : '' ?>">
-          <?= item.value || 'N/A' ?>
+        <td style="width: <?= 100 / rowChunk.length ?>%; padding: 0 4px 8px 4px; vertical-align: top;">
+          <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; background-color: #f8fafc;">
+            <tr>
+              <td
+                style="background-color: #eff6ff; color: #1e3a8a; text-align: center; font-weight: 700; font-size: 9.5px; padding: 6px; border-bottom: 1px solid #cbd5e1;">
+                <?= displayLabel ?>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align: center; font-weight: 600; color: #0f172a; padding: 8px 6px; font-size: 11px;">
+                <?= item.value || 'N/A' ?>
+              </td>
+            </tr>
+          </table>
         </td>
         <? }); ?>
       </tr>
@@ -454,7 +447,7 @@
     </table>
 
     <!-- SIGNATURE SECTION -->
-    <table style="margin-top: 40px; width: 100%;">
+    <table style="margin-top: 20px; width: 100%;">
       <tr>
         <td style="width: 55%; vertical-align: bottom;">
           <div
@@ -468,15 +461,18 @@
         <td style="width: 45%; text-align: right; vertical-align: bottom;">
           <div class="sign-box">
             <div
-              style="font-weight: 800; color: #1e3a8a; font-size: 11.5px; margin-bottom: 48px; letter-spacing: 0.5px; text-transform: uppercase;">
+              style="font-weight: 800; color: #1e3a8a; font-size: 11.5px; margin-bottom: 5px; letter-spacing: 0.5px; text-transform: uppercase;">
               For RKD Furnishings Pvt. Ltd.
+            </div>
+            <div style="height: 45px; text-align: center; margin-bottom: 5px;">
+              <img src="https://i.postimg.cc/R0PhxRnR/Sign-KJ.jpg" alt="Signature" style="height: 45px; width: auto;">
             </div>
             <div
               style="border-top: 2px solid #1e3a8a; padding-top: 6px; font-weight: 800; font-size: 10.5px; color: #0f172a; letter-spacing: 0.3px;">
               AUTHORISED SIGNATORY
             </div>
             <div style="font-size: 8.5px; color: #64748b; margin-top: 2px;">
-              (Physical / Digital Signature)
+              (Digital Signature)
             </div>
           </div>
         </td>
