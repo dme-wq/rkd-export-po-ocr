@@ -7,7 +7,7 @@
   <style>
     @page {
       size: A4 portrait;
-      margin: 0.5in;
+      margin: 0.5in 0.5cm;
     }
 
     body {
@@ -31,14 +31,15 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      table-layout: fixed;
+      table-layout: auto;
     }
 
     td,
     th {
       padding: 6px;
       vertical-align: top;
-      word-wrap: break-word;
+      word-wrap: normal;
+      word-break: normal;
     }
 
     .header-section {
