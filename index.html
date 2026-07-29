@@ -2220,11 +2220,11 @@
     }
     const SERVER_DRAFT_ID = rawDraftId;
 
-    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbzEwBi1sPpTkaUPVfUotJTVvX7SRrXHbZ8D6rXEWetQ03f-0IqvoIivcr_zFlMWU2mbQQ/exec";
-    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbzEwBi1sPpTkaUPVfUotJTVvX7SRrXHbZ8D6rXEWetQ03f-0IqvoIivcr_zFlMWU2mbQQ/exec' ?>";
+    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbwWplqDBgulKnGCKByt6tw087LsI8f7_0o0OQVhOy0wng8byKtDbLWkbNXgD0q2wJfa_A/exec";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbwWplqDBgulKnGCKByt6tw087LsI8f7_0o0OQVhOy0wng8byKtDbLWkbNXgD0q2wJfa_A/exec' ?>";
 
     let savedUrl = localStorage.getItem('rkd_api_url');
-    if (!savedUrl || !savedUrl.includes('AKfycbzEwBi1sPpTkaUPVfUotJTVvX7SRrXHbZ8D6rXEWetQ03f-0IqvoIivcr_zFlMWU2mbQQ')) {
+    if (!savedUrl || !savedUrl.includes('AKfycbwWplqDBgulKnGCKByt6tw087LsI8f7_0o0OQVhOy0wng8byKtDbLWkbNXgD0q2wJfa_A')) {
       savedUrl = DEFAULT_DEPLOY_URL;
       localStorage.setItem('rkd_api_url', DEFAULT_DEPLOY_URL);
     }
