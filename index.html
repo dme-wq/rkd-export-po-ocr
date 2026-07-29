@@ -2667,9 +2667,9 @@
       formMode = 'manual';
       document.getElementById('uploadSection').style.display = 'none';
       document.getElementById('dataPreview').style.display = 'block';
-      
+
       populateForm({ items: [] });
-      
+
       document.querySelector('.section-title span').innerHTML = '<i class="fa-solid fa-file-pen" style="color:var(--primary);"></i> Manual PO Entry';
       document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Submit Manual Entry`;
     }
@@ -2677,33 +2677,33 @@
     function openBulkEdit(poNumber, buyerName) {
       const cached = localStorage.getItem('dbCache');
       if (!cached) {
-         Swal.fire('Error', 'Database cache not found. Refresh data table first.', 'error');
-         return;
+        Swal.fire('Error', 'Database cache not found. Refresh data table first.', 'error');
+        return;
       }
       const allRows = JSON.parse(cached);
-      const items = allRows.filter(r => 
-        String(r['PO Number']||'').trim().toLowerCase() === String(poNumber).trim().toLowerCase() && 
-        String(r['Buyer / Company Name']||'').trim().toLowerCase() === String(buyerName).trim().toLowerCase()
+      const items = allRows.filter(r =>
+        String(r['PO Number'] || '').trim().toLowerCase() === String(poNumber).trim().toLowerCase() &&
+        String(r['Buyer / Company Name'] || '').trim().toLowerCase() === String(buyerName).trim().toLowerCase()
       );
-      
+
       if (items.length === 0) {
-         Swal.fire('Error', 'No line items found for this PO.', 'error');
-         return;
+        Swal.fire('Error', 'No line items found for this PO.', 'error');
+        return;
       }
-      
+
       const mainDetails = { ...items[0] };
       mainDetails.items = items;
-      
+
       window.bulkEditContext = { oldPoNumber: poNumber, oldBuyerName: buyerName };
       formMode = 'edit';
-      
+
       document.getElementById('dataTableSection').classList.remove('active-flex');
       const dbNavExt = document.getElementById('dbNavbarExtensions');
       if (dbNavExt) dbNavExt.style.display = 'none';
-      
+
       document.getElementById('uploadSection').style.display = 'none';
       document.getElementById('dataPreview').style.display = 'block';
-      
+
       populateForm(mainDetails);
       document.querySelector('.section-title span').innerHTML = `<i class="fa-solid fa-file-pen" style="color:var(--primary);"></i> Bulk Edit: PO #${poNumber}`;
       document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Submit Bulk Edit`;
@@ -3103,10 +3103,10 @@
               if (!value) return 'You need to enter a passcode!'
             }
           });
-          
+
           if (!passcode) {
-             document.getElementById('submitBtn').disabled = false;
-             return;
+            document.getElementById('submitBtn').disabled = false;
+            return;
           }
           document.getElementById('overlay').style.display = 'flex';
           response = await callBackend('bulkUpdatePO', window.bulkEditContext.oldPoNumber, window.bulkEditContext.oldBuyerName, rowsData, passcode);
