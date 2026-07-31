@@ -1463,7 +1463,7 @@
       color: var(--text-muted) !important;
       font-weight: 700 !important;
       border-bottom: 1px solid var(--input-border) !important;
-      font-size: 0.75rem !important;
+      font-size: 0.65rem !important;
       white-space: normal !important;
       word-break: break-word !important;
       text-transform: uppercase;
@@ -1494,7 +1494,7 @@
     #poDataTable .tabulator-cell {
       padding: 0.4rem 0.5rem !important;
       border-right: 1px solid var(--input-border) !important;
-      font-size: 0.72rem !important;
+      font-size: 0.58rem !important;
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: break-word !important;
@@ -1959,7 +1959,8 @@
             <tbody id="itemsBody"></tbody>
             <tfoot>
               <tr>
-                <td colspan="100" style="text-align: right; font-weight: bold; padding: 15px; background: rgba(0,0,0,0.02); border-top: 2px solid rgba(0,0,0,0.05);">
+                <td colspan="100"
+                  style="text-align: right; font-weight: bold; padding: 15px; background: rgba(0,0,0,0.02); border-top: 2px solid rgba(0,0,0,0.05);">
                   <span style="margin-right: 20px; font-size: 1.1em; color: var(--text-secondary);">Grand Total:</span>
                   <span id="tableGrandTotal" style="font-size: 1.25em; color: var(--primary);">$0.00</span>
                 </td>
@@ -2091,9 +2092,10 @@
           <input type="text" id="sapGridSearchInput" class="modern-form-input" placeholder="Search keywords..."
             oninput="filterSapGrid()">
         </div>
-        
+
         <div class="dribbble-search-wrapper" style="width: auto; background: var(--card-bg); padding: 0;">
-          <select id="dbYearFilter" class="modern-form-input" onchange="filterSapGrid()" style="width:110px; cursor:pointer; background: transparent; border: none; font-weight: 600; padding: 6px 12px;">
+          <select id="dbYearFilter" class="modern-form-input" onchange="filterSapGrid()"
+            style="width:110px; cursor:pointer; background: transparent; border: none; font-weight: 600; padding: 6px 12px;">
             <option value="">All Years</option>
             <option value="2024">2024</option>
             <option value="2025">2025</option>
@@ -2342,7 +2344,7 @@
 
     const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbz7Y_sKzuqCbjTxvSEVXzdTDf1pO1LiHnlpB8-33OGHXr6l9DmOotMYup8UReB4vqCgJQ/exec";
     const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbz7Y_sKzuqCbjTxvSEVXzdTDf1pO1LiHnlpB8-33OGHXr6l9DmOotMYup8UReB4vqCgJQ/exec' ?>";
-    
+
     let savedUrl = localStorage.getItem('rkd_api_url');
     if (!savedUrl || !savedUrl.includes('AKfycbz7Y_sKzuqCbjTxvSEVXzdTDf1pO1LiHnlpB8-33OGHXr6l9DmOotMYup8UReB4vqCgJQ')) {
       savedUrl = DEFAULT_DEPLOY_URL;
@@ -2377,12 +2379,12 @@
       }
     }
 
-    function formatNumberDisplay(val, isDecimal=false) {
+    function formatNumberDisplay(val, isDecimal = false) {
       if (val === null || val === undefined || String(val).trim() === '') return '';
       let str = String(val).replace(/,/g, '').trim();
       let num = parseFloat(str);
       if (isNaN(num)) return val;
-      
+
       if (isDecimal) {
         let decimals = str.includes('.') ? str.split('.')[1].length : 2;
         if (decimals > 4) decimals = 4;
@@ -2402,14 +2404,14 @@
       const sel = document.getElementById('currencySelector');
       currentCurrencySymbol = sel.value;
       localStorage.setItem('rkd_currency', currentCurrencySymbol);
-      
+
       const currencyText = sel.options[sel.selectedIndex].text;
       let currencyValue = '';
       if (currencyText.includes('USD')) currencyValue = 'USD';
       else if (currencyText.includes('EUR')) currencyValue = 'EURO';
       else if (currencyText.includes('GBP')) currencyValue = 'GBP';
       else if (currencyText.includes('INR')) currencyValue = 'INR';
-      
+
       if (currencyValue) {
         // Sync with existing line items
         const trs = document.querySelectorAll('#itemsBody tr');
@@ -2421,7 +2423,7 @@
             currEl.classList.remove('missing-field');
           }
         });
-        
+
         // Sync with main form Currency field
         const mainCurrEl = document.querySelector('[data-fieldname="Currency"]');
         if (mainCurrEl) {
@@ -2725,7 +2727,7 @@
 
       callBackend('getPasscode').then(passRes => {
         appPasscode = passRes.passcode || passRes;
-      }).catch(e => {});
+      }).catch(e => { });
 
       loadAppConfig();
     };
@@ -2734,14 +2736,14 @@
       // 1. Instant Cache Load
       const cachedConfStr = localStorage.getItem('appConfigCache');
       const cachedDDStr = localStorage.getItem('appDropdownsCache');
-      
+
       let cacheLoaded = false;
       if (cachedConfStr) {
         try {
           appConfig = JSON.parse(cachedConfStr);
           if (cachedDDStr) appDropdowns = JSON.parse(cachedDDStr);
           renderDynamicForm();
-          
+
           // Instant navigation based on URL/state
           if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
             loadDraft();
@@ -2749,7 +2751,7 @@
             showDataTable();
           }
           cacheLoaded = true;
-        } catch (e) {}
+        } catch (e) { }
       }
 
       // 2. Background Sync
@@ -2757,12 +2759,12 @@
         const config = await callBackend('getAppConfig');
         appConfig = config.config || config;
         appDropdowns = config.dropdowns || {};
-        
+
         localStorage.setItem('appConfigCache', JSON.stringify(appConfig));
         localStorage.setItem('appDropdownsCache', JSON.stringify(appDropdowns));
-        
+
         renderDynamicForm();
-        
+
         // If cache failed or was empty, navigate now
         if (!cacheLoaded) {
           if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
@@ -3045,9 +3047,9 @@
 
         const div = document.createElement('div');
         div.className = 'form-group';
-        
+
         let ddKey = Object.keys(appDropdowns).find(k => field.name.toLowerCase().includes(k.toLowerCase()));
-        
+
         if (ddKey && appDropdowns[ddKey]) {
           let optionsHtml = `<option value="">Select ${field.name}...</option>`;
           appDropdowns[ddKey].forEach(val => {
@@ -3058,7 +3060,7 @@
         } else {
           const isDate = isDateKey(field.name, appConfig) || field.type === 'date';
           const inputType = isDate ? 'text' : (field.type || 'text');
-          
+
           let extraAttr = '';
           if (isDate) {
             extraAttr = 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"';
@@ -3069,7 +3071,7 @@
               extraAttr = `onblur="this.value = formatNumberDisplay(this.value, ${isAmt})" onfocus="this.value = this.value.replace(/,/g, '')"`;
             }
           }
-          
+
           div.innerHTML = `<label>${field.name}</label><input type="${inputType}" class="modern-form-input" ${extraAttr} data-fieldname="${field.name}">`;
         }
         mainContainer.appendChild(div);
@@ -3111,14 +3113,14 @@
             const isAmt = f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('rate');
             if (isQty || isAmt) val = formatNumberDisplay(val, isAmt);
           }
-          
+
           if (el.tagName === 'SELECT' && val && !Array.from(el.options).some(o => o.value === val)) {
             const opt = document.createElement('option');
             opt.value = val;
             opt.textContent = val;
             el.insertBefore(opt, el.options[el.options.length - 1]);
           }
-          
+
           el.value = val;
           el.classList.remove('missing-field');
 
@@ -3159,26 +3161,26 @@
             if (!value) return 'Value cannot be empty!';
           }
         });
-        
+
         if (newValue) {
           document.getElementById('overlay').style.display = 'flex';
           document.getElementById('loadingText').textContent = 'Saving...';
           document.getElementById('loadingSubText').textContent = `Adding "${newValue}" to Dropdown list.`;
-          
+
           try {
             const res = await callBackend('addDropdownValue', ddKey, newValue);
             document.getElementById('overlay').style.display = 'none';
-            
+
             if (res.success) {
               if (!appDropdowns[ddKey]) appDropdowns[ddKey] = [];
               appDropdowns[ddKey].push(newValue);
-              
+
               const opt = document.createElement('option');
               opt.value = newValue;
               opt.textContent = newValue;
               selectEl.insertBefore(opt, selectEl.options[selectEl.options.length - 1]);
               selectEl.value = newValue;
-              
+
               Swal.fire({ icon: 'success', title: 'Added!', text: `Successfully added "${newValue}"`, timer: 1500, showConfirmButton: false });
             } else {
               Swal.fire('Error', res.error || 'Failed to add', 'error');
@@ -3203,17 +3205,17 @@
         if (!f.visible) return;
         const td = document.createElement('td');
         let val = item[f.name] || '';
-        
+
         // Auto-fill Currency if it's empty
         if (f.name.toLowerCase().includes('currency') && !val) {
-           const sel = document.getElementById('currencySelector');
-           if (sel && sel.selectedIndex >= 0) {
-             const currencyText = sel.options[sel.selectedIndex].text;
-             if (currencyText.includes('USD')) val = 'USD';
-             else if (currencyText.includes('EUR')) val = 'EURO';
-             else if (currencyText.includes('GBP')) val = 'GBP';
-             else if (currencyText.includes('INR')) val = 'INR';
-           }
+          const sel = document.getElementById('currencySelector');
+          if (sel && sel.selectedIndex >= 0) {
+            const currencyText = sel.options[sel.selectedIndex].text;
+            if (currencyText.includes('USD')) val = 'USD';
+            else if (currencyText.includes('EUR')) val = 'EURO';
+            else if (currencyText.includes('GBP')) val = 'GBP';
+            else if (currencyText.includes('INR')) val = 'INR';
+          }
         }
         const isDate = isDateKey(f.name, appConfig) || f.type === 'date';
         if (isDate && val) {
@@ -3237,17 +3239,17 @@
           else if (f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('amount')) minW = '125px';
 
           const alignStyle = (f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity') || f.name.toLowerCase().includes('cases')) ? `style="text-align: right; font-weight: 600; min-width: ${minW}; width: 100%;"` : `style="text-align: left; min-width: ${minW}; width: 100%;"`;
-          
+
           let extraEvents = '';
           if (!isDate) {
             const isQty = f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity');
             const isAmt = f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('rate');
             if (isQty || isAmt) {
-               val = formatNumberDisplay(val, isAmt);
-               extraEvents = `onblur="this.value = formatNumberDisplay(this.value, ${isAmt})" onfocus="this.value = this.value.replace(/,/g, '')"`;
+              val = formatNumberDisplay(val, isAmt);
+              extraEvents = `onblur="this.value = formatNumberDisplay(this.value, ${isAmt})" onfocus="this.value = this.value.replace(/,/g, '')"`;
             }
           }
-          
+
           td.innerHTML = `<input type="${inputType}" ${extraAttr} ${extraEvents} ${alignStyle} data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
         }
         tr.appendChild(td);
@@ -3288,7 +3290,7 @@
       const tr = input.closest('tr');
       if (!tr) return;
       const inputs = Array.from(tr.querySelectorAll('[data-itemfieldname]'));
-      
+
       let qtyEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('quantity') || n.includes('qty'); });
       let priceEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('price') || n.includes('rate') || n.includes('cost') || n.includes('unit'); });
       let lineAmtEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('amount') || n.includes('total') || n.includes('line amount'); });
@@ -3298,17 +3300,17 @@
         const pStr = priceEl.value.replace(/,/g, '.');
         const q = parseFloat(qStr.replace(/[^0-9.-]+/g, "")) || 0;
         const p = parseFloat(pStr.replace(/[^0-9.-]+/g, "")) || 0;
-        
+
         if (qtyEl.value.trim() !== '' && priceEl.value.trim() !== '') {
           lineAmtEl.value = (q * p).toFixed(2);
           lineAmtEl.classList.remove('missing-field');
-          
+
           // Trigger global input event to ensure missing-field clearing propagation
           const ev = new Event('input', { bubbles: true });
           lineAmtEl.dispatchEvent(ev);
         }
       }
-      
+
       if (typeof updateFormStats === 'function') updateFormStats();
     }
 
@@ -3335,17 +3337,17 @@
       trs.forEach(tr => {
         const inputs = Array.from(tr.querySelectorAll('[data-itemfieldname]'));
         const lineAmtEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('amount') || n.includes('total') || n.includes('line amount'); }) || tr.querySelector('[data-itemfieldname="Unit Price"]');
-        
+
         if (lineAmtEl && lineAmtEl.value) {
           totalAmt += parseFloat(lineAmtEl.value.replace(/[^0-9.-]+/g, "")) || 0;
         }
       });
 
       document.getElementById('statTotalAmount').textContent = currentCurrencySymbol + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      
+
       const tfootTotal = document.getElementById('tableGrandTotal');
       if (tfootTotal) {
-         tfootTotal.textContent = currentCurrencySymbol + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        tfootTotal.textContent = currentCurrencySymbol + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
 
       const mainTotalEl = document.querySelector('[data-fieldname="Total Order Amount"]');
@@ -3840,10 +3842,10 @@
         const newCacheStr = JSON.stringify(data);
         if (newCacheStr !== cached || forceRefresh) {
           localStorage.setItem('dbCache', newCacheStr);
-          
+
           if (tableInstance) {
             tableInstance.replaceData(data);
-            
+
             // Auto-hide totally empty columns
             if (data && data.length > 0) {
               const keys = Object.keys(data[0]).filter(k => !k.startsWith('_') && k !== 'Source File' && k !== 'PI PDF Link');
@@ -4026,7 +4028,7 @@
 
       Object.keys(data[0]).filter(k => !k.startsWith('_') && k !== 'Source File' && k !== 'PI PDF Link').forEach(key => {
         const hasData = data.some(row => row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== '');
-        
+
         let isVisible = true;
         if (savedDbCols && Array.isArray(savedDbCols)) {
           isVisible = savedDbCols.includes(key);
@@ -4507,16 +4509,16 @@
         const matchesQuery = Object.values(row).some(val => String(val || '').toLowerCase().includes(query));
         if (!matchesQuery) return false;
       }
-      
+
       // 1.5 Year Filter
       const yearFilter = document.getElementById('dbYearFilter');
       if (yearFilter && yearFilter.value) {
         const targetYear = yearFilter.value;
         const rowDateStr = String(row['Timestamp'] || '');
         if (!rowDateStr.includes(targetYear)) {
-           // Also check if any date matches
-           const pDate = parseAnyDate(rowDateStr);
-           if (!pDate || pDate.getFullYear().toString() !== targetYear) return false;
+          // Also check if any date matches
+          const pDate = parseAnyDate(rowDateStr);
+          if (!pDate || pDate.getFullYear().toString() !== targetYear) return false;
         }
       }
 
