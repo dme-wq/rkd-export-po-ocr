@@ -104,6 +104,12 @@ function doPost(e) {
       response = updateEntireRow(args[0], args[1]);
     } else if (action === 'generatePI') {
       response = generatePI(args[0]);
+    } else if (action === 'removeColumn') {
+      response = removeColumn(args[0], args[1]);
+    } else if (action === 'sendPIWhatsAppNotification') {
+      response = sendPIWhatsAppNotification(args[0], args[1], args[2], args[3]);
+    } else if (action === 'bulkUpdatePO') {
+      response = bulkUpdatePO(args[0], args[1], args[2], args[3]);
     }
   } catch (err) {
     response = { success: false, error: err.toString() };
@@ -278,6 +284,39 @@ function addCustomColumn(fieldName, section, fieldType) {
       configSheet.getRange(2, 1).setValue(JSON.stringify(config));
     }
     
+    return { success: true, newConfig: config };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+function removeColumn(fieldName, section) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const configSheet = ss.getSheetByName('AppConfig');
+    if (!configSheet) return { success: false, error: 'AppConfig not found' };
+
+    const config = getAppConfig();
+    const isMain = section === 'Main';
+    const targetArray = isMain ? config.mainFields : config.itemFields;
+
+    // Protect system default fields from deletion
+    const protectedMain = CONFIG.DEFAULT_MAIN_FIELDS;
+    const protectedItem = CONFIG.DEFAULT_ITEM_FIELDS;
+    const protectedFields = isMain ? protectedMain : protectedItem;
+
+    if (protectedFields.includes(fieldName)) {
+      return { success: false, error: `"${fieldName}" is a system default field and cannot be deleted. You can only hide it using the toggle.` };
+    }
+
+    const newArray = targetArray.filter(f => f.name !== fieldName);
+    if (isMain) {
+      config.mainFields = newArray;
+    } else {
+      config.itemFields = newArray;
+    }
+
+    configSheet.getRange(2, 1).setValue(JSON.stringify(config));
     return { success: true, newConfig: config };
   } catch (err) {
     return { success: false, error: err.toString() };
@@ -667,6 +706,106 @@ function sendWhatsAppNotification(draftId, missingFieldsArray, scriptUrl) {
     
     return { success: true, sentCount: successCount };
   } catch(e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+// ─────────────────────────────────────────────
+//  WHATSAPP PI NOTIFICATION (to WhatsappUser sheet)
+//  Always Indian (+91) numbers
+// ─────────────────────────────────────────────
+function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName('WhatsappUser');
+    if (!sheet) throw new Error('WhatsappUser tab not found in the sheet.');
+
+    const data = sheet.getDataRange().getValues();
+    const recipients = [];
+
+    // Skip header row (row 1 = Name, row 2+ = data)
+    for (let i = 1; i < data.length; i++) {
+      const name = String(data[i][0] || '').trim();
+      const phone = String(data[i][1] || '').trim();
+      if (name && phone) {
+        recipients.push({ name: name, phone: phone });
+      }
+    }
+
+    if (recipients.length === 0) throw new Error('No recipients found in WhatsappUser tab.');
+
+    // Determine greeting based on IST time (UTC+5:30)
+    const now = new Date();
+    const istHour = (now.getUTCHours() + 5 + Math.floor((now.getUTCMinutes() + 30) / 60)) % 24;
+    let greeting = 'Good Day';
+    if (istHour >= 5 && istHour < 12) {
+      greeting = 'Good Morning';
+    } else if (istHour >= 12 && istHour < 17) {
+      greeting = 'Good Afternoon';
+    } else if (istHour >= 17 && istHour < 22) {
+      greeting = 'Good Evening';
+    }
+
+    // Build poData summary (buyer + PO number)
+    const buyerName = (poData && poData['Buyer / Company Name']) ? poData['Buyer / Company Name'] : '';
+    const poNumber = (poData && poData['PO Number']) ? poData['PO Number'] : '';
+
+    const apiUrl = `https://api.maytapi.com/api/${CONFIG.MAYTAPI_PRODUCT_ID}/${CONFIG.MAYTAPI_PHONE_ID}/sendMessage`;
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-maytapi-key': CONFIG.MAYTAPI_TOKEN
+    };
+
+    let successCount = 0;
+
+    for (let i = 0; i < recipients.length; i++) {
+      const r = recipients[i];
+
+      // Always Indian number — clean digits and prefix 91
+      let rawPhone = String(r.phone).replace(/\D/g, '');
+      if (rawPhone.length === 10) {
+        rawPhone = '91' + rawPhone;
+      } else if (rawPhone.startsWith('0')) {
+        rawPhone = '91' + rawPhone.substring(1);
+      } else if (!rawPhone.startsWith('91')) {
+        rawPhone = '91' + rawPhone;
+      }
+
+      if (rawPhone.length < 12) continue; // Skip invalid
+
+      const message = `${greeting} *${r.name} Ji* 🙏\n\n` +
+        `Your *Proforma Invoice* has been generated successfully!\n\n` +
+        `📋 *PI Details:*\n` +
+        `• PI Number: *${piNumber}*\n` +
+        `• PI Date: *${piDate}*\n` +
+        (poNumber ? `• PO Number: *${poNumber}*\n` : '') +
+        (buyerName ? `• Buyer: *${buyerName}*\n` : '') +
+        `\n📄 *View / Download PI PDF:*\n${piFileUrl}\n\n` +
+        `_RKD Group — PO OCR System_ 🏭`;
+
+      // Send text message with PDF link
+      const textPayload = {
+        to_number: rawPhone,
+        type: 'text',
+        message: message
+      };
+
+      try {
+        UrlFetchApp.fetch(apiUrl, {
+          method: 'post',
+          headers: headers,
+          payload: JSON.stringify(textPayload),
+          muteHttpExceptions: true
+        });
+        successCount++;
+      } catch (sendErr) {
+        Logger.log('PI WA Send Error for ' + r.name + ': ' + sendErr);
+      }
+    }
+
+    return { success: true, sentCount: successCount };
+  } catch (e) {
+    Logger.log('sendPIWhatsAppNotification error: ' + e);
     return { success: false, error: e.toString() };
   }
 }
