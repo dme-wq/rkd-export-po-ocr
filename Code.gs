@@ -773,28 +773,34 @@ function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
 
       if (rawPhone.length < 12) continue; // Skip invalid
 
-      const message = `${greeting} *${r.name} Ji* 🙏\n\n` +
+      // Convert Drive view link to Direct Download link
+      const fileIdMatch = piFileUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      let mediaUrl = piFileUrl;
+      if (fileIdMatch && fileIdMatch[1]) {
+        mediaUrl = `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
+      }
+
+      const caption = `${greeting} *${r.name} Ji* 🙏\n\n` +
         `Your *Proforma Invoice* has been generated successfully!\n\n` +
         `📋 *PI Details:*\n` +
         `• PI Number: *${piNumber}*\n` +
         `• PI Date: *${piDate}*\n` +
         (poNumber ? `• PO Number: *${poNumber}*\n` : '') +
-        (buyerName ? `• Buyer: *${buyerName}*\n` : '') +
-        `\n📄 *View / Download PI PDF:*\n${piFileUrl}\n\n` +
-        `_RKD Group — PO OCR System_ 🏭`;
+        (buyerName ? `• Buyer: *${buyerName}*` : '');
 
-      // Send text message with PDF link
-      const textPayload = {
+      // Send PDF as media message with caption
+      const payload = {
         to_number: rawPhone,
-        type: 'text',
-        message: message
+        type: 'media',
+        message: mediaUrl,
+        text: caption
       };
 
       try {
         UrlFetchApp.fetch(apiUrl, {
           method: 'post',
           headers: headers,
-          payload: JSON.stringify(textPayload),
+          payload: JSON.stringify(payload),
           muteHttpExceptions: true
         });
         successCount++;
