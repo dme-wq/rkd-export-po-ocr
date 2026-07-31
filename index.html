@@ -1777,7 +1777,7 @@
     <div class="brand">
       <img
         src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png"
-        alt="RKD Logo" class="brand-logo-img">
+        alt="RKD Logo" class="brand-logo-img" style="max-width: 95px; height: auto;">
     </div>
 
     <div class="nav-actions">
@@ -1971,7 +1971,7 @@
   <!-- SAP FIORI ERP DATABASE WORKBENCH CONTAINER -->
   <div id="dataTableSection">
 
-    <div class="db-sidebar" id="dbSidebar">
+    <div class="db-sidebar collapsed" id="dbSidebar">
       <div class="db-sidebar-header">
         <span>Purchase Orders</span>
         <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -1990,14 +1990,18 @@
     <div class="db-main-content">
       <!-- Top Actions Row (Left: Unhide Sidebar Button | Right: Export & Upload Buttons) -->
       <div class="top-actions-row"
-        style="display:flex; justify-content:space-between; align-items:center; gap:0.6rem; margin-bottom:0.85rem; min-height:36px;">
+        style="display:flex; justify-content:space-between; align-items:center; gap:0.6rem; margin-bottom:0.4rem; min-height:36px;">
         <div style="display:flex; align-items:center; gap:0.5rem;">
           <button id="showSidebarBtn" class="btn btn-outline btn-sm" onclick="toggleDbSidebar()" title="Show PO Sidebar"
-            style="display:none; font-weight:700; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:10px; align-items:center; gap:0.45rem; background:var(--card-bg); color:var(--primary, #3b82f6); border:1.5px solid var(--primary, #3b82f6); box-shadow:0 2px 6px rgba(59,130,246,0.15); cursor:pointer;">
+            style="display:flex; font-weight:700; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:10px; align-items:center; gap:0.45rem; background:var(--card-bg); color:var(--primary, #3b82f6); border:1.5px solid var(--primary, #3b82f6); box-shadow:0 2px 6px rgba(59,130,246,0.15); cursor:pointer;">
             <i class="fa-solid fa-angles-right"></i> Purchase Orders
           </button>
         </div>
         <div style="display:flex; align-items:center; gap:0.6rem;">
+          <button class="btn btn-outline btn-sm" onmouseenter="showFilterBar()" onmouseleave="hideFilterBar()"
+            style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:var(--input-bg); border-color:var(--input-border); cursor:pointer;">
+            <i class="fa-solid fa-filter" style="color:var(--primary);"></i> Filters
+          </button>
           <button class="btn btn-outline btn-sm" onclick="exportCSV()"
             style="font-weight:600; font-size:0.78rem; padding:0.4rem 0.8rem; border-radius:8px; display:flex; align-items:center; gap:0.35rem; background:var(--input-bg); border-color:var(--input-border); cursor:pointer;">
             <i class="fa-solid fa-file-excel" style="color:#10b981;"></i> Export Excel/CSV
@@ -2054,7 +2058,7 @@
       </div>
 
       <!-- LOOKER STUDIO STYLE DEPENDENT FILTERS BAR -->
-      <div class="looker-filter-bar" id="lookerFilterBar">
+      <div class="looker-filter-bar" id="lookerFilterBar" style="display: none; transition: all 0.2s ease-in-out; margin-top: 0.5rem;" onmouseenter="showFilterBar()" onmouseleave="hideFilterBar()">
         <div class="dribbble-search-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="sapGridSearchInput" class="modern-form-input" placeholder="Search keywords..."
@@ -3996,6 +4000,19 @@
     }
 
     // ─────────────────────────────────────────────
+    let filterHoverTimeout;
+    function showFilterBar() {
+      clearTimeout(filterHoverTimeout);
+      const fb = document.getElementById('lookerFilterBar');
+      if (fb) fb.style.display = 'flex';
+    }
+    function hideFilterBar() {
+      filterHoverTimeout = setTimeout(() => {
+        const fb = document.getElementById('lookerFilterBar');
+        if (fb) fb.style.display = 'none';
+      }, 400);
+    }
+
     //  AUTO-HIDE / COLLAPSE SIDEBAR FEATURE
     // ─────────────────────────────────────────────
     function toggleDbSidebar() {
@@ -4104,14 +4121,14 @@
       dateItem.style.gap = '0.4rem';
 
       dateItem.innerHTML = `
-        <div class="dribbble-search-wrapper" style="min-width: 140px; flex: unset;">
+        <div class="dribbble-search-wrapper" style="min-width: 110px; flex: unset;">
           <i class="fa-regular fa-calendar"></i>
-          <input type="text" id="lookerDateFrom" class="modern-form-input looker-date-input" placeholder="Start Date" style="padding-left: 2.4rem !important;">
+          <input type="text" id="lookerDateFrom" class="modern-form-input looker-date-input" placeholder="Start Date" style="padding-left: 2rem !important; padding-right: 0.5rem !important; font-size: 0.8rem;">
         </div>
         <span style="color:#94a3b8; font-weight:600;">-</span>
-        <div class="dribbble-search-wrapper" style="min-width: 140px; flex: unset;">
+        <div class="dribbble-search-wrapper" style="min-width: 110px; flex: unset;">
           <i class="fa-regular fa-calendar"></i>
-          <input type="text" id="lookerDateTo" class="modern-form-input looker-date-input" placeholder="End Date" style="padding-left: 2.4rem !important;">
+          <input type="text" id="lookerDateTo" class="modern-form-input looker-date-input" placeholder="End Date" style="padding-left: 2rem !important; padding-right: 0.5rem !important; font-size: 0.8rem;">
         </div>
       `;
       container.appendChild(dateItem);
