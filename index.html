@@ -3987,6 +3987,7 @@
               <button class="sap-btn-icon" title="Generate PI" onclick="event.stopPropagation(); openPiModal('${poNum}', event, true)" style="width: 26px; height: 26px; font-size: 0.75rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10b981;"><i class="fa-solid fa-file-invoice"></i></button>
             </div>
           </div>
+          <div style="font-size: 0.75rem; color: var(--text-main); margin-top: 4px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-building" style="margin-right: 4px; color: var(--text-muted);"></i>${poGroups[poNum].buyerName || 'Unknown Buyer'}</div>
           <div class="po-meta" style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
             <span><i class="fa-solid fa-calendar-day"></i> ${poGroups[poNum].date}</span>
             ${piHtml}
