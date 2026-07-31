@@ -391,7 +391,7 @@ function callGeminiAPI(documentParts) {
   
   // Construct dynamic JSON schema with Data Type instructions
   const getTypeInstruction = (type, fieldName) => {
-    if (type === 'number') return 'string (Extract ONLY the numerical value/digits. Remove any currency symbols like $ or commas)';
+    if (type === 'number') return 'string (Extract ONLY numerical values. CRITICAL: Convert European formats to standard American format (e.g., if you see "1.400,00" or "800,0", convert it to "1400.00" and "800.0"). Remove currency symbols. DO NOT use commas as thousand separators)';
     if (type === 'date') return 'string (Extract and format as Short Date: dd-MMM-yyyy, e.g., 23-Jul-2026)';
     if (fieldName && (fieldName.toLowerCase().includes('description') || fieldName.toLowerCase().includes('item name') || fieldName.toLowerCase().includes('product'))) {
       return 'string (CRITICAL: Extract the EXACT, FULL, ORIGINAL product description text as-it-is from the PO document without removing, cutting, or truncating any words, color, or size information! e.g., keep "Nudie Rudie Bath Mat Mini - Dahlia" exactly as written)';

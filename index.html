@@ -3057,13 +3057,7 @@
         }
       });
 
-      // Clear missing status on edit
-      document.querySelectorAll('input, textarea').forEach(input => {
-        input.addEventListener('input', function () {
-          if (this.value.trim() !== '') this.classList.remove('missing-field');
-          updateFormStats();
-        });
-      });
+      // Missing status clearing is now handled globally via event delegation
 
       const tbody = document.getElementById('itemsBody');
       tbody.innerHTML = '';
@@ -3241,7 +3235,11 @@
       document.getElementById('statTotalAmount').textContent = currentCurrencySymbol + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
       const missing = document.querySelectorAll('.missing-field');
-      document.getElementById('statMissingCount').textContent = missing.length;
+      const actualMissing = Array.from(missing).filter(el => {
+        const fg = el.closest('.form-group');
+        return fg ? fg.style.display !== 'none' : true;
+      });
+      document.getElementById('statMissingCount').textContent = actualMissing.length;
     }
 
     // ─────────────────────────────────────────────
@@ -3281,15 +3279,18 @@
     // ─────────────────────────────────────────────
     async function requestMissingInfoViaWhatsApp() {
       const missing = document.querySelectorAll('.missing-field');
-      if (missing.length === 0) {
+      const actualMissing = Array.from(missing).filter(el => el.closest('.form-group') ? el.closest('.form-group').style.display !== 'none' : true);
+      if (actualMissing.length === 0) {
         Swal.fire('All Good!', 'There are no missing fields to request info for.', 'info');
         return;
       }
 
-      const missingFieldNames = Array.from(missing).map(el => {
+      const missingFieldNames = actualMissing.map(el => {
         let name = 'Line Item Field';
         if (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL') {
           name = el.previousElementSibling.innerText;
+        } else {
+          name = el.getAttribute('data-fieldname') || el.getAttribute('data-itemfieldname') || 'Field';
         }
         return name;
       });
@@ -3357,8 +3358,12 @@
     // ─────────────────────────────────────────────
     async function generatePiFromPreview() {
       const missing = document.querySelectorAll('.missing-field');
-      if (missing.length > 0) {
-        Swal.fire('Incomplete', 'Please fill all highlighted red fields before saving and generating PI.', 'warning');
+      const actualMissing = Array.from(missing).filter(el => el.closest('.form-group') ? el.closest('.form-group').style.display !== 'none' : true);
+      if (actualMissing.length > 0) {
+        const missingNames = actualMissing.map(el => el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL' ? el.previousElementSibling.innerText : (el.getAttribute('data-fieldname') || el.getAttribute('data-itemfieldname') || 'Field'));
+        const uniqueNames = [...new Set(missingNames)];
+        const listHtml = uniqueNames.map(n => `<li>${n}</li>`).join('');
+        Swal.fire('Incomplete', `<div style="text-align: left;"><p style="font-weight: bold; color: var(--danger);">Please fill all required fields:</p><ul style="color: var(--danger); font-size: 0.95em; padding-left: 20px;">${listHtml}</ul></div>`, 'warning');
         return;
       }
       await submitToSheet(true);
@@ -3366,8 +3371,12 @@
 
     async function submitToSheet(autoOpenPi = false) {
       const missing = document.querySelectorAll('.missing-field');
-      if (missing.length > 0) {
-        Swal.fire('Incomplete', 'Please fill all highlighted red fields before saving.', 'warning');
+      const actualMissing = Array.from(missing).filter(el => el.closest('.form-group') ? el.closest('.form-group').style.display !== 'none' : true);
+      if (actualMissing.length > 0) {
+        const missingNames = actualMissing.map(el => el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL' ? el.previousElementSibling.innerText : (el.getAttribute('data-fieldname') || el.getAttribute('data-itemfieldname') || 'Field'));
+        const uniqueNames = [...new Set(missingNames)];
+        const listHtml = uniqueNames.map(n => `<li>${n}</li>`).join('');
+        Swal.fire('Incomplete', `<div style="text-align: left;"><p style="font-weight: bold; color: var(--danger);">Please fill all required fields:</p><ul style="color: var(--danger); font-size: 0.95em; padding-left: 20px;">${listHtml}</ul></div>`, 'warning');
         return;
       }
 
@@ -4345,6 +4354,23 @@
     }
 
     // Default year filter on load
+    document.addEventListener('input', (e) => {
+      if (e.target && e.target.classList && e.target.classList.contains('missing-field')) {
+        if (e.target.value.trim() !== '') {
+          e.target.classList.remove('missing-field');
+          if (typeof updateFormStats === 'function') updateFormStats();
+        }
+      }
+    });
+    document.addEventListener('change', (e) => {
+      if (e.target && e.target.classList && e.target.classList.contains('missing-field')) {
+        if (e.target.value.trim() !== '') {
+          e.target.classList.remove('missing-field');
+          if (typeof updateFormStats === 'function') updateFormStats();
+        }
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       const yearSelect = document.getElementById('dbYearFilter');
       if (yearSelect) {
