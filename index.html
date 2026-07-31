@@ -2666,24 +2666,53 @@
         }
       }
 
-      try {
-        const passRes = await callBackend('getPasscode');
+      callBackend('getPasscode').then(passRes => {
         appPasscode = passRes.passcode || passRes;
-      } catch (e) { }
+      }).catch(e => {});
 
       loadAppConfig();
     };
 
     async function loadAppConfig() {
+      // 1. Instant Cache Load
+      const cachedConfStr = localStorage.getItem('appConfigCache');
+      const cachedDDStr = localStorage.getItem('appDropdownsCache');
+      
+      let cacheLoaded = false;
+      if (cachedConfStr) {
+        try {
+          appConfig = JSON.parse(cachedConfStr);
+          if (cachedDDStr) appDropdowns = JSON.parse(cachedDDStr);
+          renderDynamicForm();
+          
+          // Instant navigation based on URL/state
+          if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
+            loadDraft();
+          } else if (localStorage.getItem('activeView') === 'database') {
+            showDataTable();
+          }
+          cacheLoaded = true;
+        } catch (e) {}
+      }
+
+      // 2. Background Sync
       try {
         const config = await callBackend('getAppConfig');
         appConfig = config.config || config;
         appDropdowns = config.dropdowns || {};
+        
+        localStorage.setItem('appConfigCache', JSON.stringify(appConfig));
+        localStorage.setItem('appDropdownsCache', JSON.stringify(appDropdowns));
+        
         renderDynamicForm();
-        if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
-          loadDraft();
-        } else if (localStorage.getItem('activeView') === 'database') {
-          showDataTable();
+        
+        // If cache failed or was empty, navigate now
+        if (!cacheLoaded) {
+          if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
+            loadDraft();
+          } else if (localStorage.getItem('activeView') === 'database') {
+            showDataTable();
+          }
         }
       } catch (err) {
         console.log("Config load notice:", err);
