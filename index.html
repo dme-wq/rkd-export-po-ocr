@@ -1272,7 +1272,6 @@
       z-index: -1;
     }
 
-    .table-fullscreen-mode .top-actions-row,
     .table-fullscreen-mode .sap-kpi-bar {
       display: none !important;
     }
@@ -1994,6 +1993,9 @@
     </div>
 
     <div class="db-main-content">
+      <button id="exitFullScreenBtn" class="btn btn-primary" onclick="toggleFullScreenTable()" style="display:none; position: fixed; bottom: 2rem; right: 2rem; z-index: 1000000; font-weight: bold; border-radius: 50px; padding: 0.75rem 1.5rem; box-shadow: 0 10px 25px rgba(220,38,38,0.4); background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; align-items: center; gap: 0.5rem; font-size: 1rem;">
+        <i class="fa-solid fa-compress"></i> Exit Full Screen
+      </button>
       <!-- Top Actions Row (Left: Unhide Sidebar Button | Right: Export & Upload Buttons) -->
       <div class="top-actions-row"
         style="display:flex; justify-content:space-between; align-items:center; gap:0.6rem; margin-bottom:0.4rem; min-height:36px;">
@@ -4315,13 +4317,16 @@
 
     function toggleFullScreenTable() {
       const dbMain = document.querySelector('.db-main-content');
+      const exitBtn = document.getElementById('exitFullScreenBtn');
       if (dbMain) {
         dbMain.classList.toggle('table-fullscreen-mode');
         const icon = document.querySelector('button[onclick="toggleFullScreenTable()"] i');
         if (dbMain.classList.contains('table-fullscreen-mode')) {
           if (icon) icon.className = 'fa-solid fa-compress';
+          if (exitBtn) exitBtn.style.display = 'flex';
         } else {
           if (icon) icon.className = 'fa-solid fa-expand';
+          if (exitBtn) exitBtn.style.display = 'none';
         }
       }
     }

@@ -798,11 +798,13 @@ function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
         (buyerName ? `• Buyer: *${buyerName}*` : '');
 
       // Send PDF as media message with caption
+      const safeFilename = `${piNumber}_PO-${poNumber}`.replace(/[^a-zA-Z0-9_-]/g, '_') + '.pdf';
       const payload = {
         to_number: rawPhone,
         type: 'media',
         message: mediaPayloadString,
-        text: caption
+        text: caption,
+        filename: safeFilename
       };
 
       try {
