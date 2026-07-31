@@ -2574,6 +2574,20 @@
       return `${day}-${month}-${year} ${hh}:${mm}:${ss}`;
     }
 
+    function formatDateTimeNoSeconds(val) {
+      if (val === null || val === undefined || val === '') return '';
+      const str = String(val).trim();
+      const d = parseAnyDate(val);
+      if (!d) return str;
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `${day}-${month}-${year} ${hh}:${mm}`;
+    }
+
     function isDateKey(keyName, cfg) {
       if (!keyName) return false;
       const k = String(keyName).toLowerCase().trim();
@@ -3612,7 +3626,8 @@
           poGroups[poNum] = {
             date: rawDate ? formatShortDate(rawDate) : '',
             piNumber: row['PI Number'] || null,
-            buyerName: row['Buyer / Company Name'] || ''
+            buyerName: row['Buyer / Company Name'] || '',
+            timestamp: row['Timestamp'] || ''
           };
         }
       });
@@ -3675,7 +3690,11 @@
           : `<span class="pi-status-badge none">No PI</span>`;
 
         const safeBuyerName = poGroups[poNum].buyerName.replace(/'/g, "\\'");
+        const tsFormatted = poGroups[poNum].timestamp ? formatDateTimeNoSeconds(poGroups[poNum].timestamp) : '';
+        const tsHtml = tsFormatted ? `<div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 3px;"><i class="fa-regular fa-clock"></i> ${tsFormatted}</div>` : '';
+
         item.innerHTML = `
+          ${tsHtml}
           <div class="po-title" style="display:flex; justify-content:space-between; align-items:center;">
             <span>PO #${poNum}</span>
             <button class="sap-btn-icon" title="Edit this PO" onclick="event.stopPropagation(); openBulkEdit('${poNum}', '${safeBuyerName}')" style="width: 26px; height: 26px; font-size: 0.75rem; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--primary);"><i class="fa-solid fa-pen-to-square"></i></button>
