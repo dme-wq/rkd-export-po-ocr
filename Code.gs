@@ -335,7 +335,7 @@ function addCustomColumn(fieldName, section, fieldType) {
     let configSheet = ss.getSheetByName('AppConfig');
     if (!configSheet) getAppConfig(); // initialize if not exists
     
-    const config = getAppConfig();
+    const config = getAppConfig().config;
     const isMain = section === 'Main';
     const targetArray = isMain ? config.mainFields : config.itemFields;
     
@@ -356,7 +356,7 @@ function removeColumn(fieldName, section) {
     const configSheet = ss.getSheetByName('AppConfig');
     if (!configSheet) return { success: false, error: 'AppConfig not found' };
 
-    const config = getAppConfig();
+    const config = getAppConfig().config;
     const isMain = section === 'Main';
     const targetArray = isMain ? config.mainFields : config.itemFields;
 
@@ -387,7 +387,7 @@ function removeColumn(fieldName, section) {
 //  GEMINI API EXTRACTION (Replaces old Regex)
 // ─────────────────────────────────────────────
 function callGeminiAPI(documentParts) {
-  const config = getAppConfig();
+  const config = getAppConfig().config;
   
   // Construct dynamic JSON schema with Data Type instructions
   const getTypeInstruction = (type, fieldName) => {
@@ -565,7 +565,7 @@ function saveToSheet(rowsData) {
     
     const headersRange = sheet.getRange(1, 1, 1, sheet.getLastColumn());
     const sheetHeaders = headersRange.getValues()[0];
-    const appConfig = getAppConfig();
+    const appConfig = getAppConfig().config;
 
     // ── Duplicate Check ────────────────────────
     const poHeader = 'PO Number';
@@ -904,7 +904,7 @@ function getSavedData() {
     
     const headers = data[0];
     const rows = [];
-    const config = getAppConfig();
+    const config = getAppConfig().config;
     
     for (let i = 1; i < data.length; i++) {
       let obj = { _id: i + 1 };
@@ -963,7 +963,7 @@ function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
     const headers = existingData[0];
     const poIndex = headers.indexOf('PO Number');
     const buyerIndex = headers.indexOf('Buyer / Company Name');
-    const config = getAppConfig();
+    const config = getAppConfig().config;
 
     if (poIndex === -1 || buyerIndex === -1) {
       return { success: false, error: "Required columns missing in database" };
