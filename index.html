@@ -1957,6 +1957,14 @@
               </tr>
             </thead>
             <tbody id="itemsBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="100" style="text-align: right; font-weight: bold; padding: 15px; background: rgba(0,0,0,0.02); border-top: 2px solid rgba(0,0,0,0.05);">
+                  <span style="margin-right: 20px; font-size: 1.1em; color: var(--text-secondary);">Grand Total:</span>
+                  <span id="tableGrandTotal" style="font-size: 1.25em; color: var(--primary);">$0.00</span>
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
 
@@ -3191,18 +3199,30 @@
 
     function recalcRowAmounts(input) {
       const tr = input.closest('tr');
-      const qtyEl = tr.querySelector('[data-itemfieldname="Quantity"]');
-      const priceEl = tr.querySelector('[data-itemfieldname="Unit Price"]');
-      const lineAmtEl = tr.querySelector('[data-itemfieldname="Line Amount"]');
+      if (!tr) return;
+      const inputs = Array.from(tr.querySelectorAll('[data-itemfieldname]'));
+      
+      let qtyEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('quantity') || n.includes('qty'); });
+      let priceEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('price') || n.includes('rate') || n.includes('cost') || n.includes('unit'); });
+      let lineAmtEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('amount') || n.includes('total') || n.includes('line amount'); });
 
       if (qtyEl && priceEl && lineAmtEl) {
-        const q = parseFloat(qtyEl.value.replace(/[^0-9.-]+/g, "")) || 0;
-        const p = parseFloat(priceEl.value.replace(/[^0-9.-]+/g, "")) || 0;
-        if (q && p) {
+        const qStr = qtyEl.value.replace(/,/g, '.');
+        const pStr = priceEl.value.replace(/,/g, '.');
+        const q = parseFloat(qStr.replace(/[^0-9.-]+/g, "")) || 0;
+        const p = parseFloat(pStr.replace(/[^0-9.-]+/g, "")) || 0;
+        
+        if (qtyEl.value.trim() !== '' && priceEl.value.trim() !== '') {
           lineAmtEl.value = (q * p).toFixed(2);
+          lineAmtEl.classList.remove('missing-field');
+          
+          // Trigger global input event to ensure missing-field clearing propagation
+          const ev = new Event('input', { bubbles: true });
+          lineAmtEl.dispatchEvent(ev);
         }
       }
-      updateFormStats();
+      
+      if (typeof updateFormStats === 'function') updateFormStats();
     }
 
     function filterLineItems() {
@@ -3226,13 +3246,26 @@
 
       let totalAmt = 0;
       trs.forEach(tr => {
-        const lineAmtEl = tr.querySelector('[data-itemfieldname="Line Amount"]') || tr.querySelector('[data-itemfieldname="Unit Price"]');
+        const inputs = Array.from(tr.querySelectorAll('[data-itemfieldname]'));
+        const lineAmtEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('amount') || n.includes('total') || n.includes('line amount'); }) || tr.querySelector('[data-itemfieldname="Unit Price"]');
+        
         if (lineAmtEl && lineAmtEl.value) {
           totalAmt += parseFloat(lineAmtEl.value.replace(/[^0-9.-]+/g, "")) || 0;
         }
       });
 
       document.getElementById('statTotalAmount').textContent = currentCurrencySymbol + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      
+      const tfootTotal = document.getElementById('tableGrandTotal');
+      if (tfootTotal) {
+         tfootTotal.textContent = currentCurrencySymbol + totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      const mainTotalEl = document.querySelector('[data-fieldname="Total Order Amount"]');
+      if (mainTotalEl) {
+        mainTotalEl.value = totalAmt.toFixed(2);
+        if (totalAmt > 0) mainTotalEl.classList.remove('missing-field');
+      }
 
       const missing = document.querySelectorAll('.missing-field');
       const actualMissing = Array.from(missing).filter(el => {
