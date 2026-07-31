@@ -4618,7 +4618,7 @@
             document.getElementById('loadingText').textContent = 'Sending WhatsApp Notification...';
             document.getElementById('loadingSubText').textContent = 'Sending PI to contacts in WhatsappUser list...';
             const waRes = await callBackend('sendPIWhatsAppNotification',
-              payload.piNumber || '',
+              res.piNumber || payload.piNumber || '',
               payload.piDate || '',
               res.url,
               payload.poData || {}

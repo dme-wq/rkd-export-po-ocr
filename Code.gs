@@ -1015,7 +1015,7 @@ function generatePI(payload) {
       });
     }
     
-    return { success: true, url: fileUrl };
+    return { success: true, url: fileUrl, piNumber: finalPiNum };
   } catch (err) {
     Logger.log('generatePI Error: ' + err);
     return { success: false, error: err.toString() };
