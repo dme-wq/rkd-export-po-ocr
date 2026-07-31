@@ -2609,6 +2609,24 @@
     let appPasscode = "";
 
     window.onload = async function () {
+      // Synchronously restore UI view to prevent flicker on refresh
+      const activeView = localStorage.getItem('activeView');
+      if (activeView === 'database') {
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('dataTableSection').classList.add('active-flex');
+        
+        if (localStorage.getItem('rkd_fullscreen') === 'true') {
+          const dbMain = document.querySelector('.db-main-content');
+          if (dbMain) {
+            dbMain.classList.add('table-fullscreen-mode');
+            const icon = document.querySelector('button[onclick="toggleFullScreenTable()"] i');
+            if (icon) icon.className = 'fa-solid fa-compress';
+            const exitBtn = document.getElementById('exitFullScreenBtn');
+            if (exitBtn) exitBtn.style.display = 'flex';
+          }
+        }
+      }
+
       try {
         const passRes = await callBackend('getPasscode');
         appPasscode = passRes.passcode || passRes;
@@ -2624,12 +2642,8 @@
         renderDynamicForm();
         if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
           loadDraft();
-        } else {
-          // Restore active view on refresh
-          const activeView = localStorage.getItem('activeView');
-          if (activeView === 'database') {
-            showDataTable();
-          }
+        } else if (localStorage.getItem('activeView') === 'database') {
+          showDataTable();
         }
       } catch (err) {
         console.log("Config load notice:", err);
@@ -4324,9 +4338,11 @@
         if (dbMain.classList.contains('table-fullscreen-mode')) {
           if (icon) icon.className = 'fa-solid fa-compress';
           if (exitBtn) exitBtn.style.display = 'flex';
+          localStorage.setItem('rkd_fullscreen', 'true');
         } else {
           if (icon) icon.className = 'fa-solid fa-expand';
           if (exitBtn) exitBtn.style.display = 'none';
+          localStorage.setItem('rkd_fullscreen', 'false');
         }
       }
     }
