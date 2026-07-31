@@ -2083,6 +2083,19 @@
           <input type="text" id="sapGridSearchInput" class="modern-form-input" placeholder="Search keywords..."
             oninput="filterSapGrid()">
         </div>
+        
+        <div class="dribbble-search-wrapper" style="width: auto; background: var(--card-bg); padding: 0;">
+          <select id="dbYearFilter" class="modern-form-input" onchange="filterSapGrid()" style="width:110px; cursor:pointer; background: transparent; border: none; font-weight: 600; padding: 6px 12px;">
+            <option value="">All Years</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+          </select>
+        </div>
 
         <!-- Dynamically injected dropdowns will go here -->
         <div id="lookerDropdownsContainer" style="display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center;">
@@ -3648,7 +3661,11 @@
       const cached = localStorage.getItem('dbCache');
       if (cached && !forceRefresh) {
         try {
-          renderTabulator(JSON.parse(cached));
+          if (!tableInstance) {
+            renderTabulator(JSON.parse(cached));
+          } else {
+            // Table already rendered, maybe we just switched tabs
+          }
         } catch (e) { }
       } else {
         document.getElementById('overlay').style.display = 'flex';
@@ -3657,6 +3674,7 @@
       }
 
       try {
+        // Sync silently in background if cache loaded
         const res = await callBackend('getSavedData');
         document.getElementById('overlay').style.display = 'none';
         const data = res.data || res;
@@ -3664,7 +3682,25 @@
         const newCacheStr = JSON.stringify(data);
         if (newCacheStr !== cached || forceRefresh) {
           localStorage.setItem('dbCache', newCacheStr);
-          renderTabulator(data);
+          
+          if (tableInstance) {
+            tableInstance.replaceData(data);
+            
+            // Auto-hide totally empty columns
+            if (data && data.length > 0) {
+              const keys = Object.keys(data[0]).filter(k => !k.startsWith('_'));
+              keys.forEach(key => {
+                const hasData = data.some(row => row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== '');
+                if (hasData) {
+                  tableInstance.showColumn(key);
+                } else {
+                  tableInstance.hideColumn(key);
+                }
+              });
+            }
+          } else {
+            renderTabulator(data);
+          }
         }
       } catch (err) {
         document.getElementById('overlay').style.display = 'none';
@@ -3834,13 +3870,22 @@
       } catch (e) { }
 
       Object.keys(data[0]).filter(k => !k.startsWith('_')).forEach(key => {
+        const hasData = data.some(row => row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== '');
+        
+        let isVisible = true;
+        if (savedDbCols && Array.isArray(savedDbCols)) {
+          isVisible = savedDbCols.includes(key);
+        } else if (!hasData) {
+          isVisible = false;
+        }
+
         let colDef = {
           title: key,
           field: key,
           minWidth: 120,
           formatter: "textarea",
           editor: false,
-          visible: savedDbCols && Array.isArray(savedDbCols) ? savedDbCols.includes(key) : true
+          visible: isVisible
         };
 
         if (key === 'Timestamp') {
@@ -4274,6 +4319,14 @@
       updateAllLookerDropdowns(null);
     }
 
+    // Default year filter on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const yearSelect = document.getElementById('dbYearFilter');
+      if (yearSelect) {
+        yearSelect.value = new Date().getFullYear().toString();
+      }
+    });
+
     function combinedSapGridFilter(row) {
       // 1. Text Search Box Filter
       const queryInp = document.getElementById('sapGridSearchInput');
@@ -4281,6 +4334,18 @@
         const query = queryInp.value.toLowerCase().trim();
         const matchesQuery = Object.values(row).some(val => String(val || '').toLowerCase().includes(query));
         if (!matchesQuery) return false;
+      }
+      
+      // 1.5 Year Filter
+      const yearFilter = document.getElementById('dbYearFilter');
+      if (yearFilter && yearFilter.value) {
+        const targetYear = yearFilter.value;
+        const rowDateStr = String(row['Timestamp'] || '');
+        if (!rowDateStr.includes(targetYear)) {
+           // Also check if any date matches
+           const pDate = parseAnyDate(rowDateStr);
+           if (!pDate || pDate.getFullYear().toString() !== targetYear) return false;
+        }
       }
 
       // 2. Looker Date Range Filter

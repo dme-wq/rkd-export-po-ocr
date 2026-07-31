@@ -25,8 +25,10 @@
     b, strong { font-weight: 400; }
 
     .invoice-box {
+      position: relative;
       width: 100%;
-      padding: 10px 12px;
+      min-height: 98vh;
+      padding: 10px 12px 110px 12px;
       background: transparent;
     }
 
@@ -219,7 +221,7 @@
     .terms-body ol { margin: 0; padding-left: 14px; }
 
     /* ─── SIGNATURE ─── */
-    .sign-section { width: 100%; margin-top: 10px; border-collapse: collapse; }
+    .sign-section { position: absolute; bottom: 12px; left: 12px; right: 12px; width: calc(100% - 24px); border-collapse: collapse; }
     .sign-note { font-size: 8px; color: #94a3b8; font-style: italic; vertical-align: bottom; padding-bottom: 2px; }
     .sign-box {
       border: 1.5px solid #1e3a8a;
