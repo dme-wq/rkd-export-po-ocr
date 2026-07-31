@@ -27,10 +27,19 @@
     .invoice-box {
       width: 100%;
       padding: 10px 12px;
+      background: transparent;
+    }
+
+    .page-border {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       border: 2px solid #1e3a8a;
       border-top: 7px solid #1e3a8a;
       border-bottom: 7px solid #1e3a8a;
-      background: #ffffff;
+      z-index: -1;
     }
 
     /* ─── HEADER ─── */
@@ -229,6 +238,7 @@
 </head>
 
 <body>
+<div class="page-border"></div>
 <div class="invoice-box">
 
   <!-- ══ HEADER ══ -->
