@@ -425,11 +425,11 @@
           } else if (cLower === 'size') {
             val = item['Size'] || item[col] || '-';
           } else if (cLower.includes('price') || cLower === 'rate') {
-            val = (rowCurr ? rowCurr + ' ' : '') + price.toFixed(2);
+            val = (rowCurr ? rowCurr + ' ' : '') + Number(price.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
           } else if (cLower.includes('qty') || cLower.includes('quantity')) {
-            val = qty;
+            val = Number(qty).toLocaleString('en-US');
           } else if (cLower.includes('amount') || cLower === 'line amount') {
-            val = (rowCurr ? rowCurr + ' ' : '') + itemAmt.toFixed(2);
+            val = (rowCurr ? rowCurr + ' ' : '') + Number(itemAmt.toFixed(2)).toLocaleString('en-US', {minimumFractionDigits: 2});
           } else {
             val = (item[col] !== null && item[col] !== undefined && String(item[col]).trim() !== '') ? item[col] : '-';
           }
@@ -490,12 +490,12 @@
       <? } ?>
       <? if (qtyColIdx !== -1) { ?>
       <!-- Total Qty -->
-      <td class="total-qty-cell" style="text-align:center; font-weight:700; font-size:11px; border-right:1px solid #c9cdd4;"><?= totalQty ?></td>
+      <td class="total-qty-cell" style="text-align:center; font-weight:700; font-size:11px; border-right:1px solid #c9cdd4;"><?= Number(totalQty).toLocaleString('en-US') ?></td>
       <? } ?>
       <? if (amtColIdx !== -1) { ?>
       <!-- Grand Total Value -->
       <td class="grand-total-cell" style="text-align:right; padding-right:6px; font-weight:700; font-size:11px;">
-        <?= currLabel ?> <?= grandTotal.toFixed(2) ?>
+        <?= currLabel ?> <?= Number(grandTotal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) ?>
       </td>
       <? } ?>
     </tr>
