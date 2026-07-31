@@ -2377,6 +2377,27 @@
       }
     }
 
+    function formatNumberDisplay(val, isDecimal=false) {
+      if (val === null || val === undefined || String(val).trim() === '') return '';
+      let str = String(val).replace(/,/g, '').trim();
+      let num = parseFloat(str);
+      if (isNaN(num)) return val;
+      
+      if (isDecimal) {
+        let decimals = str.includes('.') ? str.split('.')[1].length : 2;
+        if (decimals > 4) decimals = 4;
+        if (decimals < 2) decimals = 2;
+        return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      } else {
+        if (num % 1 === 0 && !str.includes('.')) {
+          return num.toLocaleString('en-US');
+        } else {
+          let decimals = str.includes('.') ? str.split('.')[1].length : 0;
+          return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        }
+      }
+    }
+
     function updateCurrencySymbol() {
       const sel = document.getElementById('currencySelector');
       currentCurrencySymbol = sel.value;
@@ -3037,7 +3058,18 @@
         } else {
           const isDate = isDateKey(field.name, appConfig) || field.type === 'date';
           const inputType = isDate ? 'text' : (field.type || 'text');
-          const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
+          
+          let extraAttr = '';
+          if (isDate) {
+            extraAttr = 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"';
+          } else {
+            const isQty = field.name.toLowerCase().includes('qty') || field.name.toLowerCase().includes('quantity');
+            const isAmt = field.name.toLowerCase().includes('price') || field.name.toLowerCase().includes('amount') || field.name.toLowerCase().includes('rate');
+            if (isQty || isAmt) {
+              extraAttr = `onblur="this.value = formatNumberDisplay(this.value, ${isAmt})" onfocus="this.value = this.value.replace(/,/g, '')"`;
+            }
+          }
+          
           div.innerHTML = `<label>${field.name}</label><input type="${inputType}" class="modern-form-input" ${extraAttr} data-fieldname="${field.name}">`;
         }
         mainContainer.appendChild(div);
@@ -3074,6 +3106,10 @@
           let val = data[f.name] || '';
           if (isDateKey(f.name, appConfig) || f.type === 'date') {
             val = formatShortDate(val);
+          } else {
+            const isQty = f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity');
+            const isAmt = f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('rate');
+            if (isQty || isAmt) val = formatNumberDisplay(val, isAmt);
           }
           
           if (el.tagName === 'SELECT' && val && !Array.from(el.options).some(o => o.value === val)) {
@@ -3201,7 +3237,18 @@
           else if (f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('amount')) minW = '125px';
 
           const alignStyle = (f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity') || f.name.toLowerCase().includes('cases')) ? `style="text-align: right; font-weight: 600; min-width: ${minW}; width: 100%;"` : `style="text-align: left; min-width: ${minW}; width: 100%;"`;
-          td.innerHTML = `<input type="${inputType}" ${extraAttr} ${alignStyle} data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
+          
+          let extraEvents = '';
+          if (!isDate) {
+            const isQty = f.name.toLowerCase().includes('qty') || f.name.toLowerCase().includes('quantity');
+            const isAmt = f.name.toLowerCase().includes('price') || f.name.toLowerCase().includes('amount') || f.name.toLowerCase().includes('rate');
+            if (isQty || isAmt) {
+               val = formatNumberDisplay(val, isAmt);
+               extraEvents = `onblur="this.value = formatNumberDisplay(this.value, ${isAmt})" onfocus="this.value = this.value.replace(/,/g, '')"`;
+            }
+          }
+          
+          td.innerHTML = `<input type="${inputType}" ${extraAttr} ${extraEvents} ${alignStyle} data-itemfieldname="${f.name}" value="${val}" oninput="recalcRowAmounts(this)">`;
         }
         tr.appendChild(td);
       });
