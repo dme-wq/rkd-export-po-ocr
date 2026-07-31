@@ -2381,6 +2381,34 @@
       const sel = document.getElementById('currencySelector');
       currentCurrencySymbol = sel.value;
       localStorage.setItem('rkd_currency', currentCurrencySymbol);
+      
+      const currencyText = sel.options[sel.selectedIndex].text;
+      let currencyValue = '';
+      if (currencyText.includes('USD')) currencyValue = 'USD';
+      else if (currencyText.includes('EUR')) currencyValue = 'EURO';
+      else if (currencyText.includes('GBP')) currencyValue = 'GBP';
+      else if (currencyText.includes('INR')) currencyValue = 'INR';
+      
+      if (currencyValue) {
+        // Sync with existing line items
+        const trs = document.querySelectorAll('#itemsBody tr');
+        trs.forEach(tr => {
+          const inputs = Array.from(tr.querySelectorAll('[data-itemfieldname]'));
+          const currEl = inputs.find(el => el.getAttribute('data-itemfieldname').toLowerCase().includes('currency'));
+          if (currEl) {
+            currEl.value = currencyValue;
+            currEl.classList.remove('missing-field');
+          }
+        });
+        
+        // Sync with main form Currency field
+        const mainCurrEl = document.querySelector('[data-fieldname="Currency"]');
+        if (mainCurrEl) {
+          mainCurrEl.value = currencyValue;
+          mainCurrEl.classList.remove('missing-field');
+        }
+      }
+
       updateFormStats();
     }
 
@@ -3139,6 +3167,18 @@
         if (!f.visible) return;
         const td = document.createElement('td');
         let val = item[f.name] || '';
+        
+        // Auto-fill Currency if it's empty
+        if (f.name.toLowerCase().includes('currency') && !val) {
+           const sel = document.getElementById('currencySelector');
+           if (sel && sel.selectedIndex >= 0) {
+             const currencyText = sel.options[sel.selectedIndex].text;
+             if (currencyText.includes('USD')) val = 'USD';
+             else if (currencyText.includes('EUR')) val = 'EURO';
+             else if (currencyText.includes('GBP')) val = 'GBP';
+             else if (currencyText.includes('INR')) val = 'INR';
+           }
+        }
         const isDate = isDateKey(f.name, appConfig) || f.type === 'date';
         if (isDate && val) {
           val = formatShortDate(val);
