@@ -3717,7 +3717,7 @@
             
             // Auto-hide totally empty columns
             if (data && data.length > 0) {
-              const keys = Object.keys(data[0]).filter(k => !k.startsWith('_'));
+              const keys = Object.keys(data[0]).filter(k => !k.startsWith('_') && k !== 'Source File' && k !== 'PI PDF Link');
               keys.forEach(key => {
                 const hasData = data.some(row => row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== '');
                 if (hasData) {
@@ -3770,11 +3770,18 @@
           }
           if (!rawDate) rawDate = row['Timestamp'] || '';
 
+          const rawPi = row['PI PDF Link'] || '';
+          const rawSource = row['Source File'] || '';
+          const piMatch = String(rawPi).match(/href="([^"]+)"/i);
+          const sourceMatch = String(rawSource).match(/href="([^"]+)"/i);
+
           poGroups[poNum] = {
             date: rawDate ? formatShortDate(rawDate) : '',
             piNumber: row['PI Number'] || null,
             buyerName: row['Buyer / Company Name'] || '',
-            timestamp: row['Timestamp'] || ''
+            timestamp: row['Timestamp'] || '',
+            piPdfUrl: piMatch ? piMatch[1] : null,
+            sourceUrl: sourceMatch ? sourceMatch[1] : null
           };
         }
       });
@@ -3845,6 +3852,8 @@
           <div class="po-title" style="display:flex; justify-content:space-between; align-items:center;">
             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">PO #${poNum}</span>
             <div style="display:flex; gap: 4px; flex-shrink: 0;">
+              ${poGroups[poNum].sourceUrl ? `<a href="${poGroups[poNum].sourceUrl}" target="_blank" onclick="event.stopPropagation();" class="sap-btn-icon" title="View Source File" style="width: 26px; height: 26px; font-size: 0.75rem; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); color: #a855f7; display:flex; align-items:center; justify-content:center; text-decoration:none;"><i class="fa-solid fa-file-pdf"></i></a>` : ''}
+              ${poGroups[poNum].piPdfUrl ? `<a href="${poGroups[poNum].piPdfUrl}" target="_blank" onclick="event.stopPropagation();" class="sap-btn-icon" title="View PI PDF" style="width: 26px; height: 26px; font-size: 0.75rem; background: rgba(236,72,153,0.1); border: 1px solid rgba(236,72,153,0.3); color: #ec4899; display:flex; align-items:center; justify-content:center; text-decoration:none;"><i class="fa-solid fa-eye"></i></a>` : ''}
               <button class="sap-btn-icon" title="Edit this PO" onclick="event.stopPropagation(); openBulkEdit('${poNum}', '${safeBuyerName}')" style="width: 26px; height: 26px; font-size: 0.75rem; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--primary);"><i class="fa-solid fa-pen-to-square"></i></button>
               <button class="sap-btn-icon" title="Generate PI" onclick="event.stopPropagation(); openPiModal('${poNum}', event, true)" style="width: 26px; height: 26px; font-size: 0.75rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10b981;"><i class="fa-solid fa-file-invoice"></i></button>
             </div>
@@ -3885,7 +3894,7 @@
         if (rawSaved) savedDbCols = JSON.parse(rawSaved);
       } catch (e) { }
 
-      Object.keys(data[0]).filter(k => !k.startsWith('_')).forEach(key => {
+      Object.keys(data[0]).filter(k => !k.startsWith('_') && k !== 'Source File' && k !== 'PI PDF Link').forEach(key => {
         const hasData = data.some(row => row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== '');
         
         let isVisible = true;

@@ -602,9 +602,10 @@ function saveToSheet(rowsData) {
     rowsData.forEach(data => {
       const row = [];
       sheetHeaders.forEach(header => {
-        if (header === 'Timestamp') {
+        const headerLower = String(header).trim().toLowerCase();
+        if (headerLower === 'timestamp') {
           row.push(timestampFormatted);
-        } else if (header === 'Source File') {
+        } else if (headerLower === 'source file') {
           row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || ''}")` : (data.sourceFile || ''));
         } else {
           let val = data[header] || '';
@@ -987,9 +988,10 @@ function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
     const preparedRows = rowsData.map(data => {
       const row = [];
       headers.forEach(header => {
-        if (header === 'Timestamp') {
+        const headerLower = String(header).trim().toLowerCase();
+        if (headerLower === 'timestamp') {
           row.push(timestampFormatted); // Update timestamp
-        } else if (header === 'Source File') {
+        } else if (headerLower === 'source file') {
           row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || ''}")` : (data.sourceFile || ''));
         } else {
           let val = data[header] || '';
