@@ -764,9 +764,8 @@ function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
       try {
         const file = DriveApp.getFileById(fileIdMatch[1]);
         const b64 = Utilities.base64Encode(file.getBlob().getBytes());
-        const safeName = (piNumber || 'Proforma_Invoice').replace(/[^a-zA-Z0-9_-]/g, '_');
-        // Maytapi supports data URI with name: data:application/pdf;name=filename.pdf;base64,...
-        mediaPayloadString = `data:application/pdf;name=${safeName}.pdf;base64,${b64}`;
+        // Use strict base64 standard. The MIME type application/pdf tells Maytapi it's a PDF.
+        mediaPayloadString = `data:application/pdf;base64,${b64}`;
       } catch (err) {
         Logger.log('WA Base64 fallback error: ' + err);
         mediaPayloadString = `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;

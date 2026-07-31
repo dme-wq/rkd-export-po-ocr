@@ -295,7 +295,7 @@
   <!-- ══ META GRID ══ -->
   <?
     const metaFields = [];
-    const ignoreMetaInGrid = ['po number','order date','buyer / company name','buyer','company name','vendor name','vendor','customer address','delivery address','buyer address','address','remarks','notes','_id','_action','timestamp','source file','pi pdf link','pi number','pi date','actions','currency','currency symbol','currency_symbol'];
+    const ignoreMetaInGrid = ['po number','order date','buyer / company name','buyer','company name','vendor name','vendor','customer address','delivery address','buyer address','address','remarks','notes','_id','_action','timestamp','source file','pi pdf link','pi number','pi date','actions','currency','currency symbol','currency_symbol', 'next delivery date', 'delivery date'];
     const activeHeaders = (typeof selectedHeaderFields !== 'undefined' && selectedHeaderFields && selectedHeaderFields.length > 0)
       ? selectedHeaderFields
       : ['Ex-Factory Date','Ship Via','Payment Terms','FOB / Port of Departure'];
@@ -407,19 +407,16 @@
             extra = 'font-family:Courier New,monospace; font-size:9px;';
             val = item['SKU / Item #'] || item['SKU'] || item['Item Code'] || item['Item #'] || item[col] || '-';
           } else if (cLower.includes('desc') || cLower.includes('name')) {
-            align = 'left'; extra = 'padding-left:5px;';
             val = item['Description'] || item['Product Description'] || item['Item Name / Description'] || item['Item Name'] || item['Item Description'] || item[col] || 'N/A';
           } else if (cLower === 'color' || cLower === 'colour') {
             val = item['Color'] || item['Colour'] || item[col] || '-';
           } else if (cLower === 'size') {
             val = item['Size'] || item[col] || '-';
           } else if (cLower.includes('price') || cLower === 'rate') {
-            align = 'right'; extra = 'padding-right:4px;';
             val = (rowCurr ? rowCurr + ' ' : '') + price.toFixed(2);
           } else if (cLower.includes('qty') || cLower.includes('quantity')) {
             val = qty;
           } else if (cLower.includes('amount') || cLower === 'line amount') {
-            align = 'right'; extra = 'padding-right:4px;';
             val = (rowCurr ? rowCurr + ' ' : '') + itemAmt.toFixed(2);
           } else {
             val = (item[col] !== null && item[col] !== undefined && String(item[col]).trim() !== '') ? item[col] : '-';
