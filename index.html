@@ -1633,18 +1633,22 @@
       box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
       animation: fadeIn 0.4s ease;
     }
+
     .edit-mode-banner.visible {
       display: flex;
     }
+
     .edit-mode-banner .banner-icon {
       font-size: 1.5rem;
     }
+
     .edit-mode-banner .banner-title {
       flex: 1;
     }
+
     .edit-mode-banner .banner-cancel {
-      background: rgba(255,255,255,0.25);
-      border: 1px solid rgba(255,255,255,0.4);
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
       color: #fff;
       padding: 0.4rem 1rem;
       border-radius: 10px;
@@ -1653,8 +1657,9 @@
       font-weight: 700;
       transition: background 0.2s ease;
     }
+
     .edit-mode-banner .banner-cancel:hover {
-      background: rgba(255,255,255,0.4);
+      background: rgba(255, 255, 255, 0.4);
     }
 
     /* ── DELETE FIELD BUTTON ── */
@@ -1672,11 +1677,13 @@
       font-size: 0.8rem;
       transition: all 0.2s ease;
     }
+
     .field-delete-btn:hover {
       background: #ef4444;
       color: #fff;
       border-color: #ef4444;
     }
+
     .field-delete-btn[disabled] {
       opacity: 0.3;
       cursor: not-allowed;
@@ -1855,7 +1862,8 @@
       <span class="banner-icon"><i class="fa-solid fa-pen-to-square"></i></span>
       <div class="banner-title">
         <div id="editModeBannerTitle" style="font-size:1.1rem;">Editing PO</div>
-        <div id="editModeBannerSub" style="font-size:0.82rem; font-weight:500; opacity:0.9; margin-top:2px;">All line items loaded below — edit and submit to save changes</div>
+        <div id="editModeBannerSub" style="font-size:0.82rem; font-weight:500; opacity:0.9; margin-top:2px;">All line
+          items loaded below — edit and submit to save changes</div>
       </div>
       <button class="banner-cancel" onclick="cancelBulkEdit()">
         <i class="fa-solid fa-xmark"></i> Cancel Edit
@@ -1993,7 +2001,8 @@
     </div>
 
     <div class="db-main-content">
-      <button id="exitFullScreenBtn" class="btn btn-primary" onclick="toggleFullScreenTable()" style="display:none; position: fixed; bottom: 2rem; right: 2rem; z-index: 1000000; font-weight: bold; border-radius: 50px; padding: 0.75rem 1.5rem; box-shadow: 0 10px 25px rgba(220,38,38,0.4); background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; align-items: center; gap: 0.5rem; font-size: 1rem;">
+      <button id="exitFullScreenBtn" class="btn btn-primary" onclick="toggleFullScreenTable()"
+        style="display:none; position: fixed; bottom: 2rem; right: 2rem; z-index: 1000000; font-weight: bold; border-radius: 50px; padding: 0.75rem 1.5rem; box-shadow: 0 10px 25px rgba(220,38,38,0.4); background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; align-items: center; gap: 0.5rem; font-size: 1rem;">
         <i class="fa-solid fa-compress"></i> Exit Full Screen
       </button>
       <!-- Top Actions Row (Left: Unhide Sidebar Button | Right: Export & Upload Buttons) -->
@@ -2066,7 +2075,9 @@
       </div>
 
       <!-- LOOKER STUDIO STYLE DEPENDENT FILTERS BAR -->
-      <div class="looker-filter-bar" id="lookerFilterBar" style="display: none; transition: all 0.2s ease-in-out; margin-top: 0.5rem;" onmouseenter="showFilterBar()" onmouseleave="hideFilterBar()">
+      <div class="looker-filter-bar" id="lookerFilterBar"
+        style="display: none; transition: all 0.2s ease-in-out; margin-top: 0.5rem;" onmouseenter="showFilterBar()"
+        onmouseleave="hideFilterBar()">
         <div class="dribbble-search-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="sapGridSearchInput" class="modern-form-input" placeholder="Search keywords..."
@@ -2619,6 +2630,7 @@
     let uploadedFiles = [];
     let extractedPayload = null;
     let appConfig = { mainFields: [], itemFields: [] };
+    let appDropdowns = {};
     let formMode = 'upload';
     let appPasscode = "";
 
@@ -2628,7 +2640,7 @@
       if (activeView === 'database') {
         document.querySelector('.container').style.display = 'none';
         document.getElementById('dataTableSection').classList.add('active-flex');
-        
+
         if (localStorage.getItem('rkd_fullscreen') === 'true') {
           const dbMain = document.querySelector('.db-main-content');
           if (dbMain) {
@@ -2653,6 +2665,7 @@
       try {
         const config = await callBackend('getAppConfig');
         appConfig = config.config || config;
+        appDropdowns = config.dropdowns || {};
         renderDynamicForm();
         if (SERVER_DRAFT_ID && SERVER_DRAFT_ID.trim() !== '') {
           loadDraft();
@@ -2933,10 +2946,22 @@
 
         const div = document.createElement('div');
         div.className = 'form-group';
-        const isDate = isDateKey(field.name, appConfig) || field.type === 'date';
-        const inputType = isDate ? 'text' : (field.type || 'text');
-        const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
-        div.innerHTML = `<label>${field.name}</label><input type="${inputType}" ${extraAttr} data-fieldname="${field.name}">`;
+        
+        let ddKey = Object.keys(appDropdowns).find(k => field.name.toLowerCase().includes(k.toLowerCase()));
+        
+        if (ddKey && appDropdowns[ddKey]) {
+          let optionsHtml = `<option value="">Select ${field.name}...</option>`;
+          appDropdowns[ddKey].forEach(val => {
+            optionsHtml += `<option value="${val}">${val}</option>`;
+          });
+          optionsHtml += `<option value="__ADD_NEW__" style="font-weight:bold; color:var(--primary);">+ Add New...</option>`;
+          div.innerHTML = `<label>${field.name}</label><select class="modern-form-input" data-fieldname="${field.name}" data-ddkey="${ddKey}" onchange="handleDropdownChange(this)" style="padding: 0.6rem 1rem; appearance: auto;">${optionsHtml}</select>`;
+        } else {
+          const isDate = isDateKey(field.name, appConfig) || field.type === 'date';
+          const inputType = isDate ? 'text' : (field.type || 'text');
+          const extraAttr = isDate ? 'placeholder="dd-MMM-yyyy" onchange="this.value=formatShortDate(this.value)" onblur="this.value=formatShortDate(this.value)"' : '';
+          div.innerHTML = `<label>${field.name}</label><input type="${inputType}" class="modern-form-input" ${extraAttr} data-fieldname="${field.name}">`;
+        }
         mainContainer.appendChild(div);
       });
 
@@ -2972,6 +2997,14 @@
           if (isDateKey(f.name, appConfig) || f.type === 'date') {
             val = formatShortDate(val);
           }
+          
+          if (el.tagName === 'SELECT' && val && !Array.from(el.options).some(o => o.value === val)) {
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = val;
+            el.insertBefore(opt, el.options[el.options.length - 1]);
+          }
+          
           el.value = val;
           el.classList.remove('missing-field');
 
@@ -3003,6 +3036,55 @@
 
       updateFormStats();
       initAllDatePickers();
+    }
+
+    async function handleDropdownChange(selectEl) {
+      if (selectEl.value === '__ADD_NEW__') {
+        const ddKey = selectEl.getAttribute('data-ddkey');
+        const { value: newValue } = await Swal.fire({
+          title: `Add New ${ddKey}`,
+          input: 'text',
+          inputPlaceholder: `Enter new ${ddKey}...`,
+          showCancelButton: true,
+          confirmButtonText: 'Add',
+          inputValidator: (value) => {
+            if (!value) return 'Value cannot be empty!';
+          }
+        });
+        
+        if (newValue) {
+          document.getElementById('overlay').style.display = 'flex';
+          document.getElementById('loadingText').textContent = 'Saving...';
+          document.getElementById('loadingSubText').textContent = `Adding "${newValue}" to Dropdown list.`;
+          
+          try {
+            const res = await callBackend('addDropdownValue', ddKey, newValue);
+            document.getElementById('overlay').style.display = 'none';
+            
+            if (res.success) {
+              if (!appDropdowns[ddKey]) appDropdowns[ddKey] = [];
+              appDropdowns[ddKey].push(newValue);
+              
+              const opt = document.createElement('option');
+              opt.value = newValue;
+              opt.textContent = newValue;
+              selectEl.insertBefore(opt, selectEl.options[selectEl.options.length - 1]);
+              selectEl.value = newValue;
+              
+              Swal.fire({ icon: 'success', title: 'Added!', text: `Successfully added "${newValue}"`, timer: 1500, showConfirmButton: false });
+            } else {
+              Swal.fire('Error', res.error || 'Failed to add', 'error');
+              selectEl.value = '';
+            }
+          } catch (e) {
+            document.getElementById('overlay').style.display = 'none';
+            Swal.fire('Error', 'Network Error', 'error');
+            selectEl.value = '';
+          }
+        } else {
+          selectEl.value = '';
+        }
+      }
     }
 
     function addTableRow(item = {}) {
@@ -3424,8 +3506,8 @@
       mainList.innerHTML = ''; itemList.innerHTML = '';
 
       // Default system-protected fields
-      const protectedMain = ['PO Number','Order Date','Buyer / Company Name','Customer Address','Vendor Name','Ex-Factory Date','Cancel Date','Total Order Amount','Total Cases','Ship Via','Payment Terms','FOB / Port of Departure','Port of Entry / Destination','CBM','Material / Fabric','Remarks'];
-      const protectedItem = ['SKU / Item #','Description','Color','Size','UPC','Quantity','Unit Price','Case Pack','Line Amount'];
+      const protectedMain = ['PO Number', 'Order Date', 'Buyer / Company Name', 'Customer Address', 'Vendor Name', 'Ex-Factory Date', 'Cancel Date', 'Total Order Amount', 'Total Cases', 'Ship Via', 'Payment Terms', 'FOB / Port of Departure', 'Port of Entry / Destination', 'CBM', 'Material / Fabric', 'Remarks'];
+      const protectedItem = ['SKU / Item #', 'Description', 'Color', 'Size', 'UPC', 'Quantity', 'Unit Price', 'Case Pack', 'Line Amount'];
 
       const createToggle = (f, idx, sectionPrefix) => {
         const isProtected = sectionPrefix === 'Main' ? protectedMain.includes(f.name) : protectedItem.includes(f.name);

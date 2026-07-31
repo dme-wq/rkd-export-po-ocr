@@ -44,7 +44,8 @@ function doGet(e) {
     var response = { success: false, error: "Invalid Action" };
     try {
       if (action === 'getAppConfig') {
-        response = { success: true, config: getAppConfig() };
+        const confData = getAppConfig();
+        response = { success: true, config: confData.config, dropdowns: confData.dropdowns };
       } else if (action === 'getSavedData') {
         response = { success: true, data: getSavedData() };
       } else if (action === 'getSheetUrl') {
@@ -79,7 +80,10 @@ function doPost(e) {
     if (action === 'processMultipleFiles') {
       response = processMultipleFiles(args[0]);
     } else if (action === 'getAppConfig') {
-      response = { success: true, config: getAppConfig() };
+        const confData = getAppConfig();
+        response = { success: true, config: confData.config, dropdowns: confData.dropdowns };
+    } else if (action === 'addDropdownValue') {
+      response = addDropdownValue(args[0], args[1]);
     } else if (action === 'updateFieldVisibility') {
       response = updateFieldVisibility(args[0]);
     } else if (action === 'addCustomColumn') {
@@ -179,6 +183,24 @@ function processMultipleFiles(filesArray) {
 // ─────────────────────────────────────────────
 function getAppConfig() {
   const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  
+  // Fetch dropdowns
+  let dropdowns = {};
+  const ddSheet = ss.getSheetByName('Dropdown');
+  if (ddSheet && ddSheet.getLastRow() > 0 && ddSheet.getLastColumn() > 0) {
+    const data = ddSheet.getDataRange().getValues();
+    const headers = data[0];
+    for (let c = 0; c < headers.length; c++) {
+      if (headers[c]) {
+        const colData = [];
+        for (let r = 1; r < data.length; r++) {
+          if (data[r][c]) colData.push(String(data[r][c]).trim());
+        }
+        dropdowns[String(headers[c]).trim()] = colData;
+      }
+    }
+  }
+
   let sheet = ss.getSheetByName('AppConfig');
   if (!sheet) {
     sheet = ss.insertSheet('AppConfig');
@@ -191,7 +213,7 @@ function getAppConfig() {
     
     sheet.getRange(1, 1).setValue('ConfigJSON');
     sheet.getRange(2, 1).setValue(JSON.stringify(defaultConfig));
-    return defaultConfig;
+    return { config: defaultConfig, dropdowns: dropdowns };
   }
   
   const jsonStr = sheet.getRange(2, 1).getValue();
@@ -201,10 +223,48 @@ function getAppConfig() {
       itemFields: CONFIG.DEFAULT_ITEM_FIELDS.map(f => ({ name: f, visible: true }))
     };
     sheet.getRange(2, 1).setValue(JSON.stringify(defaultConfig));
-    return defaultConfig;
+    return { config: defaultConfig, dropdowns: dropdowns };
   }
   
-  return JSON.parse(jsonStr);
+  return { config: JSON.parse(jsonStr), dropdowns: dropdowns };
+}
+
+function addDropdownValue(columnName, newValue) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    let sheet = ss.getSheetByName('Dropdown');
+    if (!sheet) {
+      sheet = ss.insertSheet('Dropdown');
+    }
+    
+    let colIndex = 0;
+    let headers = [];
+    if (sheet.getLastRow() > 0) {
+      headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      colIndex = headers.indexOf(columnName) + 1;
+    }
+    
+    if (colIndex === 0) {
+      colIndex = headers.length + 1;
+      sheet.getRange(1, colIndex).setValue(columnName);
+    }
+    
+    const maxRows = sheet.getMaxRows();
+    const colData = sheet.getRange(1, colIndex, maxRows, 1).getValues();
+    let emptyRow = 1;
+    for (let i = 0; i < colData.length; i++) {
+      if (!colData[i][0] || String(colData[i][0]).trim() === '') {
+        emptyRow = i + 1;
+        break;
+      }
+      emptyRow = i + 2;
+    }
+    
+    sheet.getRange(emptyRow, colIndex).setValue(newValue);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
 }
 
 function updateFieldVisibility(updatedConfig) {
