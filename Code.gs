@@ -756,6 +756,23 @@ function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
       'x-maytapi-key': CONFIG.MAYTAPI_TOKEN
     };
 
+    // Convert Drive view link to Base64 (so Maytapi sends it as a proper PDF)
+    const fileIdMatch = piFileUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    let mediaPayloadString = piFileUrl;
+    
+    if (fileIdMatch && fileIdMatch[1]) {
+      try {
+        const file = DriveApp.getFileById(fileIdMatch[1]);
+        const b64 = Utilities.base64Encode(file.getBlob().getBytes());
+        const safeName = (piNumber || 'Proforma_Invoice').replace(/[^a-zA-Z0-9_-]/g, '_');
+        // Maytapi supports data URI with name: data:application/pdf;name=filename.pdf;base64,...
+        mediaPayloadString = `data:application/pdf;name=${safeName}.pdf;base64,${b64}`;
+      } catch (err) {
+        Logger.log('WA Base64 fallback error: ' + err);
+        mediaPayloadString = `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
+      }
+    }
+
     let successCount = 0;
 
     for (let i = 0; i < recipients.length; i++) {
@@ -773,13 +790,6 @@ function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
 
       if (rawPhone.length < 12) continue; // Skip invalid
 
-      // Convert Drive view link to Direct Download link
-      const fileIdMatch = piFileUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      let mediaUrl = piFileUrl;
-      if (fileIdMatch && fileIdMatch[1]) {
-        mediaUrl = `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
-      }
-
       const caption = `${greeting} *${r.name} Ji* 🙏\n\n` +
         `Your *Proforma Invoice* has been generated successfully!\n\n` +
         `📋 *PI Details:*\n` +
@@ -792,7 +802,7 @@ function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
       const payload = {
         to_number: rawPhone,
         type: 'media',
-        message: mediaUrl,
+        message: mediaPayloadString,
         text: caption
       };
 
