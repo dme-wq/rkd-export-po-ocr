@@ -618,7 +618,7 @@ function saveToSheet(rowsData) {
         if (headerLower === 'timestamp') {
           row.push(timestampFormatted);
         } else if (headerLower === 'source file') {
-          row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || ''}")` : (data.sourceFile || ''));
+          row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || data['Source File'] || ''}")` : (data.sourceFile || data['Source File'] || ''));
         } else {
           let val = data[header] || '';
           if (val && isDateKey(header, appConfig)) {
@@ -1188,7 +1188,7 @@ function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
         if (headerLower === 'timestamp') {
           row.push(timestampFormatted); // Update timestamp
         } else if (headerLower === 'source file') {
-          row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || ''}")` : (data.sourceFile || ''));
+          row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || data['Source File'] || ''}")` : (data.sourceFile || data['Source File'] || ''));
         } else {
           let val = data[header] || '';
           if (val && isDateKey(header, config)) {
