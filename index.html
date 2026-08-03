@@ -818,6 +818,15 @@
       color: #ffffff !important;
     }
     
+    select.missing-field option {
+      color: var(--text-main, #000000) !important;
+      background-color: #ffffff !important;
+    }
+
+    [data-theme="dark"] select.missing-field option {
+      background-color: #1e293b !important;
+    }
+    
     input.missing-field::placeholder,
     textarea.missing-field::placeholder {
       color: rgba(255, 255, 255, 0.7) !important;
@@ -2018,7 +2027,7 @@
 
         <div class="action-buttons">
           <button type="button" class="btn btn-gradient" onclick="submitToSheet(false)" id="submitBtn">
-            <i class="fa-solid fa-server"></i> Sync & Finalize Entry
+            <i class="fa-solid fa-server"></i> Review and Finalize Entry
           </button>
           <button type="button" class="btn btn-whatsapp" onclick="requestMissingInfoViaWhatsApp()" id="waBtn">
             <i class="fa-brands fa-whatsapp"></i> Request Missing Info via WhatsApp
