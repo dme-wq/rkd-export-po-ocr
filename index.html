@@ -3024,7 +3024,7 @@
       const mainDetails = { ...items[0] };
       mainDetails.items = items;
 
-      window.bulkEditContext = { oldPoNumber: poNumber, oldBuyerName: buyerName };
+      window.bulkEditContext = { oldPoNumber: poNumber, oldBuyerName: buyerName, originalItems: items };
       formMode = 'edit';
 
       // Switch from Database view to main container
