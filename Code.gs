@@ -267,6 +267,7 @@ function addDropdownValue(columnName, newValue) {
     }
     
     sheet.getRange(emptyRow, colIndex).setValue(newValue);
+    SpreadsheetApp.flush();
     return { success: true };
   } catch (err) {
     return { success: false, error: err.toString() };
@@ -280,6 +281,7 @@ function updateFieldVisibility(updatedConfig) {
     if (!sheet) return { success: false, error: 'AppConfig not found' };
     
     sheet.getRange(2, 1).setValue(JSON.stringify(updatedConfig));
+    SpreadsheetApp.flush();
     return { success: true };
   } catch (err) {
     return { success: false, error: err.toString() };
@@ -1217,6 +1219,7 @@ function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
       }
     }
 
+    SpreadsheetApp.flush();
     return { success: true };
   } catch (err) {
     return { success: false, error: err.toString() };
