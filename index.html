@@ -4671,11 +4671,70 @@
     }
 
 
+
+    function handleMissingFieldCheck(e) {
+      if (e.target && (e.target.hasAttribute('data-fieldname') || e.target.hasAttribute('data-itemfieldname'))) {
+        const val = e.target.value.trim();
+        const isMissing = !val || val === '' || val.toLowerCase().startsWith('select ');
+        if (isMissing) {
+          e.target.classList.add('missing-field');
+        } else {
+          e.target.classList.remove('missing-field');
+        }
+        if (typeof updateFormStats === 'function') updateFormStats();
+      }
+    }
+    document.addEventListener('input', handleMissingFieldCheck);
+    document.addEventListener('change', handleMissingFieldCheck);
+
     function applyAndDependLookerFilters(changedFieldId) {
       if (tableInstance) {
         tableInstance.setFilter(combinedSapGridFilter);
       }
       updateAllLookerDropdowns(changedFieldId);
+    }
+
+
+    function resetLookerFilters() {
+      activeLookerFilters = {};
+      LOOKER_FIELDS.forEach(f => {
+        const sel = document.getElementById(`looker_${f.id}`);
+        if (sel) sel.value = '';
+      });
+      const fromInp = document.getElementById('lookerDateFrom');
+      const toInp = document.getElementById('lookerDateTo');
+      if (fromInp) fromInp.value = '';
+      if (toInp) toInp.value = '';
+
+      const queryInp = document.getElementById('sapGridSearchInput');
+      if (queryInp) queryInp.value = '';
+
+      if (tableInstance) {
+        tableInstance.clearFilter();
+      }
+      applyAndDependLookerFilters(null);
+    }
+
+    function filterSapGrid() {
+      applyAndDependLookerFilters(null);
+    }
+
+    function toggleFullScreenTable() {
+      const dbMain = document.querySelector('.db-main-content');
+      const exitBtn = document.getElementById('exitFullScreenBtn');
+      if (dbMain) {
+        dbMain.classList.toggle('table-fullscreen-mode');
+        const icon = document.querySelector('button[onclick="toggleFullScreenTable()"] i');
+        if (dbMain.classList.contains('table-fullscreen-mode')) {
+          if (icon) icon.className = 'fa-solid fa-compress';
+          if (exitBtn) exitBtn.style.display = 'flex';
+          localStorage.setItem('rkd_fullscreen', 'true');
+        } else {
+          if (icon) icon.className = 'fa-solid fa-expand';
+          if (exitBtn) exitBtn.style.display = 'none';
+          localStorage.setItem('rkd_fullscreen', 'false');
+        }
+      }
     }
 
     // --- PI Generation Logic ---
