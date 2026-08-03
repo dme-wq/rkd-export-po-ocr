@@ -2380,6 +2380,26 @@
   </div>
 
   <script>
+
+    let localDbUpdateTs = "0";
+    setInterval(async () => {
+      // Only poll if the DB view is active to save resources
+      if (localStorage.getItem('activeView') === 'database' && document.getElementById('dataTableSection').classList.contains('active-flex')) {
+         try {
+            const res = await callBackend('checkSyncStatus');
+            if (res && res.success && res.timestamp && res.timestamp !== localDbUpdateTs) {
+               localDbUpdateTs = res.timestamp;
+               // Trigger background reload of stats and table data
+               const statsRes = await callBackend('getDashboardStats');
+               if (statsRes.success) {
+                  updateDashboardStats(statsRes.stats, statsRes.poGroups);
+               }
+               if (tableInstance) tableInstance.replaceData();
+            }
+         } catch(e) {}
+      }
+    }, 5000);
+
     // ─────────────────────────────────────────────
     //  SAFE DRAFT & INITIALIZATION FIX
     // ─────────────────────────────────────────────
@@ -2957,26 +2977,9 @@
       document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Submit Manual Entry`;
     }
 
-    function openBulkEdit(poNumber, buyerName) {
-      const cached = localStorage.getItem('dbCache');
-      if (!cached) {
-        Swal.fire('Error', 'Database cache not found. Refresh data table first.', 'error');
-        return;
-      }
-      const allRows = JSON.parse(cached);
-      const items = allRows.filter(r =>
-        String(r['PO Number'] || '').trim().toLowerCase() === String(poNumber).trim().toLowerCase() &&
-        String(r['Buyer / Company Name'] || '').trim().toLowerCase() === String(buyerName).trim().toLowerCase()
-      );
-
-      if (items.length === 0) {
-        Swal.fire('Error', 'No line items found for this PO.', 'error');
-        return;
-      }
-
-      // Passcode check before opening full-screen edit
+        async function openBulkEdit(poNumber, buyerName) {
       if (appPasscode) {
-        Swal.fire({
+        const result = await Swal.fire({
           title: '<i class="fa-solid fa-lock" style="color:#f59e0b;"></i> Security Access',
           html: `<p style="margin-bottom:0.5rem; color:var(--text-muted);">Enter passcode to edit <strong>PO #${poNumber}</strong></p>`,
           input: 'password',
@@ -2984,18 +2987,36 @@
           showCancelButton: true,
           confirmButtonText: '<i class="fa-solid fa-unlock"></i> Unlock & Edit',
           confirmButtonColor: '#f59e0b',
-          showConfirmButton: true,
           inputValidator: (value) => {
             if (!value) return 'Please enter the passcode!';
             if (value !== appPasscode) return 'Incorrect passcode! Please try again.';
           }
-        }).then((result) => {
-          if (result.isConfirmed) {
-            _doOpenBulkEdit(poNumber, buyerName, items);
-          }
         });
-      } else {
-        _doOpenBulkEdit(poNumber, buyerName, items);
+        if (!result.isConfirmed) return;
+      }
+
+      Swal.fire({
+         title: 'Loading...',
+         text: 'Fetching PO data for editing',
+         allowOutsideClick: false,
+         didOpen: () => Swal.showLoading()
+      });
+      
+      try {
+         const res = await callBackend('getSavedData', [1, 1000, [], [
+             {field: "PO Number", type: "=", value: poNumber === 'Unassigned' ? '' : poNumber},
+             {field: "Buyer / Company Name", type: "=", value: buyerName}
+         ]]);
+         const items = res.data || res || [];
+         Swal.close();
+
+         if (items.length === 0) {
+            Swal.fire('Error', 'No line items found for this PO.', 'error');
+            return;
+         }
+         _doOpenBulkEdit(poNumber, buyerName, items);
+      } catch(e) {
+         Swal.fire('Error', 'Failed to fetch PO data', 'error');
       }
     }
 
@@ -3875,61 +3896,131 @@
     // ─────────────────────────────────────────────
     let tableInstance = null;
 
-    async function showDataTable(forceRefresh = false) {
+        async function showDataTable(forceRefresh = false) {
       document.querySelector('.container').style.display = 'none';
       document.getElementById('dataTableSection').classList.add('active-flex');
       localStorage.setItem('activeView', 'database');
 
-      const cached = localStorage.getItem('dbCache');
-      if (cached && !forceRefresh) {
-        try {
-          if (!tableInstance) {
-            renderTabulator(JSON.parse(cached));
-          } else {
-            // Table already rendered, maybe we just switched tabs
-          }
-        } catch (e) { }
-      } else {
+      if (!tableInstance || forceRefresh) {
         document.getElementById('overlay').style.display = 'flex';
         document.getElementById('loadingText').textContent = 'Loading Database...';
-        document.getElementById('loadingSubText').textContent = 'Fetching entries from Google Sheets...';
+        document.getElementById('loadingSubText').textContent = 'Fetching entries and stats from Google Sheets...';
       }
 
       try {
-        // Sync silently in background if cache loaded
-        const res = await callBackend('getSavedData');
-        document.getElementById('overlay').style.display = 'none';
-        const data = res.data || res;
+        const statsRes = await callBackend('getDashboardStats');
+        if (statsRes.success) {
+          updateDashboardStats(statsRes.stats, statsRes.poGroups);
+        }
 
-        const newCacheStr = JSON.stringify(data);
-        if (newCacheStr !== cached || forceRefresh) {
-          localStorage.setItem('dbCache', newCacheStr);
-
-          if (tableInstance) {
-            tableInstance.replaceData(data);
-
-            // Auto-hide totally empty columns
-            if (data && data.length > 0) {
-              const keys = Object.keys(data[0]).filter(k => !k.startsWith('_') && k !== 'Source File' && k !== 'PI PDF Link');
-              keys.forEach(key => {
-                const hasData = data.some(row => row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== '');
-                if (hasData) {
-                  tableInstance.showColumn(key);
-                } else {
-                  tableInstance.hideColumn(key);
-                }
-              });
-            }
-          } else {
-            renderTabulator(data);
-          }
+        if (!tableInstance) {
+           const initialDataRes = await callBackend('getSavedData', [1, 50, [], []]);
+           document.getElementById('overlay').style.display = 'none';
+           renderTabulator(initialDataRes.data || initialDataRes);
+        } else {
+           document.getElementById('overlay').style.display = 'none';
+           tableInstance.replaceData(); 
         }
       } catch (err) {
         document.getElementById('overlay').style.display = 'none';
-        if (!cached || forceRefresh) {
-          Swal.fire('Error', err.message || err.toString(), 'error');
-        }
+        Swal.fire('Error', err.message || err.toString(), 'error');
       }
+    }
+
+    function updateDashboardStats(stats, poGroups) {
+      const uniquePOs = Object.keys(poGroups);
+      document.getElementById('sapGridCounterText').textContent = `${uniquePOs.length} POs`;
+      document.getElementById('sapKpiTotalRows').textContent = stats.totalRows;
+      document.getElementById('sapKpiUniquePOs').textContent = stats.uniquePOs;
+      document.getElementById('sapKpiTotalValue').textContent = currentCurrencySymbol + stats.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('sapKpiVendors').textContent = stats.uniqueVendors;
+
+      const sidebarList = document.getElementById('poSidebarList');
+      sidebarList.innerHTML = '';
+
+      // Add 'All POs'
+      const allItem = document.createElement('div');
+      allItem.className = 'sidebar-po-item active';
+      allItem.innerHTML = `<div class="po-title">All Purchase Orders</div><div class="po-meta">View all records</div>`;
+      allItem.onclick = () => {
+        document.querySelectorAll('.sidebar-po-item').forEach(el => el.classList.remove('active'));
+        allItem.classList.add('active');
+        if (tableInstance) {
+          tableInstance.clearFilter();
+        }
+      };
+      sidebarList.appendChild(allItem);
+
+      // Add Search Box
+      const searchBox = document.createElement('div');
+      searchBox.innerHTML = `
+        <div style="position: relative; margin: 0.25rem 0 0.5rem 0;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+          <input type="text" id="poSidebarSearch" placeholder="Search POs..." style="width: 100%; padding: 0.45rem 1rem 0.45rem 2.2rem; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); font-size: 0.82rem; outline: none; transition: border-color 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+        </div>
+      `;
+      sidebarList.appendChild(searchBox);
+
+      const searchInput = searchBox.querySelector('input');
+      searchInput.oninput = (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('.sidebar-po-item[data-po]').forEach(el => {
+          const poName = String(el.getAttribute('data-po')).toLowerCase();
+          if (poName.includes(q)) {
+            el.style.display = 'block';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      };
+
+      uniquePOs.sort((a, b) => {
+        const numA = parseInt(String(a).replace(/[^0-9]/g, '')) || 0;
+        const numB = parseInt(String(b).replace(/[^0-9]/g, '')) || 0;
+        if (numB !== numA) return numB - numA;
+        return String(b).localeCompare(String(a));
+      });
+
+      uniquePOs.forEach(poNum => {
+        const item = document.createElement('div');
+        item.className = 'sidebar-po-item';
+        item.setAttribute('data-po', poNum);
+
+        const piHtml = poGroups[poNum].piNumber
+          ? `<span class="pi-status-badge"><i class="fa-solid fa-check"></i> PI: ${poGroups[poNum].piNumber}</span>`
+          : `<span class="pi-status-badge none">No PI</span>`;
+
+        const safeBuyerName = (poGroups[poNum].buyerName || '').replace(/'/g, "\'");
+        const tsFormatted = poGroups[poNum].timestamp ? formatDateTimeNoSeconds(poGroups[poNum].timestamp) : '';
+        const tsHtml = tsFormatted ? `<div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 3px;"><i class="fa-regular fa-clock"></i> ${tsFormatted}</div>` : '';
+
+        item.innerHTML = `
+          ${tsHtml}
+          <div class="po-title">
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; width:100%;">PO #${poNum}</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-main); margin-top: 4px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-building" style="margin-right: 4px; color: var(--text-muted);"></i>${poGroups[poNum].buyerName || 'Unknown Buyer'}</div>
+          <div class="po-meta" style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span><i class="fa-solid fa-calendar-day"></i> ${poGroups[poNum].date}</span>
+            ${piHtml}
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+            ${poGroups[poNum].sourceUrl ? `<a href="${poGroups[poNum].sourceUrl}" target="_blank" onclick="event.stopPropagation();" class="sap-btn-icon" title="View Source File" style="width:100%; height: 28px; border-radius: 6px; font-size: 0.72rem; padding: 4px; background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); color: #a855f7; display:flex; align-items:center; justify-content:center; gap: 6px; text-decoration:none; transition: all 0.2s;"><i class="fa-solid fa-file-pdf"></i> Source</a>` : ''}
+            ${poGroups[poNum].piPdfUrl ? `<a href="${poGroups[poNum].piPdfUrl}" target="_blank" onclick="event.stopPropagation();" class="sap-btn-icon" title="View PI PDF" style="width:100%; height: 28px; border-radius: 6px; font-size: 0.72rem; padding: 4px; background: rgba(236,72,153,0.05); border: 1px solid rgba(236,72,153,0.2); color: #ec4899; display:flex; align-items:center; justify-content:center; gap: 6px; text-decoration:none; transition: all 0.2s;"><i class="fa-solid fa-eye"></i> View PI</a>` : ''}
+            <button class="sap-btn-icon" title="Edit this PO" onclick="event.stopPropagation(); openBulkEdit('${poNum}', '${safeBuyerName}')" style="width:100%; height: 28px; border-radius: 6px; font-size: 0.72rem; padding: 4px; background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.2); color: #3b82f6; display:flex; align-items:center; justify-content:center; gap: 6px; transition: all 0.2s;"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+            <button class="sap-btn-icon" title="Generate PI" onclick="event.stopPropagation(); openPiModal('${poNum}', event, true)" style="width:100%; height: 28px; border-radius: 6px; font-size: 0.72rem; padding: 4px; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2); color: #10b981; display:flex; align-items:center; justify-content:center; gap: 6px; transition: all 0.2s;"><i class="fa-solid fa-file-invoice"></i> Gen PI</button>
+          </div>
+        `;
+
+        item.onclick = () => {
+          document.querySelectorAll('.sidebar-po-item').forEach(el => el.classList.remove('active'));
+          item.classList.add('active');
+          if (tableInstance) {
+            tableInstance.setFilter("PO Number", "=", poNum === 'Unassigned' ? '' : poNum);
+          }
+        };
+        sidebarList.appendChild(item);
+      });
     }
 
     function hideDataTable() {
@@ -4464,17 +4555,37 @@
       return null;
     }
 
-    function initLookerFilters() {
-      if (!currentDbData || currentDbData.length === 0) return;
-      const sampleRow = currentDbData[0];
+    
+    let cachedFilterOptions = null;
 
+    async function initLookerFilters() {
       const container = document.getElementById('lookerDropdownsContainer');
       if (!container) return;
+
+      if (!cachedFilterOptions) {
+         try {
+           const res = await callBackend('getFilterOptions');
+           if (res && res.success && res.filters) {
+             cachedFilterOptions = res.filters;
+           } else {
+             return;
+           }
+         } catch(e) { return; }
+      }
+
       container.innerHTML = '';
 
       LOOKER_FIELDS.forEach(f => {
-        const matchedKey = findMatchingDbKey(sampleRow, f.matchKeys);
-        f.actualKey = matchedKey;
+        // Map LOOKER_FIELDS labels to the exact keys from getFilterOptions
+        let actualKey = f.label; 
+        if (f.id === 'buyer') actualKey = 'Buyer / Company Name';
+        else if (f.id === 'vendor') actualKey = 'Vendor Name';
+        else if (f.id === 'shipVia') actualKey = 'Ship Via';
+        else if (f.id === 'payTerms') actualKey = 'Payment Terms';
+        else if (f.id === 'portDepart') actualKey = 'FOB / Port of Departure';
+        else if (f.id === 'portEntry') actualKey = 'Port of Entry / Destination';
+
+        f.actualKey = actualKey;
 
         const item = document.createElement('div');
         item.className = 'looker-filter-item';
@@ -4489,6 +4600,24 @@
         defaultOpt.disabled = true;
         defaultOpt.selected = true;
         select.appendChild(defaultOpt);
+
+        const anyOpt = document.createElement('option');
+        anyOpt.value = '';
+        anyOpt.textContent = 'All';
+        select.appendChild(anyOpt);
+
+        const options = cachedFilterOptions[actualKey] || [];
+        options.forEach(val => {
+           const opt = document.createElement('option');
+           opt.value = val;
+           opt.textContent = val;
+           select.appendChild(opt);
+        });
+
+        // Set active filter if it exists
+        if (activeLookerFilters[f.id]) {
+           select.value = activeLookerFilters[f.id];
+        }
 
         select.onchange = () => {
           activeLookerFilters[f.id] = select.value;
@@ -4534,244 +4663,19 @@
       if (typeof initAllDatePickers === 'function') {
         initAllDatePickers();
       }
-
-      updateAllLookerDropdowns(null);
     }
 
-    let draftSaveTimeout = null;
-    function debouncedSaveDraft() {
-      clearTimeout(draftSaveTimeout);
-      draftSaveTimeout = setTimeout(() => {
-        if (document.getElementById('dataPreview').style.display === 'block' && typeof formMode !== 'undefined' && formMode === 'upload') {
-          if (typeof buildFormDataPayload === 'function') {
-            const currentData = buildFormDataPayload();
-            sessionStorage.setItem('rkd_active_form_draft', JSON.stringify(currentData));
-          }
-        }
-      }, 500);
+    function updateAllLookerDropdowns(changedFieldId) {
+       // With Server-Side pagination, dependent filters are disabled to avoid fetching 1M rows on client.
+       // The dropdowns are static. We just trigger the Tabulator update in applyAndDependLookerFilters.
     }
 
-    // Default year filter on load
-    function handleMissingFieldCheck(e) {
-      if (e.target && (e.target.hasAttribute('data-fieldname') || e.target.hasAttribute('data-itemfieldname'))) {
-        const val = e.target.value.trim();
-        const isMissing = !val || val === '' || val.toLowerCase().startsWith('select ');
-        if (isMissing) {
-          e.target.classList.add('missing-field');
-        } else {
-          e.target.classList.remove('missing-field');
-        }
-        if (typeof updateFormStats === 'function') updateFormStats();
-      }
-    }
-    document.addEventListener('input', handleMissingFieldCheck);
-    document.addEventListener('change', handleMissingFieldCheck);
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const yearSelect = document.getElementById('dbYearFilter');
-      if (yearSelect) {
-        yearSelect.value = new Date().getFullYear().toString();
-      }
-
-      const savedExtractedPayload = sessionStorage.getItem('rkd_active_extracted_payload');
-      const savedDraft = sessionStorage.getItem('rkd_active_form_draft');
-
-      if (savedExtractedPayload && savedDraft) {
-        extractedPayload = JSON.parse(savedExtractedPayload);
-        const draftData = JSON.parse(savedDraft);
-
-        document.getElementById('uploadSection').style.display = 'none';
-        document.getElementById('dataPreview').style.display = 'block';
-        document.querySelector('.container').classList.add('container-fullscreen');
-
-        populateForm(draftData);
-      }
-    });
-
-    function combinedSapGridFilter(row) {
-      // 1. Text Search Box Filter
-      const queryInp = document.getElementById('sapGridSearchInput');
-      if (queryInp && queryInp.value) {
-        const query = queryInp.value.toLowerCase().trim();
-        const matchesQuery = Object.values(row).some(val => String(val || '').toLowerCase().includes(query));
-        if (!matchesQuery) return false;
-      }
-
-      // 1.5 Year Filter
-      const yearFilter = document.getElementById('dbYearFilter');
-      if (yearFilter && yearFilter.value) {
-        const targetYear = yearFilter.value;
-        const rowDateStr = String(row['Timestamp'] || '');
-        if (!rowDateStr.includes(targetYear)) {
-          // Also check if any date matches
-          const pDate = parseAnyDate(rowDateStr);
-          if (!pDate || pDate.getFullYear().toString() !== targetYear) return false;
-        }
-      }
-
-      // 2. Looker Date Range Filter
-      const fromStr = document.getElementById('lookerDateFrom')?.value || '';
-      const toStr = document.getElementById('lookerDateTo')?.value || '';
-      if (fromStr || toStr) {
-        let rowDateStr = row['Timestamp'] || '';
-        if (!rowDateStr) {
-          for (let k in row) {
-            if (k.toLowerCase().includes('date') && row[k]) { rowDateStr = row[k]; break; }
-          }
-        }
-        const rowDate = parseAnyDate(rowDateStr);
-        if (rowDate) {
-          if (fromStr) {
-            const fromDate = parseAnyDate(fromStr);
-            if (fromDate && rowDate.getTime() < new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate(), 0, 0, 0).getTime()) return false;
-          }
-          if (toStr) {
-            const toDate = parseAnyDate(toStr);
-            if (toDate && rowDate.getTime() > new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate(), 23, 59, 59).getTime()) return false;
-          }
-        }
-      }
-
-      // 3. Looker Dropdown Filters
-      for (let f of LOOKER_FIELDS) {
-        const selectedVal = activeLookerFilters[f.id];
-        if (!selectedVal) continue;
-        const actualKey = f.actualKey;
-        if (!actualKey) continue;
-        const rowVal = String(row[actualKey] || '').trim().toLowerCase();
-        if (rowVal !== selectedVal.toLowerCase()) return false;
-      }
-
-      return true;
-    }
 
     function applyAndDependLookerFilters(changedFieldId) {
       if (tableInstance) {
         tableInstance.setFilter(combinedSapGridFilter);
       }
       updateAllLookerDropdowns(changedFieldId);
-    }
-
-    function updateAllLookerDropdowns(changedFieldId) {
-      if (!currentDbData) return;
-
-      LOOKER_FIELDS.forEach(f => {
-        if (f.id === changedFieldId && changedFieldId !== null) return;
-
-        const select = document.getElementById(`looker_${f.id}`);
-        if (!select || !f.actualKey) return;
-
-        const currentVal = activeLookerFilters[f.id] || '';
-
-        const validRows = currentDbData.filter(row => {
-          const fromStr = document.getElementById('lookerDateFrom')?.value || '';
-          const toStr = document.getElementById('lookerDateTo')?.value || '';
-          if (fromStr || toStr) {
-            let rowDateStr = row['Timestamp'] || '';
-            if (!rowDateStr) {
-              for (let k in row) {
-                if (k.toLowerCase().includes('date') && row[k]) { rowDateStr = row[k]; break; }
-              }
-            }
-            const rowDate = parseAnyDate(rowDateStr);
-            if (rowDate) {
-              if (fromStr) {
-                const fromDate = parseAnyDate(fromStr);
-                if (fromDate && rowDate.getTime() < new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate(), 0, 0, 0).getTime()) return false;
-              }
-              if (toStr) {
-                const toDate = parseAnyDate(toStr);
-                if (toDate && rowDate.getTime() > new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate(), 23, 59, 59).getTime()) return false;
-              }
-            }
-          }
-
-          for (let otherF of LOOKER_FIELDS) {
-            if (otherF.id === f.id) continue;
-            const selVal = activeLookerFilters[otherF.id];
-            if (!selVal) continue;
-            const aKey = otherF.actualKey;
-            if (!aKey) continue;
-            const rVal = String(row[aKey] || '').trim().toLowerCase();
-            if (rVal !== selVal.toLowerCase()) return false;
-          }
-          return true;
-        });
-
-        const uniqueVals = Array.from(new Set(validRows.map(r => String(r[f.actualKey] || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
-
-        select.innerHTML = '';
-        const defaultOpt = document.createElement('option');
-        defaultOpt.value = '';
-        defaultOpt.textContent = f.label;
-        if (!currentVal) {
-          defaultOpt.disabled = true;
-          defaultOpt.selected = true;
-        } else {
-          defaultOpt.textContent = `All ${f.label}s`;
-        }
-        select.appendChild(defaultOpt);
-
-        uniqueVals.forEach(val => {
-          const opt = document.createElement('option');
-          opt.value = val;
-          opt.textContent = val.length > 28 ? val.substring(0, 26) + '...' : val;
-          opt.title = val;
-          if (val.toLowerCase() === currentVal.toLowerCase()) {
-            opt.selected = true;
-          }
-          select.appendChild(opt);
-        });
-
-        if (currentVal && !uniqueVals.some(v => v.toLowerCase() === currentVal.toLowerCase())) {
-          activeLookerFilters[f.id] = '';
-          select.value = '';
-        }
-      });
-    }
-
-    function resetLookerFilters() {
-      activeLookerFilters = {};
-      LOOKER_FIELDS.forEach(f => {
-        const sel = document.getElementById(`looker_${f.id}`);
-        if (sel) sel.value = '';
-      });
-      const fromInp = document.getElementById('lookerDateFrom');
-      const toInp = document.getElementById('lookerDateTo');
-      if (fromInp) fromInp.value = '';
-      if (toInp) toInp.value = '';
-
-      const queryInp = document.getElementById('sapGridSearchInput');
-      if (queryInp) queryInp.value = '';
-
-      if (tableInstance) {
-        tableInstance.clearFilter();
-      }
-      updateAllLookerDropdowns(null);
-    }
-
-    function filterSapGrid() {
-      if (tableInstance) {
-        tableInstance.setFilter(combinedSapGridFilter);
-      }
-    }
-
-    function toggleFullScreenTable() {
-      const dbMain = document.querySelector('.db-main-content');
-      const exitBtn = document.getElementById('exitFullScreenBtn');
-      if (dbMain) {
-        dbMain.classList.toggle('table-fullscreen-mode');
-        const icon = document.querySelector('button[onclick="toggleFullScreenTable()"] i');
-        if (dbMain.classList.contains('table-fullscreen-mode')) {
-          if (icon) icon.className = 'fa-solid fa-compress';
-          if (exitBtn) exitBtn.style.display = 'flex';
-          localStorage.setItem('rkd_fullscreen', 'true');
-        } else {
-          if (icon) icon.className = 'fa-solid fa-expand';
-          if (exitBtn) exitBtn.style.display = 'none';
-          localStorage.setItem('rkd_fullscreen', 'false');
-        }
-      }
     }
 
     // --- PI Generation Logic ---

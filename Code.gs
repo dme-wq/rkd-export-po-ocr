@@ -101,7 +101,13 @@ function doPost(e) {
     } else if (action === 'sendWhatsAppNotification') {
       response = sendWhatsAppNotification(args[0], args[1], args[2]);
     } else if (action === 'getSavedData') {
-      response = { success: true, data: getSavedData() };
+      response = { success: true, ...getSavedData(args[0], args[1], args[2], args[3]) };
+    } else if (action === 'checkSyncStatus') {
+      response = checkSyncStatus();
+    } else if (action === 'getFilterOptions') {
+      response = getFilterOptions();
+    } else if (action === 'getDashboardStats') {
+      response = getDashboardStats();
     } else if (action === 'updateSingleCell') {
       response = updateSingleCell(args[0], args[1], args[2]);
     } else if (action === 'updateEntireRow') {
@@ -300,6 +306,7 @@ function getPasscode() {
 
 function addCustomColumn(fieldName, section, fieldType) {
   try {
+    updateSyncStatus();
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     
     // 1. Update Data sheet headers
@@ -352,6 +359,7 @@ function addCustomColumn(fieldName, section, fieldType) {
 
 function removeColumn(fieldName, section) {
   try {
+    updateSyncStatus();
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const configSheet = ss.getSheetByName('AppConfig');
     if (!configSheet) return { success: false, error: 'AppConfig not found' };
@@ -552,6 +560,7 @@ function processExcelFile(fileId, fileName) {
 // ─────────────────────────────────────────────
 function saveToSheet(rowsData) {
   try {
+    updateSyncStatus();
     const ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     let   sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
 
@@ -890,21 +899,157 @@ function sendPIWhatsAppNotification(piNumber, piDate, piFileUrl, poData) {
 }
 
 // ─────────────────────────────────────────────
-//  FETCH SAVED DATA FOR DATA TABLE
+//  REAL-TIME SYNC & FILTERING HELPERS
 // ─────────────────────────────────────────────
-function getSavedData() {
+function updateSyncStatus() {
+  PropertiesService.getScriptProperties().setProperty('LAST_DB_UPDATE', Date.now().toString());
+}
+
+function checkSyncStatus() {
+  const ts = PropertiesService.getScriptProperties().getProperty('LAST_DB_UPDATE') || "0";
+  return { success: true, timestamp: ts };
+}
+
+function onEdit(e) {
+  if (!e) return;
+  const sheet = e.source.getActiveSheet();
+  if (sheet.getName() === CONFIG.SHEET_NAME) {
+    updateSyncStatus();
+  }
+}
+
+function getFilterOptions() {
   try {
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
-    if (!sheet) return [];
+    if (!sheet) return { success: false };
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return { success: true, filters: {} };
+    
+    const headers = data[0];
+    const filterKeys = ["Buyer / Company Name", "Vendor Name", "Ship Via", "Payment Terms", "FOB / Port of Departure", "Port of Entry / Destination"];
+    let colIndices = {};
+    filterKeys.forEach(k => {
+      let idx = headers.findIndex(h => String(h).trim().toLowerCase() === String(k).trim().toLowerCase());
+      if(idx !== -1) colIndices[k] = idx;
+    });
+
+    let options = {};
+    filterKeys.forEach(k => options[k] = new Set());
+
+    for (let i = 1; i < data.length; i++) {
+      for (let k of filterKeys) {
+        let idx = colIndices[k];
+        if (idx !== undefined && data[i][idx]) {
+          let val = String(data[i][idx]).trim();
+          if (val) options[k].add(val);
+        }
+      }
+    }
+
+    let finalOptions = {};
+    Object.keys(options).forEach(k => {
+      finalOptions[k] = Array.from(options[k]).sort();
+    });
+
+    return { success: true, filters: finalOptions };
+  } catch(e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+function getDashboardStats() {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+    if (!sheet) return { success: false };
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return { success: true, stats: { totalRows: 0, uniquePOs: 0, totalValue: 0, uniqueVendors: 0 }, poGroups: {} };
+    
+    const headers = data[0];
+    const poNumIdx = headers.findIndex(h => String(h).trim() === 'PO Number');
+    const vendorIdx = headers.findIndex(h => String(h).trim() === 'Vendor Name');
+    const buyerIdx = headers.findIndex(h => String(h).trim() === 'Buyer / Company Name');
+    const amtIdx = headers.findIndex(h => String(h).trim() === 'Line Amount' || String(h).trim() === 'Total Order Amount');
+    const dateIdx = headers.findIndex(h => String(h).trim() === 'Order Date' || String(h).trim() === 'Timestamp');
+    const sourceIdx = headers.findIndex(h => String(h).trim() === 'Source File');
+    const piNumIdx = headers.findIndex(h => String(h).trim() === 'PI Number');
+    const piLinkIdx = headers.findIndex(h => String(h).trim() === 'PI PDF Link');
+    const tsIdx = headers.findIndex(h => String(h).trim() === 'Timestamp');
+
+    let totalVal = 0;
+    let vendors = new Set();
+    let pos = new Set();
+    let poGroups = {};
+
+    for (let i = 1; i < data.length; i++) {
+      let row = data[i];
+      let poNum = (poNumIdx !== -1 && row[poNumIdx]) ? String(row[poNumIdx]).trim() : 'Unassigned';
+      let vendor = (vendorIdx !== -1 && row[vendorIdx]) ? String(row[vendorIdx]).trim() : '';
+      if (vendor) vendors.add(vendor);
+      pos.add(poNum);
+
+      let amt = (amtIdx !== -1 && row[amtIdx]) ? parseFloat(String(row[amtIdx]).replace(/[^0-9.-]+/g, "")) : 0;
+      if (!isNaN(amt)) totalVal += amt;
+
+      if (!poGroups[poNum]) {
+        let buyer = (buyerIdx !== -1) ? String(row[buyerIdx] || '') : '';
+        let dDate = (dateIdx !== -1) ? row[dateIdx] : '';
+        if (dDate instanceof Date) dDate = formatShortDate(dDate);
+
+        let sUrl = '';
+        if (sourceIdx !== -1 && row[sourceIdx]) {
+           const match = String(row[sourceIdx]).match(/=HYPERLINK\(\s*"([^"]+)"/i);
+           if (match) sUrl = match[1];
+        }
+        let piLink = '';
+        if (piLinkIdx !== -1 && row[piLinkIdx]) {
+           const match = String(row[piLinkIdx]).match(/=HYPERLINK\(\s*"([^"]+)"/i);
+           if (match) piLink = match[1];
+        }
+
+        poGroups[poNum] = {
+          buyerName: buyer,
+          date: dDate,
+          sourceUrl: sUrl,
+          piNumber: (piNumIdx !== -1) ? String(row[piNumIdx] || '') : '',
+          piPdfUrl: piLink,
+          timestamp: (tsIdx !== -1) ? row[tsIdx] : ''
+        };
+      }
+    }
+
+    return { 
+      success: true, 
+      stats: {
+        totalRows: data.length - 1,
+        uniquePOs: pos.size,
+        totalValue: totalVal,
+        uniqueVendors: vendors.size
+      },
+      poGroups: poGroups
+    };
+  } catch(e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+// ─────────────────────────────────────────────
+//  FETCH SAVED DATA FOR DATA TABLE
+// ─────────────────────────────────────────────
+function getSavedData(page = 1, size = 50, sorters = [], filters = []) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+    if (!sheet) return { data: [], last_page: 1 };
     
     const dataRange = sheet.getDataRange();
     const data = dataRange.getValues();
     const formulas = dataRange.getFormulas();
-    if (data.length <= 1) return []; // Only headers or empty
+    if (data.length <= 1) return { data: [], last_page: 1 };
     
     const headers = data[0];
-    const rows = [];
+    let rows = [];
     const config = getAppConfig().config;
     
     for (let i = 1; i < data.length; i++) {
@@ -938,10 +1083,59 @@ function getSavedData() {
       rows.push(obj);
     }
     
-    return rows.reverse(); // Newest first
+    // Reverse so newest is first by default
+    rows.reverse();
+
+    // 1. Apply Filters
+    if (filters && filters.length > 0) {
+      rows = rows.filter(row => {
+        return filters.every(f => {
+          let cellVal = String(row[f.field] || '').toLowerCase();
+          let searchVal = String(f.value).toLowerCase();
+          if (f.type === 'like' || f.type === 'contains') return cellVal.includes(searchVal);
+          if (f.type === '=') return cellVal === searchVal;
+          if (f.type === '!=') return cellVal !== searchVal;
+          return true;
+        });
+      });
+    }
+
+    // 2. Apply Sorters
+    if (sorters && sorters.length > 0) {
+      rows.sort((a, b) => {
+        for (let s of sorters) {
+          let valA = a[s.field];
+          let valB = b[s.field];
+          if (valA === valB) continue;
+          
+          let numA = parseFloat(valA);
+          let numB = parseFloat(valB);
+          let cmp = 0;
+          
+          if (!isNaN(numA) && !isNaN(numB)) {
+             cmp = numA - numB;
+          } else {
+             cmp = String(valA || '').localeCompare(String(valB || ''));
+          }
+          
+          if (cmp !== 0) {
+             return s.dir === 'desc' ? -cmp : cmp;
+          }
+        }
+        return 0;
+      });
+    }
+
+    // 3. Paginate
+    const totalRows = rows.length;
+    const lastPage = Math.ceil(totalRows / size) || 1;
+    const startIndex = (page - 1) * size;
+    const pagedRows = rows.slice(startIndex, startIndex + size);
+    
+    return { data: pagedRows, last_page: lastPage };
   } catch (e) {
     Logger.log("getSavedData error: " + e);
-    return [];
+    return { data: [], last_page: 1 };
   }
 }
 
@@ -951,6 +1145,7 @@ function getSavedData() {
 // ─────────────────────────────────────────────
 function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
   try {
+    updateSyncStatus();
     // 1. Authenticate Passcode
     if (providedPasscode !== getPasscode()) {
       return { success: false, error: "Invalid Passcode!" };
