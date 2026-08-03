@@ -3591,14 +3591,44 @@
       const rowsData = [];
 
       if (payload.items.length === 0) {
-        payload.sourceFile = payload.fileNames;
-        payload.fileUrl = payload.mainFileUrl;
+        if (formMode === 'edit' && window.bulkEditContext && window.bulkEditContext.originalItems && window.bulkEditContext.originalItems[0]) {
+           const origItem = window.bulkEditContext.originalItems[0];
+           payload.sourceFile = origItem['Source File'] || origItem.sourceFile || '';
+           payload.fileUrl = origItem.fileUrl || '';
+           if (payload.sourceFile && String(payload.sourceFile).includes('<a href="')) {
+              const match = String(payload.sourceFile).match(/href="([^"]+)".*?>(?:<[^>]+>\s*)?(.*?)<\/a>/);
+              if (match) {
+                 payload.fileUrl = match[1];
+                 payload.sourceFile = match[2];
+              }
+           }
+        } else {
+           payload.sourceFile = payload.fileNames;
+           payload.fileUrl = payload.mainFileUrl;
+        }
         rowsData.push(payload);
       } else {
-        payload.items.forEach(item => {
+        payload.items.forEach((item, index) => {
           const itemData = { ...payload, ...item };
-          itemData.sourceFile = payload.fileNames;
-          itemData.fileUrl = payload.mainFileUrl;
+          
+          if (formMode === 'edit' && window.bulkEditContext && window.bulkEditContext.originalItems) {
+             const origItem = window.bulkEditContext.originalItems[index] || window.bulkEditContext.originalItems[0];
+             if (origItem) {
+                itemData.sourceFile = origItem['Source File'] || origItem.sourceFile || '';
+                itemData.fileUrl = origItem.fileUrl || '';
+                if (itemData.sourceFile && String(itemData.sourceFile).includes('<a href="')) {
+                   const match = String(itemData.sourceFile).match(/href="([^"]+)".*?>(?:<[^>]+>\s*)?(.*?)<\/a>/);
+                   if (match) {
+                      itemData.fileUrl = match[1];
+                      itemData.sourceFile = match[2];
+                   }
+                }
+             }
+          } else {
+             itemData.sourceFile = payload.fileNames;
+             itemData.fileUrl = payload.mainFileUrl;
+          }
+          
           delete itemData.items;
           rowsData.push(itemData);
         });
