@@ -10,7 +10,11 @@
       margin: 0.25in 0.4in;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: Arial, Helvetica, sans-serif;
@@ -22,7 +26,10 @@
     }
 
     /* Global bold reset — only supplier + buyer names will be bold */
-    b, strong { font-weight: 400; }
+    b,
+    strong {
+      font-weight: 400;
+    }
 
     .invoice-box {
       position: relative;
@@ -45,9 +52,26 @@
     }
 
     /* ─── HEADER ─── */
-    .hdr-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; }
-    .hdr-logo { height: 52px; margin-bottom: 6px; display: block; }
-    .hdr-meta { font-size: 9.5px; color: #334155; margin-top: 2px; }
+    .hdr-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 6px;
+    }
+
+    .hdr-logo {
+      height: 52px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .hdr-meta {
+      font-size: 9.5px;
+      color: #334155;
+      margin-top: 2px;
+    }
+
     .invoice-title {
       font-size: 20px;
       font-weight: 700;
@@ -55,6 +79,7 @@
       letter-spacing: 2px;
       text-align: right;
     }
+
     .pi-number {
       font-size: 12px;
       font-weight: 700;
@@ -62,7 +87,13 @@
       text-align: right;
       margin-top: 3px;
     }
-    .pi-date { font-size: 9.5px; color: #334155; text-align: right; margin-top: 2px; }
+
+    .pi-date {
+      font-size: 9.5px;
+      color: #334155;
+      text-align: right;
+      margin-top: 2px;
+    }
 
     /* ─── SECTION TITLE ─── */
     .sec-title {
@@ -76,9 +107,22 @@
     }
 
     /* ─── ADDRESS BOX ─── */
-    .addr-table { width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; margin-bottom: 7px; }
-    .addr-cell { padding: 7px 10px; vertical-align: top; width: 50%; }
-    .addr-cell-l { border-right: 1px solid #cbd5e1; }
+    .addr-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 7px;
+    }
+
+    .addr-cell {
+      padding: 7px 10px;
+      vertical-align: top;
+      width: 50%;
+    }
+
+    .addr-cell-l {
+      border-right: 1px solid #cbd5e1;
+    }
 
     /* Only these two are bold */
     .supplier-name {
@@ -89,6 +133,7 @@
       padding-bottom: 4px;
       margin-bottom: 5px;
     }
+
     .buyer-name {
       font-size: 12px;
       font-weight: 800;
@@ -96,10 +141,20 @@
       margin-bottom: 4px;
     }
 
-    .addr-text { font-size: 9.5px; color: #334155; line-height: 1.55; }
+    .addr-text {
+      font-size: 9.5px;
+      color: #334155;
+      line-height: 1.55;
+    }
 
     /* ─── META GRID ─── */
-    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 7px; table-layout: fixed; }
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 7px;
+      table-layout: fixed;
+    }
+
     .meta-label {
       background: #eff6ff;
       color: #1e3a8a;
@@ -112,6 +167,7 @@
       border: 1px solid #cbd5e1;
       border-bottom: 1px solid #cbd5e1;
     }
+
     .meta-val {
       text-align: center;
       font-size: 9.5px;
@@ -121,8 +177,16 @@
     }
 
     /* ─── REMARKS ─── */
-    .rmk-box { border: 1px solid #cbd5e1; margin-bottom: 7px; }
-    .rmk-body { padding: 5px 8px; font-size: 9.5px; color: #334155; }
+    .rmk-box {
+      border: 1px solid #cbd5e1;
+      margin-bottom: 7px;
+    }
+
+    .rmk-body {
+      padding: 5px 8px;
+      font-size: 9.5px;
+      color: #334155;
+    }
 
     /* ─── ITEMS TABLE ─── */
     .items-table {
@@ -173,6 +237,7 @@
       font-style: italic;
       padding-left: 6px !important;
     }
+
     .total-words-label {
       font-size: 7.5px;
       font-style: normal;
@@ -194,6 +259,7 @@
       text-align: right !important;
       padding-right: 5px !important;
     }
+
     .grand-total-label {
       font-size: 7.5px;
       color: #1e3a8a;
@@ -201,6 +267,7 @@
       letter-spacing: 0.4px;
       display: block;
     }
+
     .grand-total-value {
       font-size: 11px;
       font-weight: 700;
@@ -208,21 +275,84 @@
     }
 
     /* ─── BOTTOM SECTION (Bank + Terms) ─── */
-    .bottom-table { width: 100%; border-collapse: separate; border-spacing: 6px 0; margin-top: 8px; table-layout: fixed; }
+    .bottom-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 6px 0;
+      margin-top: 8px;
+      table-layout: fixed;
+    }
 
-    .bank-box { border: 1px solid #cbd5e1; border-left: 3px solid #1e3a8a; }
-    .bank-title { background: #eff6ff; padding: 4px 8px; font-size: 8px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #cbd5e1; }
-    .bank-row { display: flex; border-bottom: 1px solid #f1f5f9; }
-    .bank-label { width: 38%; padding: 3px 8px; font-size: 9px; color: #64748b; flex-shrink: 0; }
-    .bank-value { padding: 3px 8px; font-size: 9.5px; color: #0f172a; flex: 1; }
+    .bank-box {
+      border: 1px solid #cbd5e1;
+      border-left: 3px solid #1e3a8a;
+    }
 
-    .terms-box { border: 1px solid #cbd5e1; }
-    .terms-body { padding: 6px 8px; font-size: 9px; color: #334155; line-height: 1.8; }
-    .terms-body ol { margin: 0; padding-left: 14px; }
+    .bank-title {
+      background: #eff6ff;
+      padding: 4px 8px;
+      font-size: 8px;
+      font-weight: 700;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .bank-row {
+      display: flex;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .bank-label {
+      width: 38%;
+      padding: 3px 8px;
+      font-size: 9px;
+      color: #64748b;
+      flex-shrink: 0;
+    }
+
+    .bank-value {
+      padding: 3px 8px;
+      font-size: 9.5px;
+      color: #0f172a;
+      flex: 1;
+    }
+
+    .terms-box {
+      border: 1px solid #cbd5e1;
+    }
+
+    .terms-body {
+      padding: 6px 8px;
+      font-size: 9px;
+      color: #334155;
+      line-height: 1.8;
+    }
+
+    .terms-body ol {
+      margin: 0;
+      padding-left: 14px;
+    }
 
     /* ─── SIGNATURE ─── */
-    .sign-section { position: absolute; bottom: 12px; left: 12px; right: 12px; width: calc(100% - 24px); border-collapse: collapse; }
-    .sign-note { font-size: 8px; color: #94a3b8; font-style: italic; vertical-align: bottom; padding-bottom: 2px; }
+    .sign-section {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      width: calc(100% - 24px);
+      border-collapse: collapse;
+    }
+
+    .sign-note {
+      font-size: 8px;
+      color: #94a3b8;
+      font-style: italic;
+      vertical-align: bottom;
+      padding-bottom: 2px;
+    }
+
     .sign-box {
       border: 1.5px solid #1e3a8a;
       background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
@@ -232,36 +362,73 @@
       width: 210px;
       text-align: center;
     }
-    .sign-for { font-size: 9.5px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
-    .sign-img { height: 48px; width: auto; margin: 3px 0; }
-    .sign-auth { border-top: 1.5px solid #1e3a8a; padding-top: 4px; font-size: 8.5px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; }
-    .sign-dig { font-size: 7.5px; color: #94a3b8; margin-top: 1px; }
+
+    .sign-for {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 3px;
+    }
+
+    .sign-img {
+      height: 48px;
+      width: auto;
+      margin: 3px 0;
+    }
+
+    .sign-auth {
+      border-top: 1.5px solid #1e3a8a;
+      padding-top: 4px;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .sign-dig {
+      font-size: 7.5px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
   </style>
 </head>
 
 <body>
-<div class="page-border"></div>
-<div class="invoice-box">
+  <div class="page-border"></div>
+  <div class="invoice-box">
 
-  <!-- ══ HEADER ══ -->
-  <table style="width:100%; border-collapse:collapse; margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:6px;">
-    <tr>
-      <td style="vertical-align:top; width:55%;">
-        <img src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png"
-             alt="RKD Logo" class="hdr-logo">
-        <div class="hdr-meta">Buyer PO Number: <?= poData['PO Number'] || 'N/A' ?></div>
-        <div class="hdr-meta" style="margin-top:1px;">Order Date: <?= poData['Order Date'] || 'N/A' ?></div>
-      </td>
-      <td style="vertical-align:top; text-align:right; width:45%;">
-        <div class="invoice-title">PROFORMA INVOICE</div>
-        <div class="pi-number">PI No.: <?= piNumber ?></div>
-        <div class="pi-date">PI Date: <?= piDate ?></div>
-      </td>
-    </tr>
-  </table>
+    <!-- ══ HEADER ══ -->
+    <table
+      style="width:100%; border-collapse:collapse; margin-bottom:8px; border-bottom:1px solid #cbd5e1; padding-bottom:6px;">
+      <tr>
+        <td style="vertical-align:top; width:55%;">
+          <img
+            src="https://static.wixstatic.com/media/68b92a_d71e34133826499983234774dea1945b~mv2.png/v1/fill/w_186,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/RKD-Logo.png"
+            alt="RKD Logo" class="hdr-logo">
+          <div class="hdr-meta">Buyer PO Number:
+            <?= poData['PO Number'] || 'N/A' ?>
+          </div>
+          <div class="hdr-meta" style="margin-top:1px;">Order Date:
+            <?= poData['Order Date'] || 'N/A' ?>
+          </div>
+        </td>
+        <td style="vertical-align:top; text-align:right; width:45%;">
+          <div class="invoice-title">PROFORMA INVOICE</div>
+          <div class="pi-number">PI No.:
+            <?= piNumber ?>
+          </div>
+          <div class="pi-date">PI Date:
+            <?= piDate ?>
+          </div>
+        </td>
+      </tr>
+    </table>
 
-  <!-- ══ ADDRESSES ══ -->
-  <?
+    <!-- ══ ADDRESSES ══ -->
+    <?
     function getVal(obj, keys) {
       if (!obj) return null;
       const objKeys = Object.keys(obj);
@@ -279,33 +446,37 @@
     const buyerNameDisplay = getVal(poData, ['Buyer / Company Name','Buyer','Company Name','Vendor Name','Vendor']) || 'N/A';
     const customerAddrDisplay = getVal(poData, ['Customer Address','Delivery Address','Buyer Address','Address']) || getVal(poData, ['Port of Entry / Destination','Port of Entry','Destination']) || 'Address not specified in PO';
   ?>
-  <table class="addr-table">
-    <tr>
-      <td class="sec-title" style="width:50%;">Supplier Details</td>
-      <td class="sec-title" style="width:50%;">Buyer / Delivery Address</td>
-    </tr>
-    <tr>
-      <td class="addr-cell addr-cell-l">
-        <div class="supplier-name">M/S RKD Furnishings Pvt. Ltd.</div>
-        <div class="addr-text" style="border-bottom:1px dashed #cbd5e1; padding-bottom:5px; margin-bottom:5px;">
-          Plot No. 262, 263, 238, 239, Sector-29, Part-2<br>
-          HUDA, Panipat-132103, Haryana, India<br>
-          IEC No: AAKCR0233R
-        </div>
-        <div class="addr-text">
-          Kunal Jain &nbsp;|&nbsp; +91 98120 20069<br>
-          <a href="mailto:kunal.jain@rkd.in" style="color:#0284c7;text-decoration:none;">kunal.jain@rkd.in</a>
-        </div>
-      </td>
-      <td class="addr-cell">
-        <div class="buyer-name"><?= buyerNameDisplay ?></div>
-        <div class="addr-text"><?= customerAddrDisplay ?></div>
-      </td>
-    </tr>
-  </table>
+    <table class="addr-table">
+      <tr>
+        <td class="sec-title" style="width:50%;">Supplier Details</td>
+        <td class="sec-title" style="width:50%;">Buyer / Delivery Address</td>
+      </tr>
+      <tr>
+        <td class="addr-cell addr-cell-l">
+          <div class="supplier-name">M/S RKD Furnishings Pvt. Ltd.</div>
+          <div class="addr-text" style="border-bottom:1px dashed #cbd5e1; padding-bottom:5px; margin-bottom:5px;">
+            Plot No. 262, 263, 238, 239, Sector-29, Part-2<br>
+            HUDA, Panipat-132103, Haryana, India<br>
+            IEC No: AAKCR0233R
+          </div>
+          <div class="addr-text">
+            Kunal Jain &nbsp;|&nbsp; +91 98120 20069<br>
+            <a href="mailto:kunal.jain@rkd.in" style="color:#0284c7;text-decoration:none;">kunal.jain@rkd.in</a>
+          </div>
+        </td>
+        <td class="addr-cell">
+          <div class="buyer-name">
+            <?= buyerNameDisplay ?>
+          </div>
+          <div class="addr-text">
+            <?= customerAddrDisplay ?>
+          </div>
+        </td>
+      </tr>
+    </table>
 
-  <!-- ══ META GRID ══ -->
-  <?
+    <!-- ══ META GRID ══ -->
+    <?
     const metaFields = [];
     const ignoreMetaInGrid = ['po number','order date','buyer / company name','buyer','company name','vendor name','vendor','customer address','delivery address','buyer address','address','remarks','notes','_id','_action','timestamp','source file','pi pdf link','pi number','pi date','actions','currency','currency symbol','currency_symbol', 'next delivery date', 'delivery date'];
     const activeHeaders = (typeof selectedHeaderFields !== 'undefined' && selectedHeaderFields && selectedHeaderFields.length > 0)
@@ -327,48 +498,58 @@
     const metaRows = [];
     for (let r = 0; r < metaFields.length; r += colsPerRow) metaRows.push(metaFields.slice(r, r + colsPerRow));
   ?>
-  <? if (metaRows.length > 0) { ?>
-  <table class="meta-table">
-    <? metaRows.forEach(rowChunk => { ?>
-    <tr>
-      <? rowChunk.forEach(item => {
+    <? if (metaRows.length > 0) { ?>
+    <table class="meta-table">
+      <? metaRows.forEach(rowChunk => { ?>
+      <tr>
+        <? rowChunk.forEach(item => {
         let lbl = item.label.toUpperCase();
         if (lbl.includes('EX-FACTORY')) lbl = 'Ex-Factory Date';
         else if (lbl === 'FOB / PORT OF DEPARTURE') lbl = 'Port of Departure';
         else if (lbl === 'PORT OF ENTRY / DESTINATION') lbl = 'Destination';
         else lbl = item.label;
       ?>
-      <td style="width:<?= 100/rowChunk.length ?>%; vertical-align:top; padding: 0 3px 5px 3px;">
-        <table style="width:100%; border-collapse:collapse; border:1px solid #cbd5e1;">
-          <tr><td class="meta-label"><?= lbl.toUpperCase() ?></td></tr>
-          <tr><td class="meta-val"><?= item.value || 'N/A' ?></td></tr>
-        </table>
-      </td>
+        <td style="width:<?= 100/rowChunk.length ?>%; vertical-align:top; padding: 0 3px 5px 3px;">
+          <table style="width:100%; border-collapse:collapse; border:1px solid #cbd5e1;">
+            <tr>
+              <td class="meta-label">
+                <?= lbl.toUpperCase() ?>
+              </td>
+            </tr>
+            <tr>
+              <td class="meta-val">
+                <?= item.value || 'N/A' ?>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <? }); ?>
+      </tr>
       <? }); ?>
-    </tr>
-    <? }); ?>
-  </table>
-  <? } ?>
+    </table>
+    <? } ?>
 
-  <!-- ══ REMARKS ══ -->
-  <? if (poData['Remarks'] && String(poData['Remarks']).trim() !== '') { ?>
-  <div class="rmk-box">
-    <div class="sec-title">Notes / Remarks</div>
-    <div class="rmk-body"><?= poData['Remarks'] ?></div>
-  </div>
-  <? } ?>
+    <!-- ══ REMARKS ══ -->
+    <? if (poData['Remarks'] && String(poData['Remarks']).trim() !== '') { ?>
+    <div class="rmk-box">
+      <div class="sec-title">Notes / Remarks</div>
+      <div class="rmk-body">
+        <?= poData['Remarks'] ?>
+      </div>
+    </div>
+    <? } ?>
 
-  <!-- ══ ITEMS TABLE ══ -->
-  <?
+    <!-- ══ ITEMS TABLE ══ -->
+    <?
     const activeCols = (typeof selectedColumns !== 'undefined' && selectedColumns && selectedColumns.length > 0)
       ? selectedColumns
       : ['S.No','SKU / Item #','Description','Color','Size','Unit Price','Quantity','Line Amount'];
   ?>
-  <table class="items-table">
-    <!-- Header Row -->
-    <thead>
-      <tr>
-        <?
+    <table class="items-table">
+      <!-- Header Row -->
+      <thead>
+        <tr>
+          <?
           activeCols.forEach(col => {
             const cLower = String(col).trim().toLowerCase();
             let w = ''; let title = col.toUpperCase();
@@ -381,14 +562,16 @@
             else if (cLower.includes('qty') || cLower.includes('quantity')) { w='8%'; title='QTY'; }
             else if (cLower.includes('amount') || cLower === 'line amount') { w='13%'; title='AMOUNT'; }
         ?>
-        <th style="width:<?= w ?>;"><?= title ?></th>
-        <? }); ?>
-      </tr>
-    </thead>
+          <th style="width:<?= w ?>;">
+            <?= title ?>
+          </th>
+          <? }); ?>
+        </tr>
+      </thead>
 
-    <!-- Data Rows -->
-    <tbody>
-    <?
+      <!-- Data Rows -->
+      <tbody>
+        <?
       let grandTotal = 0;
       let totalQty   = 0;
       let currency   = poData['Currency'] || poData['Currency Symbol'] || poData['currency'] || '';
@@ -408,8 +591,8 @@
         const rowCurr = item['Currency'] || currency || '';
         if (!currency && rowCurr) currency = rowCurr;
     ?>
-    <tr>
-      <?
+        <tr>
+          <?
         activeCols.forEach(col => {
           const cLower = String(col).trim().toLowerCase();
           let align = 'center'; let val = '-'; let extra = '';
@@ -434,14 +617,16 @@
             val = (item[col] !== null && item[col] !== undefined && String(item[col]).trim() !== '') ? item[col] : '-';
           }
       ?>
-      <td style="text-align:<?= align ?> !important; <?= extra ?>"><?= val ?></td>
-      <? }); ?>
-    </tr>
-    <? } ?>
-    </tbody>
+          <td style="text-align:<?= align ?> !important; <?= extra ?>">
+            <?= val ?>
+          </td>
+          <? }); ?>
+        </tr>
+        <? } ?>
+      </tbody>
 
-    <!-- ══ TOTAL ROW: Left = Amount in Words | Mid = Total Qty | Right = Grand Total ══ -->
-    <?
+      <!-- ══ TOTAL ROW: Left = Amount in Words | Mid = Total Qty | Right = Grand Total ══ -->
+      <?
       // Number to words (Indian system)
       function numberToWords(num) {
         if (num === 0) return 'Zero';
@@ -487,85 +672,116 @@
          showLabel = false;
       }
     ?>
-    <tr class="total-row">
-      <? if (wordSpan > 0) { ?>
-      <!-- Amount in Words -->
-      <td colspan="<?= wordSpan ?>" class="total-words-cell" style="text-align:left; padding-left:8px; border-right:1px solid #c9cdd4;">
-        <span class="total-words-label" style="display:inline; margin-right:5px; font-weight:700;">Amount in Words:</span>
-        <span style="font-style:italic; font-size:10px;"><?= currLabel ?> <?= amtWords ?></span>
-      </td>
-      <? } ?>
-      
-      <? if (showLabel) { ?>
-      <!-- Grand Total Label Cell -->
-      <td style="text-align:right; padding-right:8px; font-weight:700; font-size:10px; border-right:1px solid #c9cdd4;">Grand Total</td>
-      <? } ?>
+      <tr class="total-row">
+        <? if (wordSpan > 0) { ?>
+        <!-- Amount in Words -->
+        <td colspan="<?= wordSpan ?>" class="total-words-cell"
+          style="text-align:left; padding-left:8px; border-right:1px solid #c9cdd4;">
+          <span class="total-words-label" style="display:inline; margin-right:5px; font-weight:700;">Amount in
+            Words:</span>
+          <span style="font-style:italic; font-size:10px;">
+            <?= currLabel ?>
+            <?= amtWords ?>
+          </span>
+        </td>
+        <? } ?>
 
-      <!-- Data Cells -->
-      <? 
+        <? if (showLabel) { ?>
+        <!-- Grand Total Label Cell -->
+        <td
+          style="text-align:right; padding-right:8px; font-weight:700; font-size:10px; border-right:1px solid #c9cdd4;">
+          Grand Total</td>
+        <? } ?>
+
+        <!-- Data Cells -->
+        <? 
         for (let i = firstDataColIdx; i < activeCols.length; i++) { 
           if (i === qtyColIdx) { 
       ?>
-          <td class="total-qty-cell" style="text-align:center; font-weight:700; font-size:11px; border-right:1px solid #c9cdd4;"><?= Number(totalQty).toLocaleString('en-US') ?></td>
-      <?  } else if (i === amtColIdx) { ?>
-          <td class="grand-total-cell" style="text-align:right; padding-right:6px; font-weight:700; font-size:11px;">
-            <?= currLabel ?> <?= Number(grandTotal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) ?>
-          </td>
-      <?  } else { ?>
-          <td style="border-right:1px solid #c9cdd4;"></td>
-      <?  } 
+        <td class="total-qty-cell"
+          style="text-align:center; font-weight:700; font-size:11px; border-right:1px solid #c9cdd4;">
+          <?= Number(totalQty).toLocaleString('en-US') ?>
+        </td>
+        <?  } else if (i === amtColIdx) { ?>
+        <td class="grand-total-cell" style="text-align:right; padding-right:6px; font-weight:700; font-size:11px;">
+          <?= currLabel ?>
+          <?= Number(grandTotal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) ?>
+        </td>
+        <?  } else { ?>
+        <td style="border-right:1px solid #c9cdd4;"></td>
+        <?  } 
         } 
       ?>
-    </tr>
-  </table>
+      </tr>
+    </table>
 
-  <!-- ══ BANK DETAILS + TERMS & CONDITIONS ══ -->
-  <table class="bottom-table">
-    <tr>
-      <!-- BANK DETAILS -->
-      <td style="width:55%; vertical-align:top; padding:0;">
-        <div class="bank-box">
-          <div class="bank-title">Bank Details for RKD Furnishings Pvt. Ltd.</div>
-          <div class="bank-row"><div class="bank-label">Bank Name</div><div class="bank-value">ICICI Bank Ltd</div></div>
-          <div class="bank-row"><div class="bank-label">Branch</div><div class="bank-value">SCF 48, Sector 11, Panipat, 132103, Haryana, India</div></div>
-          <div class="bank-row"><div class="bank-label">Account Name</div><div class="bank-value">RKD Furnishings Pvt Ltd</div></div>
-          <div class="bank-row"><div class="bank-label">Account No.</div><div class="bank-value">251251000020</div></div>
-          <div class="bank-row"><div class="bank-label">Swift Code</div><div class="bank-value">ICICINBBCTS</div></div>
-          <div class="bank-row" style="border-bottom:none;"><div class="bank-label">AD Code</div><div class="bank-value">6390371</div></div>
-        </div>
-      </td>
-      <!-- DECLARATION -->
-      <td style="width:45%; vertical-align:top; padding:0;">
-        <div class="terms-box">
-          <div class="sec-title">Declaration</div>
-          <div class="terms-body">
-            <ol>
-              <li>We hereby declare that this proforma invoice shows the actual price of the goods described and that all particulars are true &amp; correct.</li>
-            </ol>
+    <!-- ══ BANK DETAILS + TERMS & CONDITIONS ══ -->
+    <table class="bottom-table">
+      <tr>
+        <!-- BANK DETAILS -->
+        <td style="width:55%; vertical-align:top; padding:0;">
+          <div class="bank-box">
+            <div class="bank-title">Bank Details for RKD Furnishings Pvt. Ltd.</div>
+            <div class="bank-row">
+              <div class="bank-label">Bank Name</div>
+              <div class="bank-value">ICICI Bank Ltd</div>
+            </div>
+            <div class="bank-row">
+              <div class="bank-label">Branch</div>
+              <div class="bank-value">SCF 48, Sector 11, Panipat, 132103, Haryana, India</div>
+            </div>
+            <div class="bank-row">
+              <div class="bank-label">Account Name</div>
+              <div class="bank-value">RKD Furnishings Pvt Ltd</div>
+            </div>
+            <div class="bank-row">
+              <div class="bank-label">Account No.</div>
+              <div class="bank-value">251251000020</div>
+            </div>
+            <div class="bank-row">
+              <div class="bank-label">Swift Code</div>
+              <div class="bank-value">ICICINBBCTS</div>
+            </div>
+            <div class="bank-row" style="border-bottom:none;">
+              <div class="bank-label">AD Code</div>
+              <div class="bank-value">6390371</div>
+            </div>
           </div>
-        </div>
-      </td>
-    </tr>
-  </table>
-
-  <!-- ══ SIGNATURE ══ -->
-  <table class="sign-section">
-    <tr>
-      <td class="sign-note">
-      </td>
-      <td style="text-align:right; vertical-align:bottom;">
-        <div class="sign-box">
-          <div class="sign-for">For RKD Furnishings Pvt. Ltd.</div>
-          <div style="height:44px; margin:3px 0; text-align:center;">
-            <img src="https://i.postimg.cc/R0PhxRnR/Sign-KJ.jpg" alt="Signature" class="sign-img">
+        </td>
+        <!-- DECLARATION -->
+        <td style="width:45%; vertical-align:top; padding:0;">
+          <div class="terms-box">
+            <div class="sec-title">Declaration</div>
+            <div class="terms-body">
+              <ol>
+                <li>We hereby declare that this proforma invoice shows the actual price of the goods described and that
+                  all particulars are true &amp; correct.</li>
+              </ol>
+            </div>
           </div>
-          <div class="sign-auth">Authorised Signatory</div>
-          <div class="sign-dig">(Digital Signature)</div>
-        </div>
-      </td>
-    </tr>
-  </table>
+        </td>
+      </tr>
+    </table>
 
-</div>
+    <!-- ══ SIGNATURE ══ -->
+    <table class="sign-section">
+      <tr>
+        <td class="sign-note">
+        </td>
+        <td style="text-align:right; vertical-align:bottom;">
+          <div class="sign-box">
+            <div class="sign-for">For RKD Furnishings Pvt. Ltd.</div>
+            <div style="height:44px; margin:3px 0; text-align:center;">
+              <img src="https://i.postimg.cc/R0PhxRnR/Sign-KJ.jpg" alt="Signature" class="sign-img">
+            </div>
+            <div class="sign-auth">Authorised Signatory</div>
+            <div class="sign-dig">(Digital Signature)</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+  </div>
 </body>
+
 </html>
