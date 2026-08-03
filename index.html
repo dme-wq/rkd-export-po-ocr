@@ -2394,7 +2394,15 @@
                if (statsRes.success) {
                   updateDashboardStats(statsRes.stats, statsRes.poGroups);
                }
-               if (tableInstance) tableInstance.replaceData();
+               // Fetch data first then pass to replaceData — calling replaceData() with no
+               // args wipes the table (Tabulator tries to reload from AJAX URL which doesn't exist)
+               if (tableInstance) {
+                  const bgDataRes = await callBackend('getSavedData', 1, 10000, [], []);
+                  const bgData = bgDataRes.data || bgDataRes;
+                  if (Array.isArray(bgData) && bgData.length > 0) {
+                     tableInstance.replaceData(bgData);
+                  }
+               }
             }
          } catch(e) {}
       }
@@ -3959,11 +3967,20 @@
         if (!tableInstance) {
            const initialDataRes = await callBackend('getSavedData', 1, 10000, [], []);
            document.getElementById('overlay').style.display = 'none';
-           renderTabulator(initialDataRes.data || initialDataRes);
+           const initialData = initialDataRes.data || initialDataRes;
+           if (Array.isArray(initialData) && initialData.length > 0) {
+              renderTabulator(initialData);
+           } else {
+              document.getElementById('overlay').style.display = 'none';
+           }
         } else {
            const refreshDataRes = await callBackend('getSavedData', 1, 10000, [], []);
            document.getElementById('overlay').style.display = 'none';
-           tableInstance.replaceData(refreshDataRes.data || refreshDataRes); 
+           const refreshData = refreshDataRes.data || refreshDataRes;
+           // Only replace if we got valid data back — prevents blank table on network hiccup
+           if (Array.isArray(refreshData) && refreshData.length > 0) {
+              tableInstance.replaceData(refreshData);
+           }
         }
       } catch (err) {
         document.getElementById('overlay').style.display = 'none';
