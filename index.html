@@ -3614,13 +3614,14 @@
           if (formMode === 'edit' && window.bulkEditContext && window.bulkEditContext.originalItems) {
              const origItem = window.bulkEditContext.originalItems[index] || window.bulkEditContext.originalItems[0];
              if (origItem) {
-                itemData.sourceFile = origItem['Source File'] || origItem.sourceFile || '';
+                const sourceFileKey = Object.keys(origItem).find(k => k.trim().toLowerCase() === 'source file');
+                itemData.sourceFile = (sourceFileKey ? origItem[sourceFileKey] : '') || origItem.sourceFile || '';
                 itemData.fileUrl = origItem.fileUrl || '';
                 if (itemData.sourceFile && String(itemData.sourceFile).includes('<a href="')) {
-                   const match = String(itemData.sourceFile).match(/href="([^"]+)".*?>(?:<[^>]+>\s*)?(.*?)<\/a>/);
+                   const match = String(itemData.sourceFile).match(/href="([^"]+)".*?>(?:<[^>]+>\s*)?(.*?)<\/a>/i);
                    if (match) {
                       itemData.fileUrl = match[1];
-                      itemData.sourceFile = match[2];
+                      itemData.sourceFile = (match[2] || '').replace(/<[^>]*>/g, '').trim();
                    }
                 }
              }
