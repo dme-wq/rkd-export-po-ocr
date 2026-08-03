@@ -3944,7 +3944,7 @@
       document.getElementById('dataTableSection').classList.add('active-flex');
       localStorage.setItem('activeView', 'database');
 
-      if (!tableInstance || forceRefresh) {
+      if (!tableInstance) {
         document.getElementById('overlay').style.display = 'flex';
         document.getElementById('loadingText').textContent = 'Loading Database...';
         document.getElementById('loadingSubText').textContent = 'Fetching entries and stats from Google Sheets...';
