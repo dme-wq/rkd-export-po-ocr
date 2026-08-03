@@ -609,9 +609,11 @@ function saveToSheet(rowsData) {
 
     // ── Append rows ────────────────────────────
     const timestampFormatted = formatLongDateTime(new Date());
-    let rowsAdded   = 0;
+    let rowsAdded = 0;
+    const insertedIds = [];
+    const startRow = sheet.getLastRow() + 1;
 
-    rowsData.forEach(data => {
+    rowsData.forEach((data, idx) => {
       const row = [];
       sheetHeaders.forEach(header => {
         const headerLower = String(header).trim().toLowerCase();
@@ -628,6 +630,7 @@ function saveToSheet(rowsData) {
         }
       });
       sheet.appendRow(row);
+      insertedIds.push(startRow + idx);
       rowsAdded++;
     });
 
@@ -638,6 +641,7 @@ function saveToSheet(rowsData) {
     return {
       success  : true,
       rowsAdded: rowsAdded,
+      insertedIds: insertedIds,
       sheetUrl : ss.getUrl()
     };
 
@@ -1214,14 +1218,20 @@ function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
 
     // 4. Overwrite existing matching rows
     const overwriteCount = Math.min(matchIndices.length, preparedRows.length);
+    const updatedIds = [];
     for (let i = 0; i < overwriteCount; i++) {
       const rowIndex = matchIndices[i];
       sheet.getRange(rowIndex, 1, 1, headers.length).setValues([preparedRows[i]]);
+      updatedIds.push(rowIndex);
     }
 
     // 5. Append surplus new rows if any
+    const lastRowBeforeAppend = sheet.getLastRow();
+    let appendedCount = 0;
     for (let i = overwriteCount; i < preparedRows.length; i++) {
       sheet.appendRow(preparedRows[i]);
+      updatedIds.push(lastRowBeforeAppend + 1 + appendedCount);
+      appendedCount++;
     }
 
     // 6. Delete surplus old rows if any (bottom-up to avoid shifting indices)
@@ -1232,7 +1242,7 @@ function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
     }
 
     SpreadsheetApp.flush();
-    return { success: true };
+    return { success: true, insertedIds: updatedIds };
   } catch (err) {
     return { success: false, error: err.toString() };
   }

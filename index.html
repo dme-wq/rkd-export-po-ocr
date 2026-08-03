@@ -3650,6 +3650,18 @@
         document.getElementById('submitBtn').disabled = false;
 
         if (response.success) {
+          if (response.insertedIds && response.insertedIds.length > 0) {
+            if (payload.items && payload.items.length === response.insertedIds.length) {
+              payload.items.forEach((item, index) => {
+                item._id = response.insertedIds[index];
+                if (rowsData[index]) rowsData[index]._id = response.insertedIds[index];
+              });
+            } else if (payload.items && payload.items.length === 0 && rowsData.length === 1) {
+              payload._id = response.insertedIds[0];
+              rowsData[0]._id = response.insertedIds[0];
+            }
+          }
+
           if (formMode === 'edit') {
             // After bulk edit save — offer PI regeneration
             const editedPo = payload['PO Number'] || window.bulkEditContext.oldPoNumber;
