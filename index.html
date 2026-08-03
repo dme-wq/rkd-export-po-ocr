@@ -2394,14 +2394,9 @@
                if (statsRes.success) {
                   updateDashboardStats(statsRes.stats, statsRes.poGroups);
                }
-               // Fetch data first then pass to replaceData — calling replaceData() with no
-               // args wipes the table (Tabulator tries to reload from AJAX URL which doesn't exist)
+               // Reuse _refreshDatabaseBackground which fetches stats+data in parallel
                if (tableInstance) {
-                  const bgDataRes = await callBackend('getSavedData', 1, 10000, [], []);
-                  const bgData = bgDataRes.data || bgDataRes;
-                  if (Array.isArray(bgData) && bgData.length > 0) {
-                     tableInstance.replaceData(bgData);
-                  }
+                  _refreshDatabaseBackground();
                }
             }
          } catch(e) {}
@@ -3688,16 +3683,16 @@
               confirmButtonColor: '#f59e0b'
             }).then(async (result) => {
               if (result.isConfirmed) {
-                await showDataTable();
+                showDataTable();
                 setTimeout(() => { openPiModal(editedPo); }, 400);
               } else {
                 showDataTable();
               }
             });
           } else if (autoOpenPi) {
-            await showDataTable();
-            setTimeout(() => { openPiModal(payload['PO Number']); }, 400);
+            showDataTable();
             resetUI();
+            setTimeout(() => { openPiModal(payload['PO Number']); }, 300);
           } else {
             Swal.fire({
               icon: 'success',
@@ -3947,44 +3942,44 @@
     // ─────────────────────────────────────────────
     let tableInstance = null;
 
-        async function showDataTable(forceRefresh = false) {
+        function showDataTable(forceRefresh = false) {
+      // Switch view INSTANTLY — no overlay, no blocking
       document.querySelector('.container').style.display = 'none';
       document.getElementById('dataTableSection').classList.add('active-flex');
       localStorage.setItem('activeView', 'database');
 
+      // Show a small inline spinner only on very first load (table not yet created)
       if (!tableInstance) {
-        document.getElementById('overlay').style.display = 'flex';
-        document.getElementById('loadingText').textContent = 'Loading Database...';
-        document.getElementById('loadingSubText').textContent = 'Fetching entries and stats from Google Sheets...';
+        const tbl = document.getElementById('poDataTable');
+        if (tbl) tbl.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted);"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.5rem;margin-bottom:0.75rem;display:block;"></i>Loading data...</div>';
       }
 
+      // Fire all backend fetches in the background — UI stays responsive
+      _refreshDatabaseBackground();
+    }
+
+    async function _refreshDatabaseBackground() {
       try {
-        const statsRes = await callBackend('getDashboardStats');
-        if (statsRes.success) {
+        // Fetch stats + data in parallel for maximum speed
+        const [statsRes, dataRes] = await Promise.all([
+          callBackend('getDashboardStats'),
+          callBackend('getSavedData', 1, 10000, [], [])
+        ]);
+
+        if (statsRes && statsRes.success) {
           updateDashboardStats(statsRes.stats, statsRes.poGroups);
         }
 
-        if (!tableInstance) {
-           const initialDataRes = await callBackend('getSavedData', 1, 10000, [], []);
-           document.getElementById('overlay').style.display = 'none';
-           const initialData = initialDataRes.data || initialDataRes;
-           if (Array.isArray(initialData) && initialData.length > 0) {
-              renderTabulator(initialData);
-           } else {
-              document.getElementById('overlay').style.display = 'none';
-           }
-        } else {
-           const refreshDataRes = await callBackend('getSavedData', 1, 10000, [], []);
-           document.getElementById('overlay').style.display = 'none';
-           const refreshData = refreshDataRes.data || refreshDataRes;
-           // Only replace if we got valid data back — prevents blank table on network hiccup
-           if (Array.isArray(refreshData) && refreshData.length > 0) {
-              tableInstance.replaceData(refreshData);
-           }
+        const data = dataRes.data || dataRes;
+        if (Array.isArray(data) && data.length > 0) {
+          if (!tableInstance) {
+            renderTabulator(data);
+          } else {
+            tableInstance.replaceData(data);
+          }
         }
       } catch (err) {
-        document.getElementById('overlay').style.display = 'none';
-        Swal.fire('Error', err.message || err.toString(), 'error');
+        console.warn('Database background refresh error:', err);
       }
     }
 
@@ -5108,12 +5103,13 @@
             ? `<br><br><span style="color:#25D366; font-weight:700;"><i class="fa-brands fa-whatsapp"></i> WhatsApp sent to ${waSentCount} contact(s)</span>`
             : '';
 
+          // Refresh DB table in background immediately (no overlay, no blocking)
+          showDataTable(true);
+
           Swal.fire({
             title: '<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> PI Generated!',
             html: `The Proforma Invoice has been saved to Drive.${waNote}<br><br><a href="${res.url}" target="_blank" class="btn btn-gradient" style="text-decoration:none; margin-top:10px; display:inline-flex; align-items:center; gap:0.5rem;"><i class="fa-solid fa-eye"></i> View PI PDF</a>`,
             icon: 'success'
-          }).then(() => {
-            showDataTable(true); // Refresh table to show PDF links
           });
         } else {
           Swal.fire('Error', res.error, 'error');
