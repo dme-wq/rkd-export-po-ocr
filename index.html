@@ -3062,6 +3062,9 @@
           document.getElementById('dataPreview').style.display = 'block';
           document.querySelector('.container').classList.add('container-fullscreen');
           window.scrollTo({ top: 0, behavior: 'smooth' });
+          
+          sessionStorage.setItem('rkd_active_extracted_payload', JSON.stringify(extractedPayload));
+          if (typeof debouncedSaveDraft === 'function') debouncedSaveDraft();
         } else {
           Swal.fire('Extraction Error', response.error, 'error');
         }
@@ -3401,6 +3404,8 @@
         return fg ? fg.style.display !== 'none' : true;
       });
       document.getElementById('statMissingCount').textContent = actualMissing.length;
+      
+      if (typeof debouncedSaveDraft === 'function') debouncedSaveDraft();
     }
 
     // ─────────────────────────────────────────────
@@ -3642,6 +3647,8 @@
       formMode = 'upload';
       window.bulkEditContext = null;
       fileInput.value = '';
+      sessionStorage.removeItem('rkd_active_form_draft');
+      sessionStorage.removeItem('rkd_active_extracted_payload');
       renderFileList();
       document.getElementById('uploadSection').style.display = 'block';
       document.getElementById('dataPreview').style.display = 'none';
@@ -4516,6 +4523,19 @@
       updateAllLookerDropdowns(null);
     }
 
+    let draftSaveTimeout = null;
+    function debouncedSaveDraft() {
+      clearTimeout(draftSaveTimeout);
+      draftSaveTimeout = setTimeout(() => {
+        if (document.getElementById('dataPreview').style.display === 'block' && typeof formMode !== 'undefined' && formMode === 'upload') {
+          if (typeof buildFormDataPayload === 'function') {
+            const currentData = buildFormDataPayload();
+            sessionStorage.setItem('rkd_active_form_draft', JSON.stringify(currentData));
+          }
+        }
+      }, 500);
+    }
+
     // Default year filter on load
     function handleMissingFieldCheck(e) {
       if (e.target && (e.target.hasAttribute('data-fieldname') || e.target.hasAttribute('data-itemfieldname'))) {
@@ -4536,6 +4556,20 @@
       const yearSelect = document.getElementById('dbYearFilter');
       if (yearSelect) {
         yearSelect.value = new Date().getFullYear().toString();
+      }
+      
+      const savedExtractedPayload = sessionStorage.getItem('rkd_active_extracted_payload');
+      const savedDraft = sessionStorage.getItem('rkd_active_form_draft');
+      
+      if (savedExtractedPayload && savedDraft) {
+        extractedPayload = JSON.parse(savedExtractedPayload);
+        const draftData = JSON.parse(savedDraft);
+        
+        document.getElementById('uploadSection').style.display = 'none';
+        document.getElementById('dataPreview').style.display = 'block';
+        document.querySelector('.container').classList.add('container-fullscreen');
+        
+        populateForm(draftData);
       }
     });
 
