@@ -397,10 +397,10 @@ function callGeminiAPI(documentParts) {
       return 'string (CRITICAL: Extract the EXACT, FULL, ORIGINAL product description text as-it-is from the PO document without removing, cutting, or truncating any words, color, or size information! e.g., keep "Nudie Rudie Bath Mat Mini - Dahlia" exactly as written)';
     }
     if (fieldName && (fieldName.toLowerCase().includes('color') || fieldName.toLowerCase().includes('colour'))) {
-      return 'string (CRITICAL: Extract color name. If Color is not in a separate table column, you MUST INTELLIGENTLY ANALYZE and extract the color from Item Description or SKU! e.g., in "Nudie Rudie Bath Mat Mini - Dahlia", extract "Dahlia"; in "Tula Nudie Bath Mat - Cornflower", extract "Cornflower"; in "Hayfolk Bath Mat - Terra", extract "Terra")';
+      return 'string (Extract the color ONLY if a clear, widely-known color name exists in the Description, SKU or as a separate column. Do NOT extract random brand-specific design names or patterns (e.g., "Pickle", "Sugo", "Terra", "Dahlia") as colors. If you are not 100% certain it is a real color, return an empty string "")';
     }
     if (fieldName && fieldName.toLowerCase().includes('size')) {
-      return 'string (CRITICAL: Extract size/dimensions. If Size is not in a separate table column, you MUST INTELLIGENTLY ANALYZE and extract the size from Item Description or SKU! e.g., in "Nudie Rudie Bath Mat Mini - Dahlia", extract "Mini"; in "Bath Mat - XL", extract "XL")';
+      return 'string (Extract the size/dimensions ONLY if a clear size indicator (e.g., Mini, XL, 50x50, Medium) exists in the Description, SKU, or as a separate column. Do not guess. If no clear size is found, return an empty string "")';
     }
     return 'string (Extract clean text. If embedded in combined fields, parse and extract accurately without altering original source text)';
   };
