@@ -3003,10 +3003,10 @@
       });
       
       try {
-         const res = await callBackend('getSavedData', [1, 1000, [], [
+         const res = await callBackend('getSavedData', 1, 1000, [], [
              {field: "PO Number", type: "=", value: poNumber === 'Unassigned' ? '' : poNumber},
              {field: "Buyer / Company Name", type: "=", value: buyerName}
-         ]]);
+         ]);
          const items = res.data || res || [];
          Swal.close();
 
@@ -3914,12 +3914,13 @@
         }
 
         if (!tableInstance) {
-           const initialDataRes = await callBackend('getSavedData', [1, 50, [], []]);
+           const initialDataRes = await callBackend('getSavedData', 1, 10000, [], []);
            document.getElementById('overlay').style.display = 'none';
            renderTabulator(initialDataRes.data || initialDataRes);
         } else {
+           const refreshDataRes = await callBackend('getSavedData', 1, 10000, [], []);
            document.getElementById('overlay').style.display = 'none';
-           tableInstance.replaceData(); 
+           tableInstance.replaceData(refreshDataRes.data || refreshDataRes); 
         }
       } catch (err) {
         document.getElementById('overlay').style.display = 'none';
