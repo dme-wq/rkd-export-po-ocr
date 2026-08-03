@@ -3621,7 +3621,7 @@
         if (response.success) {
           if (formMode === 'edit') {
             // After bulk edit save — offer PI regeneration
-            const editedPo = window.bulkEditContext ? window.bulkEditContext.oldPoNumber : payload['PO Number'];
+            const editedPo = payload['PO Number'] || window.bulkEditContext.oldPoNumber;
             // Hide edit mode
             const banner = document.getElementById('editModeBanner');
             if (banner) banner.classList.remove('visible');
