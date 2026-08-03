@@ -466,17 +466,33 @@
       justify-content: center;
       gap: 0.6rem;
       letter-spacing: -0.1px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: -1;
     }
 
     .btn-gradient {
-      background: var(--primary-gradient);
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
       color: #fff;
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .btn-gradient:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(15, 23, 42, 1) 100%);
     }
 
     .btn-outline {
@@ -980,16 +996,31 @@
 
     .spinner-box {
       background: var(--card-bg);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
       padding: 2.5rem 3.5rem;
       border-radius: 32px;
       border: 1px solid var(--card-border);
       text-align: center;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1.25rem;
       max-width: 420px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .spinner-box::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: -1;
     }
 
     .spinner {
@@ -1980,11 +2011,7 @@
 
         <div class="action-buttons">
           <button type="button" class="btn btn-gradient" onclick="submitToSheet(false)" id="submitBtn">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Save to Google Sheet
-          </button>
-          <button type="button" class="btn btn-outline" onclick="generatePiFromPreview()" id="piPreviewBtn"
-            style="border-color:var(--primary); color:var(--primary); background:var(--card-bg);">
-            <i class="fa-solid fa-file-invoice"></i> Generate PI
+            <i class="fa-solid fa-server"></i> Sync & Finalize Entry
           </button>
           <button type="button" class="btn btn-whatsapp" onclick="requestMissingInfoViaWhatsApp()" id="waBtn">
             <i class="fa-brands fa-whatsapp"></i> Request Missing Info via WhatsApp
@@ -2346,11 +2373,11 @@
     }
     const SERVER_DRAFT_ID = rawDraftId;
 
-    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycbz7Y_sKzuqCbjTxvSEVXzdTDf1pO1LiHnlpB8-33OGHXr6l9DmOotMYup8UReB4vqCgJQ/exec";
-    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycbz7Y_sKzuqCbjTxvSEVXzdTDf1pO1LiHnlpB8-33OGHXr6l9DmOotMYup8UReB4vqCgJQ/exec' ?>";
+    const DEFAULT_DEPLOY_URL = "https://script.google.com/macros/s/AKfycby9mX2gJhm7VfnrT7hDKcxvEsCsGeZQsLIKgyEV0SCDH0hY6CaPNyF-hRvqSZJUDzBrMw/exec";
+    const INITIAL_SCRIPT_URL = "<?= typeof scriptUrl !== 'undefined' && scriptUrl !== '' ? scriptUrl : 'https://script.google.com/macros/s/AKfycby9mX2gJhm7VfnrT7hDKcxvEsCsGeZQsLIKgyEV0SCDH0hY6CaPNyF-hRvqSZJUDzBrMw/exec' ?>";
 
     let savedUrl = localStorage.getItem('rkd_api_url');
-    if (!savedUrl || !savedUrl.includes('AKfycbz7Y_sKzuqCbjTxvSEVXzdTDf1pO1LiHnlpB8-33OGHXr6l9DmOotMYup8UReB4vqCgJQ')) {
+    if (!savedUrl || !savedUrl.includes('AKfycby9mX2gJhm7VfnrT7hDKcxvEsCsGeZQsLIKgyEV0SCDH0hY6CaPNyF-hRvqSZJUDzBrMw')) {
       savedUrl = DEFAULT_DEPLOY_URL;
       localStorage.setItem('rkd_api_url', DEFAULT_DEPLOY_URL);
     }
@@ -3011,7 +3038,7 @@
       if (uploadedFiles.length === 0) return;
 
       document.getElementById('overlay').style.display = 'flex';
-      document.getElementById('loadingText').textContent = 'Gemini AI is Analyzing...';
+      document.getElementById('loadingText').textContent = 'RKD Engine is Processing...';
       document.getElementById('loadingSubText').textContent = 'Extracting headers, vendor info, and line items...';
 
       try {
@@ -3128,7 +3155,8 @@
           el.value = val;
           el.classList.remove('missing-field');
 
-          if (!val || String(val).trim() === '') {
+          const trimmedVal = String(val).trim();
+          if (!val || trimmedVal === '' || trimmedVal.toLowerCase().startsWith('select ')) {
             el.classList.add('missing-field');
             missingCount++;
           }
@@ -3582,9 +3610,10 @@
               confirmButtonColor: 'var(--primary)'
             }).then(async (result) => {
               if (result.isConfirmed) {
-                await showDataTable();
-                setTimeout(() => { openPiModal(payload['PO Number']); }, 400);
+                currentPiData = rowsData;
+                openPiModal(payload['PO Number'], null, false, rowsData);
                 resetUI();
+                showDataTable(); // fetch in background
               } else {
                 resetUI();
               }
@@ -4481,22 +4510,20 @@
     }
 
     // Default year filter on load
-    document.addEventListener('input', (e) => {
-      if (e.target && e.target.classList && e.target.classList.contains('missing-field')) {
-        if (e.target.value.trim() !== '') {
+    function handleMissingFieldCheck(e) {
+      if (e.target && (e.target.hasAttribute('data-fieldname') || e.target.hasAttribute('data-itemfieldname'))) {
+        const val = e.target.value.trim();
+        const isMissing = !val || val === '' || val.toLowerCase().startsWith('select ');
+        if (isMissing) {
+          e.target.classList.add('missing-field');
+        } else {
           e.target.classList.remove('missing-field');
-          if (typeof updateFormStats === 'function') updateFormStats();
         }
+        if (typeof updateFormStats === 'function') updateFormStats();
       }
-    });
-    document.addEventListener('change', (e) => {
-      if (e.target && e.target.classList && e.target.classList.contains('missing-field')) {
-        if (e.target.value.trim() !== '') {
-          e.target.classList.remove('missing-field');
-          if (typeof updateFormStats === 'function') updateFormStats();
-        }
-      }
-    });
+    }
+    document.addEventListener('input', handleMissingFieldCheck);
+    document.addEventListener('change', handleMissingFieldCheck);
 
     document.addEventListener('DOMContentLoaded', () => {
       const yearSelect = document.getElementById('dbYearFilter');
@@ -4694,12 +4721,17 @@
     // --- PI Generation Logic ---
     let currentPiData = [];
 
-    function openPiModal(poNumber, event, isFromDb = false) {
+    function openPiModal(poNumber, event, isFromDb = false, fallbackData = null) {
       if (event) event.stopPropagation();
-      if (!tableInstance) return;
+      
+      if (fallbackData && fallbackData.length > 0) {
+        currentPiData = fallbackData.filter(d => String(d['PO Number']) === String(poNumber));
+      } else {
+        if (!tableInstance) return;
+        const allData = tableInstance.getData();
+        currentPiData = allData.filter(d => String(d['PO Number']) === String(poNumber));
+      }
 
-      const allData = tableInstance.getData();
-      currentPiData = allData.filter(d => String(d['PO Number']) === String(poNumber));
       if (currentPiData.length === 0) return Swal.fire('Error', 'No data found for this PO.', 'error');
 
       let existingPiNum = '';

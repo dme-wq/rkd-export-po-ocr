@@ -431,6 +431,7 @@ CRITICAL RULES FOR UNIVERSAL PO EXTRACTION:
 2. UNIVERSAL ADAPTABILITY: You will process Purchase Orders from many different vendors with entirely different layouts. Do not assume any fixed format. Intelligently scan the document to find the correct data points regardless of where they are placed or how they are labeled.
 3. EXHAUSTIVE ITEM EXTRACTION: Identify the core line-items table. Extract EVERY SINGLE distinct item. 
    - If the layout is complex/nested (e.g., a "Master Style" with multiple "child" sizes/colors beneath it), extract EACH child row as a SEPARATE item, inheriting prices/quantities from the master if necessary. Never skip items.
+   - CRITICAL SEQUENCE RULE: You MUST preserve the exact original sequence/order of the line items from top to bottom exactly as they appear in the PO document. DO NOT sort them by SKU or any other field.
 4. DATA MERGING: If multiple documents/pages are provided, merge ALL line items into a SINGLE continuous "items" array. If PO numbers differ across docs, comma-separate them.
 5. IF A FIELD IS MISSING OR YOU CANNOT FIND IT, return an empty string "". Do not make up data.
 6. DATE FORMATTING: Convert and format ALL extracted dates into Short Date format dd-MMM-yyyy (e.g., 23-Jul-2026).
@@ -521,7 +522,7 @@ function processExcelFile(fileId, fileName) {
     const converted = Drive.Files.copy(resource, fileId, { convert: true });
     tempSheetId     = converted.id;
 
-    Utilities.sleep(2000);
+    Utilities.sleep(500);
 
     const ss      = SpreadsheetApp.openById(tempSheetId);
     const sheets  = ss.getSheets();
