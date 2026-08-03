@@ -623,7 +623,8 @@ function saveToSheet(rowsData) {
           row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || data['Source File'] || ''}")` : (data.sourceFile || data['Source File'] || ''));
         } else {
           let val = data[header] || '';
-          if (val && isDateKey(header, appConfig)) {
+            if (typeof val === 'string') val = val.trim();
+            if (val && isDateKey(header, appConfig)) {
             val = formatShortDate(val);
           }
           row.push(val);
@@ -1091,7 +1092,8 @@ function getSavedData(page = 1, size = 50, sorters = [], filters = []) {
         } else if (val instanceof Date) {
           if (val) val = formatShortDate(val);
         } else if (val && typeof val === 'string' && val.trim() !== '') {
-          const parsed = parseAnyDate(val);
+            val = val.trim();
+            const parsed = parseAnyDate(val);
           if (parsed && (String(headerName).toLowerCase().includes('date') || String(headerName).toLowerCase().includes('time'))) {
             val = formatShortDate(val);
           }
@@ -1207,7 +1209,8 @@ function bulkUpdatePO(oldPoNumber, oldBuyerName, rowsData, providedPasscode) {
           row.push(data.fileUrl ? `=HYPERLINK("${data.fileUrl}", "${data.sourceFile || data['Source File'] || ''}")` : (data.sourceFile || data['Source File'] || ''));
         } else {
           let val = data[header] || '';
-          if (val && isDateKey(header, config)) {
+            if (typeof val === 'string') val = val.trim();
+            if (val && isDateKey(header, config)) {
             val = formatShortDate(val);
           }
           row.push(val);
