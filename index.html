@@ -810,10 +810,17 @@
     }
 
     input.missing-field,
-    textarea.missing-field {
-      border-color: var(--danger) !important;
-      border-left: 4px solid var(--danger) !important;
-      background-color: rgba(239, 68, 68, 0.12) !important;
+    textarea.missing-field,
+    select.missing-field {
+      border-color: #ef4444 !important;
+      border-left: 4px solid #ef4444 !important;
+      background-color: #991b1b !important;
+      color: #ffffff !important;
+    }
+    
+    input.missing-field::placeholder,
+    textarea.missing-field::placeholder {
+      color: rgba(255, 255, 255, 0.7) !important;
     }
 
     /* TABLE DESIGN */
