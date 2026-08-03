@@ -3374,8 +3374,8 @@
       let lineAmtEl = inputs.find(el => { const n = el.getAttribute('data-itemfieldname').toLowerCase(); return n.includes('amount') || n.includes('total') || n.includes('line amount'); });
 
       if (qtyEl && priceEl && lineAmtEl) {
-        const qStr = qtyEl.value.replace(/,/g, '.');
-        const pStr = priceEl.value.replace(/,/g, '.');
+        const qStr = qtyEl.value.replace(/,/g, '');
+        const pStr = priceEl.value.replace(/,/g, '');
         const q = parseFloat(qStr.replace(/[^0-9.-]+/g, "")) || 0;
         const p = parseFloat(pStr.replace(/[^0-9.-]+/g, "")) || 0;
 

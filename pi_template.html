@@ -400,7 +400,7 @@
 
       for (var i = 0; i < items.length; i++) {
         const item    = items[i];
-        const qty     = parseFloat(item['Quantity']) || 0;
+        const qty     = parseFloat(String(item['Quantity'] || item['Qty'] || '0').replace(/[^0-9.-]+/g,'')) || 0;
         totalQty     += qty;
         const price   = parseFloat(String(item['Unit Price']  || '0').replace(/[^0-9.-]+/g,'')) || 0;
         const itemAmt = parseFloat(String(item['Line Amount'] || '0').replace(/[^0-9.-]+/g,'')) || (qty * price);

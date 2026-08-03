@@ -965,7 +965,9 @@ function getDashboardStats() {
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
     if (!sheet) return { success: false };
-    const data = sheet.getDataRange().getValues();
+    const dataRange = sheet.getDataRange();
+    const data = dataRange.getValues();
+    const formulas = dataRange.getFormulas();
     if (data.length <= 1) return { success: true, stats: { totalRows: 0, uniquePOs: 0, totalValue: 0, uniqueVendors: 0 }, poGroups: {} };
     
     const headers = data[0];
@@ -1000,14 +1002,24 @@ function getDashboardStats() {
         if (dDate instanceof Date) dDate = formatShortDate(dDate);
 
         let sUrl = '';
-        if (sourceIdx !== -1 && row[sourceIdx]) {
-           const match = String(row[sourceIdx]).match(/=HYPERLINK\(\s*"([^"]+)"/i);
-           if (match) sUrl = match[1];
+        if (sourceIdx !== -1) {
+           const formula = formulas[i][sourceIdx];
+           const text = row[sourceIdx];
+           if (formula && String(formula).match(/=HYPERLINK\(\s*"([^"]+)"/i)) {
+               sUrl = String(formula).match(/=HYPERLINK\(\s*"([^"]+)"/i)[1];
+           } else if (text && String(text).includes('http')) {
+               sUrl = String(text);
+           }
         }
         let piLink = '';
-        if (piLinkIdx !== -1 && row[piLinkIdx]) {
-           const match = String(row[piLinkIdx]).match(/=HYPERLINK\(\s*"([^"]+)"/i);
-           if (match) piLink = match[1];
+        if (piLinkIdx !== -1) {
+           const formula = formulas[i][piLinkIdx];
+           const text = row[piLinkIdx];
+           if (formula && String(formula).match(/=HYPERLINK\(\s*"([^"]+)"/i)) {
+               piLink = String(formula).match(/=HYPERLINK\(\s*"([^"]+)"/i)[1];
+           } else if (text && String(text).includes('http')) {
+               piLink = String(text);
+           }
         }
 
         poGroups[poNum] = {
