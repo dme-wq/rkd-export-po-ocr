@@ -400,7 +400,7 @@ function callGeminiAPI(documentParts) {
       return 'string (Extract the color ONLY if a clear, widely-known color name exists in the Description, SKU or as a separate column. Do NOT extract random brand-specific design names or patterns (e.g., "Pickle", "Sugo", "Terra", "Dahlia") as colors. If you are not 100% certain it is a real color, return an empty string "")';
     }
     if (fieldName && fieldName.toLowerCase().includes('size')) {
-      return 'string (Extract the size/dimensions ONLY if a clear size indicator (e.g., Mini, XL, 50x50, Medium) exists in the Description, SKU, or as a separate column. Do not guess. If no clear size is found, return an empty string "")';
+      return 'string (BE HIGHLY INTELLIGENT: Extract Size/Dimensions by analyzing Description, SKU, or columns. Sizes include standard letters (S, M, L, XL), words (Mini, Large), OR numerical dimensions/combinations (e.g., 17x24, 17X24, 50x50 cm, 20"x30"). Recognize valid measurement formats. Do NOT guess random text. If no actual size/measurement exists, return an empty string "")';
     }
     return 'string (Extract clean text. If embedded in combined fields, parse and extract accurately without altering original source text)';
   };
