@@ -331,8 +331,10 @@
     /* ─── SIGNATURE ─── */
     .sign-section {
       width: 100%;
-      margin-top: 5px;
+      margin-top: -35px; /* Moved more up */
       border-collapse: collapse;
+      position: relative;
+      z-index: 10;
     }
 
     .sign-note {
@@ -400,13 +402,13 @@
           <div class="hdr-meta">Buyer PO Number:
             <?= poData['PO Number'] || 'N/A' ?>
           </div>
-          <div class="hdr-meta" style="margin-top:1px;">Order Date:
+          <div class="hdr-meta" style="margin-top:1px;">Buyer Order Date:
             <?= poData['Order Date'] || 'N/A' ?>
           </div>
         </td>
         <td style="vertical-align:top; text-align:right; width:45%;">
           <div class="invoice-title">PROFORMA INVOICE</div>
-          <div class="pi-number">PI No.:
+          <div class="pi-number">PI Number:
             <?= piNumber ?>
           </div>
           <div class="pi-date">PI Date:
@@ -548,7 +550,7 @@
             else if (cLower === 'color' || cLower === 'colour') { w='9%'; title='COLOR'; }
             else if (cLower === 'size') { w='9%'; title='SIZE'; }
             else if (cLower.includes('price') || cLower === 'rate') { w='11%'; title='UNIT PRICE'; }
-            else if (cLower.includes('qty') || cLower.includes('quantity')) { w='8%'; title='QTY'; }
+            else if (cLower.includes('qty') || cLower.includes('quantity')) { w='8%'; title='QUANTITY'; }
             else if (cLower.includes('amount') || cLower === 'line amount') { w='13%'; title='AMOUNT'; }
         ?>
           <th style="width:<?= w ?>;">
@@ -712,27 +714,27 @@
           <div class="bank-box">
             <div class="bank-title">Bank Details of RKD Furnishings Pvt. Ltd.</div>
             <div class="bank-row">
-              <div class="bank-label">Bank Name :- </div>
+              <div class="bank-label">Bank Name </div>
               <div class="bank-value">ICICI Bank Ltd.</div>
             </div>
             <div class="bank-row">
-              <div class="bank-label">Branch :- </div>
+              <div class="bank-label">Branch </div>
               <div class="bank-value">SCF 48, Sector 11, Panipat, 132103, Haryana, India</div>
             </div>
             <div class="bank-row">
-              <div class="bank-label">Account Name :- </div>
+              <div class="bank-label">Account Name </div>
               <div class="bank-value">RKD Furnishings Pvt. Ltd.</div>
             </div>
             <div class="bank-row">
-              <div class="bank-label">Account No. :- </div>
+              <div class="bank-label">Account No. </div>
               <div class="bank-value">251251000020</div>
             </div>
             <div class="bank-row">
-              <div class="bank-label">Swift Code :- </div>
+              <div class="bank-label">Swift Code </div>
               <div class="bank-value">ICICINBBCTS</div>
             </div>
             <div class="bank-row" style="border-bottom:none;">
-              <div class="bank-label">AD Code :- </div>
+              <div class="bank-label">AD Code </div>
               <div class="bank-value">6390371</div>
             </div>
           </div>
