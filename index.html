@@ -3666,6 +3666,12 @@
           }
 
           if (formMode === 'edit') {
+            // Wait for DB to refresh so PI uses latest data
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('loadingText').textContent = 'Refreshing Database with new edits...';
+            await _refreshDatabaseBackground();
+            document.getElementById('overlay').style.display = 'none';
+
             // After bulk edit save — offer PI regeneration
             const editedPo = payload['PO Number'] || window.bulkEditContext.oldPoNumber;
             // Hide edit mode
@@ -3683,8 +3689,12 @@
               confirmButtonColor: '#f59e0b'
             }).then(async (result) => {
               if (result.isConfirmed) {
-                showDataTable();
-                setTimeout(() => { openPiModal(editedPo); }, 400);
+                // Switch view immediately
+                document.querySelector('.container').style.display = 'none';
+                document.getElementById('dataTableSection').classList.add('active-flex');
+                localStorage.setItem('activeView', 'database');
+                
+                openPiModal(editedPo);
               } else {
                 showDataTable();
               }
